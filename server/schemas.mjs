@@ -6,6 +6,7 @@ export const typeDefs = gql`
   type Query {
     restaurant(url: String): Restaurant,
     restaurants: [Restaurant],
+    search(query: String): [Restaurant]
   }
   
   

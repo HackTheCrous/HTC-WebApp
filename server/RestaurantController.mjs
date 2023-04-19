@@ -48,9 +48,34 @@ export default class RestaurantController {
 
         let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
 
+        return restaurants;
+    }
+
+    static async getRestaurantsAndMeals(){
+        const client = DatabaseManager.getConnection();
+
+        await client.connect();
+        const result = await client.query('SELECT idrestaurant, url, name FROM radulescut.restaurant');
+        await client.end();
+
+        let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
+
         for (let restaurant of restaurants) {
             restaurant.meals = await MealController.getMealsFromRestaurant(restaurant.idrestaurant);
         }
+
+        return restaurants;
+    }
+
+    static async getRestaurantsFromMeal(name){
+        const client = DatabaseManager.getConnection();
+
+        const values = ['%'+name.toUpperCase()+'%'];
+        await client.connect();
+        const result = await client.query("select r.idrestaurant, r.url, r.name from meal m join jsonb_array_elements(foodies) as foods on true join restaurant r on r.idrestaurant = m.idrestaurant where UPPER(foods->>'food') LIKE $1", values);
+        await client.end();
+
+        let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
 
         return restaurants;
     }
