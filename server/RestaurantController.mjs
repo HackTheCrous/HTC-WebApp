@@ -51,7 +51,7 @@ export default class RestaurantController {
         return restaurants;
     }
 
-    static async getRestaurantsAndMeals(){
+    static async getRestaurantsAndMeals() {
         const client = DatabaseManager.getConnection();
 
         await client.connect();
@@ -67,16 +67,20 @@ export default class RestaurantController {
         return restaurants;
     }
 
-    static async getRestaurantsFromMeal(name){
+    static async getRestaurantsFromMeal(name) {
         const client = DatabaseManager.getConnection();
 
-        const values = ['%'+name.toUpperCase()+'%'];
+        const values = ['%' + name.toUpperCase() + '%'];
         await client.connect();
-        const result = await client.query("select r.idrestaurant, r.url, r.name from meal m join jsonb_array_elements(foodies) as foods on true join restaurant r on r.idrestaurant = m.idrestaurant where UPPER(foods->>'food') LIKE $1", values);
+        const result = await client.query("select DISTINCT r.idrestaurant, r.url, r.name,foods->>'food' as foods from meal m join jsonb_array_elements(foodies) as foods on true join restaurant r on r.idrestaurant = m.idrestaurant where UPPER(foods->>'food') LIKE $1", values);
         await client.end();
 
-        let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
 
-        return restaurants;
+        return result.rows.map(async (row) => {
+            const resto = new RestaurantModel(row.idrestaurant, row.url, row.name);
+            resto.meals = await MealController.getMealsFromRestaurant(row.idrestaurant);
+            return resto;
+        });
+
     }
 }

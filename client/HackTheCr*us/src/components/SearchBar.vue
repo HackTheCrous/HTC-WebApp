@@ -8,83 +8,101 @@
                 <option value="alpha">Alphabétique</option>
             </select>
         </form>
-        <div v-if="this.focused">
-            <ul class="suggestions">
-                <li v-for="restaurant in this.restaurants" :key="restaurant.url">
-                    {{
-                        restaurant.name
-                    }}
-                </li>
-            </ul>
-        </div>
+
+        <ul v-if="this.focused && searchResults.length > 0" class="suggestions">
+            <li v-for="result of searchResults" :key="result.restaurant.url">
+                {{
+                result.restaurant.name
+                }}
+
+                <ul >
+                    <li v-for="food of result.meals">
+                        {{ food.name.substring(0, food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) - 1) }}
+                        <b>{{
+                            food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()), food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length)
+                            }}</b>{{
+                        food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length, food.name.length)
+                        }} trouvable à {{ food.type }}
+                    </li>
+                </ul>
+
+            </li>
+        </ul>
+
     </div>
 </template>
 
 <script>
 
-import {useLazyQuery} from "@vue/apollo-composable";
+import {apolloClient} from "@/main";
 import gql from "graphql-tag";
 
-const SEARCH_QUERY = gql`
-    query Search {
-    search(query: "frite") {
+const GET_SEARCH_RESULT = gql`
+query Search ($queryValue: String){
+    search(query: $queryValue) {
         url
         name
+        meals{
+            foodies
+        }
     }
 }
+
 `;
 
-
 export default {
+
     name: "SearchBar.vue",
     props: {
         focused: Boolean
     },
-    data(){
-        return{
+
+
+    data() {
+        return {
             queryValue: '',
-            restaurants: []
+            searchResults: []
         }
     },
+    watch: {
+        queryValue(newQuery) {
+            this.searchResults = [];
+            if (newQuery.length > 2) {
+                apolloClient.query(({
+                    query: GET_SEARCH_RESULT,
+                    variables: {
+                        queryValue: this.queryValue
+                    }
+                }))
+                    .then((result) => {
+                        this.searchResults = result.data.search.map((restaurant, index) => {
+                            const menus = [];
 
-    watch:{
-      queryValue(newValue){
-         if(newValue.length >=2){
-             this.getRestaurants();
-         }
-      }
-    },
+                            //we select the correct menu here
+                            for (const menu of restaurant.meals) {
+                                for (const foodie of menu.foodies) {
+                                    for (const meal of foodie.food) {
+                                        if (meal.toUpperCase().includes(this.queryValue.toUpperCase())) {
+                                            menus.push({name: meal, type: foodie.type});
+                                        }
+                                    }
+                                }
+                            }
 
-    methods : {
-        async getRestaurants(){
-            await this.$apollo.searchRestaurants({
-                variables: {
-                    userQuery: this.queryValue,
-                },
-            });
-        },
-    },
+                            return {
+                                restaurant: {
+                                    name: restaurant.name,
+                                    url: restaurant.url
+                                },
+                                meals: menus
+                            };
+                        });
+                    })
+                    .catch(error => console.error(error))
+            }
 
-    apollo: {
-       searchRestaurants: {
-           query: SEARCH_QUERY,
-           variables() {
-               return {
-                   userQuery: this.queryValue,
-               };
-           },
-           onCompleted(data){
-               this.restaurants = data.search;
-           },
-           onError(error){
-               console.error(error);
-           },
-           skip(){
-               return this.queryValue.length <2;
-           },
-       },
-    },
-
+        }
+    }
 }
 </script>
 
@@ -99,7 +117,7 @@ export default {
   border-radius: 15px;
   flex-direction: column;
   margin-top: 20px;
-    transition: all linear 0.4s;
+  transition: all linear 0.4s;
 
   form {
     width: 100%;
@@ -129,11 +147,17 @@ export default {
     }
 
   }
-    .suggestions{
-        margin-top:20px;
-        margin-bottom:20px;
-        border-top: solid 1px rgba(98, 86, 86, 0.74);
-    }
+
+  .suggestions {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-height: 30vh;
+    overflow-y: scroll;
+  }
+
+  b {
+    font-weight: bold;
+  }
 }
 
 

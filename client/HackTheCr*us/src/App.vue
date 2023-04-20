@@ -8,6 +8,8 @@ import {computed} from "vue";
 import gql from "graphql-tag";
 import RestaurantList from "@/components/RestaurantList.vue";
 import searchBar from "@/components/SearchBar.vue";
+
+
 export default {
     computed: {
         searchBar() {
@@ -21,15 +23,14 @@ export default {
     },
     setup(){
         const {result} = useQuery(
-            gql`
-            query Restaurants{
-                restaurants{
-                    idrestaurant
-                    url
-                    name
-                }
-            }`
-        )
+            gql`query Restaurants{
+    restaurants{
+        idrestaurant
+        url
+        name
+    }
+}`
+        );
 
         const restaurants  = computed(() => {
             return result.value?.restaurants ?? []
