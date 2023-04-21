@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const {Client} = require('pg');
 
-const clientInfo  ={
+const clientInfo = {
     user: 'radulescut',
     password: process.env.PASSWORD,
     host: '162.38.222.142',
@@ -13,19 +13,68 @@ const clientInfo  ={
 };
 
 
-
 const url = "https://www.crous-montpellier.fr/se-restaurer/ou-manger/";
 
 class Restaurant {
     constructor(name, city, link) {
         this.name = name;
         this.city = city;
-        this.link = link;
+        this.url = link;
     }
+
+    setCoords(coords) {
+        this.coords = coords;
+    }
+
+    setMeal(meal) {
+        this.meal = meal;
+    }
+
+    /**
+     * this method gives me social anxiety
+     * @returns {Promise<void>}
+     */
+    async storeRestaurant() {
+        const sqlStoreRestaurant = 'INSERT INTO radulescut.restaurant(url, name, gpscoord) VALUES ($1, $2 ,$3)';
+        const sqlStoreRestaurantButNoCoords = 'INSERT INTO radulescut.restaurant(url, name) VALUES ($1, $2)';
+
+        const coords = `(${this.coords})`;
+
+        const client = new Client(clientInfo);
+        await client.connect();
+        //await client.query('INSERT INTO radulescut.meal (typemeal, foodies, day, idrestaurant) VALUES ($1, $2, $3, $4)', [menu.typemeal, menu.foodies, menu.day, menu.idRestaurant]);
+
+        if(coords === '(undefined,undefined)'){
+            await client.query(sqlStoreRestaurantButNoCoords, [this.url, this.name]); // insert in db a restaurant
+
+        }else{
+            await client.query(sqlStoreRestaurant, [this.url, this.name, coords]); // insert in db a restaurant
+        }
+
+        let id = 0;
+
+        const result = await client.query('SELECT idrestaurant FROM radulescut.restaurant WHERE url = $1', [this.url]);
+        id = result.rows[0].idrestaurant;
+
+
+        await client.end();
+
+        console.log(this.meal);
+
+        if (this.meal.name !== "No data") {
+            const time = this.meal.time;
+            for (const menu of this.meal.menus) {
+                await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), id)); //that's where things could go ricas :D
+            }
+        }
+
+
+    }
+
 }
 
-class Meal{
-    constructor(typemeal,foodies,day,idRestaurant){
+class Meal {
+    constructor(typemeal, foodies, day, idRestaurant) {
         this.typemeal = typemeal;
         this.foodies = foodies;
         this.day = day;
@@ -36,9 +85,9 @@ class Meal{
 
 const stringToSQLDate = (date) => {
     const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-    for(const month of MONTHS){
-        if(date.includes(month)){
-            const day = date.substring(0, date.indexOf(month)-1);
+    for (const month of MONTHS) {
+        if (date.includes(month)) {
+            const day = date.substring(0, date.indexOf(month) - 1);
             const monthNumber = MONTHS.indexOf(month) + 1;
             const year = date.substring(date.indexOf(month) + month.length + 1, date.length);
             return `${day}-${monthNumber}-${year}`;
@@ -47,7 +96,7 @@ const stringToSQLDate = (date) => {
 }
 
 /**
- * Get all restaurant from crous
+ * Get all restaurant from crous by scraping their name, city, link and coordinates
  * @param url of crous list of restaurants
  * @returns {Promise<*[]>} that stands for a list of Restaurants.
  */
@@ -56,17 +105,19 @@ const getRestaurantFromCrous = (url) => {
     return JSDOM.fromURL(url).then(dom => {
         const {document} = dom.window;
         const restaurants = document.querySelectorAll(".vc_restaurants article");
+
         restaurants.forEach(restaurant => {
-            let name, city, link = "";
+            let name, city, link, coords = "";
             try {
                 name = restaurant.querySelector(".restaurant_title").innerHTML;
                 city = restaurant.querySelector(".restaurant_area").innerHTML;
                 link = restaurant.querySelector("a").href;
+
             } catch (e) {
                 console.log("error = " + e);
             }
             if (city === "Montpellier") {
-                const data = new Restaurant(name, city, link);
+                const data = new Restaurant(name, city, link, coords);
                 restaurantsList.push(data);
             }
 
@@ -80,26 +131,33 @@ const getRestaurantFromCrous = (url) => {
  * @param url of crous restaurant
  * @returns {Promise<T>} containing a list of menus structured like {name, url, time, menus: [{title, foodies: [{type, food: []}]}]
  */
-const getMenuFromCrous = (url) => {
-    const menuData = {name: "", url: url, time: "", menus: []};
+const getRestaurantDetailsFromCrous = (url) => {
+    const menuData = {food: {name: "", url: url, time: "", menus: []}, coords: []};
 
     const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
     return JSDOM.fromURL(url).then(dom => {
         const {document} = dom.window;
 
+
         try {
             const menu = document.querySelector(".menu");
             const date = menu.querySelector(".menu_date_title").innerHTML;
             const meals = menu.querySelectorAll(".meal");
 
+
+            const loc = document.querySelector('#map');
+
+
             DAYS.forEach(day => {
                 if (date.includes(day)) {
-                    menuData.time = date.substring(date.indexOf(day) + day.length + 1, date.length);
+                    menuData.food.time = date.substring(date.indexOf(day) + day.length + 1, date.length);
                 }
             });
 
-            menuData.name = document.querySelector("h1").textContent;
+            menuData.food.name = document.querySelector("h1").textContent;
+
+            menuData.coords = [loc.dataset.lat, loc.dataset.lon];
 
 
             meals.forEach(meal => {
@@ -124,18 +182,16 @@ const getMenuFromCrous = (url) => {
 
                     mealData.foodies.push(foodyData);
                 });
-                menuData.menus.push(mealData);
+                menuData.food.menus.push(mealData);
             });
 
             return menuData;
 
         } catch (e) {
-            return {name: "No data", menus: []};
+            return {food: {name: "No data", menu: []}, coords: []};
         }
     });
 }
-
-
 
 
 const insertRestaurantInDB = async (restaurants) => {
@@ -143,7 +199,7 @@ const insertRestaurantInDB = async (restaurants) => {
     const client = new Client(clientInfo);
 
     for (const restaurant of restaurants) {
-         await client.query('INSERT INTO radulescut.restaurant (name, url) VALUES ($1, $2)', [restaurant.name, restaurant.link]);
+        await client.query('INSERT INTO radulescut.restaurant (name, url) VALUES ($1, $2)', [restaurant.name, restaurant.link]);
     }
 };
 
@@ -174,15 +230,19 @@ const getRestaurantId = async (url) => {
 }
 
 
-/*
 getRestaurantFromCrous(url).then(async restaurants => {
-    await client.connect();
-    await insertRestaurantInDB(restaurants).then(()=> {
-        console.log("done");
-    });
-    await client.end();
+    for (const restaurant of restaurants) {
+        getRestaurantDetailsFromCrous(restaurant.url).then(async menus => {
+            restaurant.setCoords(menus.coords[0] + ',' + menus.coords[1]);
 
-});*/
+            restaurant.setMeal(menus.food);
+
+            await restaurant.storeRestaurant(); // on croise les doigts
+        })
+
+    }
+});
+
 
 
 /*
@@ -192,7 +252,7 @@ getRestaurantFromCrous(url).then(async restaurants => {
     }
 });*/
 
-getRestaurantFromCrous(url).then(async restaurants => {
+/*getRestaurantFromCrous(url).then(async restaurants => {
     for(const restaurant of restaurants){
         getMenuFromCrous(restaurant.link).then(async menus => {
             if(menus.name !== "No data"){
@@ -205,5 +265,4 @@ getRestaurantFromCrous(url).then(async restaurants => {
             }
         });
     }
-});
-
+});*/

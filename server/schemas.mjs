@@ -6,10 +6,12 @@ export const typeDefs = gql`
   type Query {
     restaurant(url: String): Restaurant,
     restaurants: [Restaurant],
-    search(query: String): [Restaurant]
+    search(query: String): [Restaurant],
   }
   
-  
+  type Mutation {
+      register(mail: String, password: String): User
+  }
   
   type Restaurant {
     idrestaurant: Int
@@ -23,5 +25,11 @@ export const typeDefs = gql`
     typemeal: String
     foodies: JSON
     day: String
+  }
+  
+  type User{
+    iduser: Int
+    mail: String
+    password: String
   }
 `;

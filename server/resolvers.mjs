@@ -1,4 +1,5 @@
 import RestaurantController from './RestaurantController.mjs';
+import UserController from "./UserController.js";
 
 export const resolvers = {
     Query: {
@@ -7,14 +8,18 @@ export const resolvers = {
             return await RestaurantController.getRestaurant(url);
         },
         restaurants: async (parent, args, context, info) => {
-            if(JSON.stringify(info).includes("\"meals\"")){
-                return await RestaurantController.getRestaurantsAndMeals();
-            }
             return await RestaurantController.getRestaurants();
         },
-        search: async (parent,args,context, info) =>  {
+        search: async (parent, args, context, info) => {
             const {query} = args;
-          return await RestaurantController.getRestaurantsFromMeal(query);
+            return await RestaurantController.getRestaurantsFromMeal(query);
+        }
+    },
+    Mutation : {
+        register : async (parent, args, context, info) => {
+            const {mail, password} = args;
+            return await UserController.create(mail, password);
         }
     }
 };
+

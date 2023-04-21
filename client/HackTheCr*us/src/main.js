@@ -1,5 +1,6 @@
 import {createApp, h, provide} from 'vue'
 import App from './App.vue'
+import router from "@/router";
 
 import {ApolloClient, createHttpLink, InMemoryCache} from "@apollo/client/core";
 
@@ -28,4 +29,4 @@ const app = createApp({
 })
 
 
-app.mount('#app');
+app.use(router).mount('#app');
