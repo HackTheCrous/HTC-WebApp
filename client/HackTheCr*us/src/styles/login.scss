@@ -1,0 +1,109 @@
+section#register{
+  height: calc(100vh - 85px);
+  width:100%;
+  display: flex;
+  flex-direction: row;
+  main {
+    width: 50%;
+    height:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    form{
+      h2{
+        font-family: Inter,sans-serif;
+        font-size:40px;
+      }
+      h4{
+        color : #777777;
+        margin-bottom: 10px;
+      }
+      div{
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+        input{
+          padding:10px 5px;
+          font-family: Inter,sans-serif;
+          border: 1px #d5d5d5 solid;
+          background: rgba(255, 255, 255, 0.31);
+          border-radius :5px;
+          &:focus{
+            outline: none;
+            background: white;
+          }
+
+        }
+      }
+
+      button{
+        margin-top:20px;
+        width:100%;
+        padding:10px 0px;
+        border:1px solid #53e78a;
+        border-radius : 5px;
+        background: transparent;
+
+        color: #53e78a;
+        font-size:15px;
+        &:hover{
+          color : white;
+          background: #53e78a;
+          cursor: pointer;
+        }
+
+        &.disabled{
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+      }
+
+      span{
+        display: flex;
+        flex-direction: row;
+        width:100%;
+        align-items: center;
+        justify-content: center;
+        margin-top:10px;
+        a{
+          margin-left:5px;
+          color : #53e78a;
+          text-decoration: none;
+        }
+      }
+
+    }
+  }
+  aside{
+    $posY: calc(50vw - 5%);
+    width: $posY;
+    background: rgba(248, 248, 248, 0.02);
+    height:100% ;
+    position: fixed;
+    top:0px;
+    left:calc(100vw - $posY);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    #sun{
+      #round{
+        height:15vw;
+        width:15vw;
+        background: #63F49E;
+        border-radius: 100%;
+        position:relative;
+        z-index:2;
+      }
+      #sea{
+        height:7.5vw;
+        transform: translateY(150%) scale(2);
+        width:100%;
+        position:absolute;
+        z-index:3;
+        backdrop-filter:blur(10px);
+        top:0px;
+
+      }
+    }
+  }
+}
