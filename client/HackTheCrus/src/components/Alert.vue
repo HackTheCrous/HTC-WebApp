@@ -1,6 +1,6 @@
 <template>
   <div id="alert" v-if="type === 'Error'" class="error">
-    {{ msg }}
+    <p>{{ msg }}</p>
   </div>
   <div id="alert" v-if="type === 'Success'" class="success">
     {{ msg }}
@@ -14,7 +14,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 #alert {
   position: fixed;
   top: 0;
@@ -26,6 +26,12 @@ export default {
   font-weight: bold;
   color: white;
   z-index: 100;
+  p{
+    width:100%;
+    text-align: center;
+    font-family: Inter, sans-serif;
+    font-size: 20px;
+  }
 }
 .error{
   background-color: #e63737;

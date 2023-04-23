@@ -40,16 +40,7 @@
 <script>
 
 import {apolloClient} from "@/main";
-import gql from "graphql-tag";
-
-const REGISTER_USER = gql`
-mutation Register($mail: String!, $password: String!){
-    register(mail: $mail, password: $password){
-        iduser
-        mail
-    }
-}
-`
+import axios from "axios";
 
 export default {
   name: "Register",
@@ -66,21 +57,13 @@ export default {
     submit(e) {
       e.preventDefault();
       if (this.password === this.passwordConfirmation) {
-        apolloClient.mutate({
-          mutation: REGISTER_USER,
-          variables: {
-            mail: this.mail,
-            password: this.password
-          }
-        }).then((response) => {
+        axios.post(`http://localhost:4000/signup?mail=${this.mail}&password=${this.password}`).then((response) => {
           console.log(response);
           this.$emit('triggerAlert', 'Votre inscription a été validée', 'Success');
-
           this.$router.push({name: 'Home', query: {redirect: '/'}});
 
         }).catch((error) => {
           console.error(error)
-
           this.$emit('triggerAlert', error, 'Error');
 
         })

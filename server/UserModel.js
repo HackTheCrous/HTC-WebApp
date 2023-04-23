@@ -4,4 +4,6 @@ export default class UserModel{
         this.mail = mail;
         this.password = password;
     }
+
+
 }

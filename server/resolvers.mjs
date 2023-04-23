@@ -1,5 +1,6 @@
 import RestaurantController from './RestaurantController.mjs';
 import UserController from "./UserController.js";
+import passport from "passport";
 
 export const resolvers = {
     Query: {
@@ -13,12 +14,6 @@ export const resolvers = {
         search: async (parent, args, context, info) => {
             const {query} = args;
             return await RestaurantController.getRestaurantsFromMeal(query);
-        }
-    },
-    Mutation : {
-        register : async (parent, args, context, info) => {
-            const {mail, password} = args;
-            return await UserController.create(mail, password);
         }
     }
 };
