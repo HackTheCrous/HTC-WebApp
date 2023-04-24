@@ -1,53 +1,55 @@
 <template>
-  <div class="container" v-if="this.focused">
-    <div id="searchbar" class="focused">
-      <form>
-        <search color="black" opacity="0.5"/>
-        <input v-model="queryValue" type="text" placeholder="On mange quoi ?" name="search">
-        <p class="shortcut">Esc</p>
-        <select name="filter">
-          <option value="nearby">Proche</option>
-          <option value="best">Mieux noté</option>
-          <option value="alpha">Alphabétique</option>
-        </select>
-      </form>
+    <div class="container" v-if="this.focused">
+        <div id="searchbar" class="focused">
+            <form>
+                <search color="black" opacity="0.5"/>
+                <input v-model="queryValue" ref="textinput" type="text" placeholder="On mange quoi ?" name="search">
+                <p class="shortcut">Esc</p>
+                <select name="filter">
+                    <option value="nearby">Proche</option>
+                    <option value="best">Mieux noté</option>
+                    <option value="alpha">Alphabétique</option>
+                </select>
+            </form>
 
-      <ul v-if="searchResults.length > 0" class="suggestions">
-        <li v-for="result of searchResults" :key="result.restaurant.url" class="suggestion">
+            <ul v-if="searchResults.length > 0" class="suggestions">
+                <li v-for="result of searchResults" :key="result.restaurant.url" class="suggestion">
           <span class="head">
             <h4>
           {{
                 result.restaurant.name
-              }}
+                }}
           </h4>
             <a href="#">
               Voir le menu <b>></b>
             </a>
           </span>
-          <ul>
-            <li v-for="food of result.meals">
-              {{ food.name.substring(0, food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) - 1) }}
-              <b>{{
-                  food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()), food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length)
-                }}</b>{{
-                food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length, food.name.length)
-              }} trouvable à {{ food.type }}
-            </li>
-          </ul>
+                    <ul>
+                        <li v-for="food of result.meals">
+                            {{
+                            food.name.substring(0, food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) - 1)
+                            }}
+                            <b>{{
+                                food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()), food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length)
+                                }}</b>{{
+                            food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length, food.name.length)
+                            }} trouvable à {{ food.type }}
+                        </li>
+                    </ul>
 
-        </li>
-      </ul>
+                </li>
+            </ul>
 
+        </div>
     </div>
-  </div>
 
-  <div id="searchbar" v-else>
-    <form>
-      <search color="black" opacity="0.5"/>
-      <input v-model="queryValue" type="text" placeholder="On mange quoi ?" name="search">
-      <p class="shortcut">Ctrl+k</p>
-    </form>
-  </div>
+    <div id="searchbar" v-else>
+        <form>
+            <search color="black" opacity="0.5"/>
+            <input v-model="queryValue" type="text" placeholder="On mange quoi ?" name="search">
+            <p class="shortcut">Ctrl+k</p>
+        </form>
+    </div>
 </template>
 
 <script>
@@ -71,58 +73,58 @@ query Search ($queryValue: String){
 
 export default {
 
-  name: "SearchBar.vue",
-  components: {Search},
-  props: {
-    focused: Boolean
-  },
+    name: "SearchBar.vue",
+    components: {Search},
+    props: {
+        focused: Boolean
+    },
 
+    data() {
+        return {
+            queryValue: '',
+            searchResults: []
+        }
+    },
+    watch: {
 
-  data() {
-    return {
-      queryValue: '',
-      searchResults: []
-    }
-  },
-  watch: {
-    queryValue(newQuery) {
-      this.searchResults = [];
-      if (newQuery.length > 2) {
-        apolloClient.query(({
-          query: GET_SEARCH_RESULT,
-          variables: {
-            queryValue: this.queryValue
-          }
-        }))
-            .then((result) => {
-              this.searchResults = result.data.search.map((restaurant, index) => {
-                const menus = [];
-
-                //we select the correct menu here
-                for (const menu of restaurant.meals) {
-                  for (const foodie of menu.foodies) {
-                    for (const meal of foodie.food) {
-                      if (meal.toUpperCase().includes(this.queryValue.toUpperCase())) {
-                        menus.push({name: meal, type: foodie.type});
-                      }
+        queryValue(newQuery) {
+            this.searchResults = [];
+            if (newQuery.length > 2) {
+                apolloClient.query(({
+                    query: GET_SEARCH_RESULT,
+                    variables: {
+                        queryValue: this.queryValue
                     }
-                  }
-                }
+                }))
+                    .then((result) => {
+                        this.searchResults = result.data.search.map((restaurant, index) => {
+                            const menus = [];
 
-                return {
-                  restaurant: {
-                    name: restaurant.name,
-                    url: restaurant.url
-                  },
-                  meals: menus
-                };
-              });
-            })
-            .catch(error => console.error(error))
-      }
+                            //we select the correct menu here
+                            for (const menu of restaurant.meals) {
+                                for (const foodie of menu.foodies) {
+                                    for (const meal of foodie.food) {
+                                        if (meal.toUpperCase().includes(this.queryValue.toUpperCase())) {
+                                            menus.push({name: meal, type: foodie.type});
+                                        }
+                                    }
+                                }
+                            }
 
+                            return {
+                                restaurant: {
+                                    name: restaurant.name,
+                                    url: restaurant.url
+                                },
+                                meals: menus
+                            };
+                        });
+                    })
+                    .catch(error => console.error(error))
+            }
+
+        }
     }
-  }
 }
 </script>
 
@@ -130,7 +132,7 @@ export default {
 #searchbar {
 
   width: 300px;
-
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
   background: linear-gradient(180deg, rgba(241, 240, 240, 0.64) 100%, rgba(225, 225, 225, 0.64) 100%);
   display: flex;
   padding: 7px 10px;
@@ -237,12 +239,13 @@ export default {
         list-style: none;
       }
 
-      .head{
+      .head {
         display: flex;
         flex-direction: row;
         width: 100%;
         justify-content: space-between;
         align-items: center;
+
         h4 {
           font-size: 16px;
           font-weight: 600;
@@ -253,6 +256,7 @@ export default {
           font-size: 12px;
           color: #53e78a;
           text-decoration: none;
+
           &:hover {
             text-decoration: underline;
           }

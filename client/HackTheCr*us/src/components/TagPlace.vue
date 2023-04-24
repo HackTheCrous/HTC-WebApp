@@ -41,7 +41,7 @@ export default {
   padding-bottom: 10px;
   position: relative;
   z-index:2;
-  border-bottom: solid 1px rgba(255, 255, 255, 0.42)
+  border-bottom: solid 1px var(--color-border);
 }
 
 .tag.focus {

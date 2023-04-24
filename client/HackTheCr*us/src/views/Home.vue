@@ -6,114 +6,154 @@ import {computed} from "vue";
 import gql from "graphql-tag";
 import RestaurantList from "@/components/RestaurantList.vue";
 import Signout from "../assets/signout.vue";
+import {useUserStore} from "@/stores/user";
+import axios from "axios";
+import {useAlertsStore} from "@/stores/alerts";
 
 
 export default {
 
-  name: "Home",
+    name: "Home",
 
-  components: {
-    Signout,
-    SearchBar,
-    TagPlace,
-    RestaurantList
-  },
-  setup() {
-    const {result} = useQuery(
-        gql`query Restaurants{
+    components: {
+        Signout,
+        SearchBar,
+        TagPlace,
+        RestaurantList
+    },
+    setup() {
+
+        const userStore = useUserStore();
+
+        const {result} = useQuery(
+            gql`query Restaurants{
     restaurants{
         idrestaurant
         url
         name
     }
 }`
-    );
+        );
 
-    const restaurants = computed(() => {
-      return result.value?.restaurants ?? []
-    });
+        const restaurants = computed(() => {
+            return result.value?.restaurants ?? []
+        });
 
-    return {
-      restaurants,
+        const alerts = useAlertsStore();
+
+        return {
+            restaurants, userStore,alerts
+        }
+    },
+
+
+    data() {
+        return {
+            tags: [{name: 'Tout'}, {name: 'Resto'}, {name: 'Cafet’'}, {name: 'Brasserie'}],
+            focusedTag: 'Tout',
+            username: 'Tristan',
+            restaurants: [],
+            focusSearch: false,
+            keyPressed: [],
+        }
+    },
+    mounted() {
+        document.addEventListener('click', this.unfocusSearch)
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Control' && this.keyPressed.includes('k') || e.key === 'k' && this.keyPressed.includes('Control')) {
+                e.preventDefault();
+            }
+            this.keyPressed = this.keyPressed.concat(e.key);
+        })
+
+        document.addEventListener('keyup', (e) => {
+            e.preventDefault();
+            this.keyPressed = this.keyPressed.filter((key) => key !== e.key);
+        });
+
+    },
+    beforeDestroy() {
+        document.removeEventListener('click', this.unfocusSearch);
+
+        document.removeEventListener('keydown', (e) => {
+            e.preventDefault();
+            this.keyPressed = this.keyPressed.concat(e.key)
+        })
+
+        document.removeEventListener('keyup', (e) => {
+            e.preventDefault();
+            this.keyPressed = this.keyPressed.filter((key) => key !== e.key);
+        });
+
+    },
+    methods: {
+        unfocusSearch(e) {
+            const searchbar = e.target.closest('#searchbar');
+            if (!searchbar || !searchbar.contains(e.target)) {
+                this.focusSearch = false;
+            }
+        },
+        logout() {
+            axios.post('http://localhost:4000/logout', {}, {
+                headers: axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userStore.token
+            }).then(res => {
+                console.log(res);
+                this.userStore.logout();
+                this.$router.push('/login');
+                this.alerts.addAlert({message: 'Vous êtes déconnecté !', status: 'Success'});
+            }).catch(err => {
+                this.alerts.addAlert({message: err.response.data, status: 'Error'});
+                console.log("ERR" + err);
+            });
+        }
+
+    },
+    watch: {
+        keyPressed(newKeys) {
+            if (newKeys.includes('Control') && newKeys.includes('k')) {
+                this.focusSearch = true;
+                this.keyPressed = [];
+            }
+            if (newKeys.includes('Escape')) {
+                this.focusSearch = false;
+                this.keyPressed = [];
+            }
+
+        }
     }
-  },
-
-
-  data() {
-    return {
-      tags: [{name: 'Tout'}, {name: 'Resto'}, {name: 'Cafet’'}, {name: 'Brasserie'}],
-      focusedTag: 'Tout',
-      username: 'Tristan',
-      restaurants: [],
-      focusSearch: false,
-      keyPressed: [],
-    }
-  },
-  mounted() {
-    window.addEventListener('click', this.unfocusSearch)
-
-    window.addEventListener('keydown', (e) => {
-      const array = this.keyPressed;
-      array.push(e.key);
-      this.keyPressed = array;
-    })
-
-  },
-  beforeDestroy() {
-    window.removeEventListener('click', this.unfocusSearch);
-
-    window.removeEventListener('keydown', (e) => {
-      const array = this.keyPressed;
-      array.push(e.key);
-      this.keyPressed = array;
-    })
-
-  },
-  methods: {
-    unfocusSearch(e) {
-      const searchbar = e.target.closest('#searchbar');
-      if (!searchbar || !searchbar.contains(e.target)) {
-        this.focusSearch = false;
-      }
-    }
-
-  },
-  watch: {
-    keyPressed(newKeys) {
-      console.log(newKeys);
-    }
-  }
 
 
 }
 </script>
 
 <template>
-
-  <header>
-    <div id="infos">
-      <h1>Hello {{ this.username }} ! 👋</h1>
-      <h2>Crous · restaurants</h2>
+    <header>
+        <div id="infos">
+            <h1>Hello {{ this.userStore.mail }} ! 👋</h1>
+            <h2>Crous · restaurants</h2>
+        </div>
+        <div id="sidetools">
+            <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
+            <signout color="grey" opacity="0.5" @click="this.logout"/>
+        </div>
+    </header>
+    <div id="tags">
+        <!--La façon dont le focus est gérée est dégueulasse-->
+        <TagPlace v-for="tag in tags" :name="tag.name" :focused="this.focusedTag"
+                  @child-clicked="this.focusedTag=tag.name"
+                  :key="tag.name"/>
+        <div class="filler"></div>
     </div>
-    <div id="sidetools">
-      <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
-      <signout color="white" opacity="0.5"/>
-    </div>
-  </header>
-  <div id="tags">
-    <!--La façon dont le focus est gérée est dégueulasse-->
-    <TagPlace v-for="tag in tags" :name="tag.name" :focused="this.focusedTag"
-              @child-clicked="this.focusedTag=tag.name"
-              :key="tag.name"/>
-    <div class="filler"></div>
-  </div>
-  <main>
+    <main>
 
-    <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
-  </main>
+        <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
+    </main>
 </template>
 
 <style lang="scss">
+
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;600&display=swap');
 
 header {
@@ -132,7 +172,7 @@ main {
     font-family: Inter, sans-serif;
     font-size: 17px;
     font-weight: 200;
-    color: rgba(255, 255, 255, 0.63);
+    color: var(--color-text);
     margin-top: 20Px;
     margin-bottom: 30Px;
   }
@@ -155,7 +195,7 @@ main {
 
   .filler {
     flex-grow: 1;
-    border-bottom: solid 1px rgba(255, 255, 255, 0.42)
+    border-bottom: solid 1px var(--color-border);
 
   }
 }

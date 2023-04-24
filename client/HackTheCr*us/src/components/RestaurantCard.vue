@@ -4,7 +4,8 @@
             <a :href="this.url">{{ this.name }}</a>
             <p></p>
         </h3>
-        <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"></Menu>
+        <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
+              class="menu"></Menu>
     </div>
 </template>
 
@@ -40,11 +41,11 @@ export default {
     }
             `,
             () => ({
-                url : props.url
+                url: props.url
             })
         )
 
-        const meals = computed(() => result.value?.restaurant.meals??[]);
+        const meals = computed(() => result.value?.restaurant.meals ?? []);
 
         return {
             meals,
@@ -61,26 +62,35 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .restaurant{
-    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    h3{
+.restaurant {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 
-      padding: 0;
-      width:100%;
-      margin: 0 0 10px;
+  h3 {
 
-      a{
-        color: rgba(255, 255, 255, 0.71);
-        text-decoration: none;
-        font-size:25px;
-        font-weight: 600;
+    padding: 0;
+    width: 100%;
+    margin: 0 0 10px;
 
-        &:hover{
-          text-decoration: underline;
-        }
+    a {
+      color: var(--color-text);
+      text-decoration: none;
+      font-size: 25px;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
       }
     }
   }
+
+  .menu {
+    flex: 1;
+   
+  }
+}
 </style>

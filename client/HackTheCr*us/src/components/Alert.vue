@@ -1,10 +1,11 @@
 <template>
-  <div id="alert" v-if="type === 'Error'" class="error">
-    <p>{{ msg }}</p>
-  </div>
+
   <div id="alert" v-if="type === 'Success'" class="success">
     {{ msg }}
   </div>
+    <div id="alert" v-else class="error">
+        <p>{{ msg }}</p>
+    </div>
 </template>
 
 <script>

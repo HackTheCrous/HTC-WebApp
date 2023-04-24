@@ -1,6 +1,8 @@
 <template>
-    <h4>
-        {{ this.name }} du {{ this.formatDate(new Date(parseInt(this.time))) }}
+    <div class="menu-foody">
+        <h4>
+            {{ this.name }} du {{ this.formatDate(new Date(parseInt(this.time))) }}
+        </h4>
         <div v-for="foody in this.foodies">
             <h5>{{ foody.type }}</h5>
             <ul>
@@ -9,7 +11,7 @@
                 </li>
             </ul>
         </div>
-    </h4>
+    </div>
 </template>
 
 <script>
@@ -25,16 +27,27 @@ export default {
          * format the given date to dayasname mm yyyy
          * @param date of type Date
          */
-        formatDate(date){
-            const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
-            const months= ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
-            return days[date.getDay()]+ " " + months[date.getMonth()]+ " " + date.getFullYear();
+        formatDate(date) {
+            const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+            const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+            return days[date.getDay()] + " " + months[date.getMonth()] + " " + date.getFullYear();
         }
     }
 }
 
 </script>
 
-<style>
+<style scoped lang="scss">
+.menu-foody {
+    display: flex;
+    flex-direction: column;
+}
+
+h4{
+    margin: 0px;
+    padding: 0px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
 
 </style>

@@ -9,6 +9,7 @@ export const resolvers = {
             return await RestaurantController.getRestaurant(url);
         },
         restaurants: async (parent, args, context, info) => {
+            console.log(context.req.user);
             return await RestaurantController.getRestaurants();
         },
         search: async (parent, args, context, info) => {

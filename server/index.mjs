@@ -17,21 +17,41 @@ import {typeDefs} from './schemas.mjs';
 import UserController from "./UserController.js";
 
 import cors from "cors";
+import bodyParser from "body-parser";
+import {ExtractJwt} from "passport-jwt";
 
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({req, res}) => buildContext({req, res}),
-});
 
 passport.use(UserController.getLocalStrategy());
+
+passport.use(UserController.getJWTStrategy({
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.JWT_SECRET
+}));
+
+
+const server = new ApolloServer({
+    typeDefs, resolvers, context: ({req, res}) => {
+         passport.authenticate('jwt', {session: false}, (err, user, info) => {
+            if (err) {
+                console.log(err);
+                res.send('error');
+            }
+            if (user) {
+                req.user = user;
+            }
+
+        })(req, res);
+        return buildContext({req, res})
+    },
+});
+
 
 server.start().then(() => {
     server.applyMiddleware({app});
 })
 
 passport.serializeUser((user, done) => {
-    done(null, {id: user.iduser, mail: user.mail});
+    done(null, {mail: user.iduser, password: user.mail});
 });
 
 passport.deserializeUser((id, done) => {
@@ -41,28 +61,37 @@ passport.deserializeUser((id, done) => {
 
 const app = express();
 
+app.use(bodyParser.json());
+
 app.use(session({
-    genid: (req) => uuid(),
-    secret: process.env.SECRET_SESSION,
-    resave: false,
-    saveUninitialized: false
+    genid: (req) => uuid(), secret: process.env.SECRET_SESSION, resave: false, saveUninitialized: false
 }));
 
 app.use(passport.initialize());
 
 app.use(passport.session());
 
-app.use(cors());
+app.use(cors({
+    credentials: true,
+}));
 
-app.listen({port: 4000}, () =>
-    console.log(`Server ready at http://locahost:4000${server.graphqlPath}`)
-);
 
-app.post('/login', passport.authenticate('local', {failureRedirect: '/login'}), (req, res) => {
-    res.send("Logged in");
+app.listen({port: 4000}, () => console.log(`Server ready at http://locahost:4000${server.graphqlPath}`));
+
+app.post('/login', passport.authenticate('local'), (req, res) => {
+    req.login({mail: req.body.mail, password: req.body.password}, async (err) => {
+        if (err) {
+            res.send({type: "error", message: "Error logging in"});
+            return next(err);
+        }
+        UserController.getMail(req.body.mail).then((user) => {
+            const token = UserController.genJWT({id: user.iduser, mail: user.mail});
+            res.send({type: "success", message: "Logged in", token: token, mail: user.mail});
+        });
+    });
 });
 
-app.post('/logout', (req, res, next) => {
+app.post('/logout',passport.authenticate('jwt',{session: false}), (req, res, next) => {
     req.logout((err) => {
         if (err) {
             res.send("Error logging out");
@@ -70,24 +99,30 @@ app.post('/logout', (req, res, next) => {
         }
         res.send("Logged out");
     })
-})
+});
 
 app.post('/signup', (req, res, next) => {
+    UserController.checkIfUserExists(req.body.mail).then((exists) => {
+        if (exists) {
+            res.send({type: "error", message: "User already exists"});
+            return next('User already exists');
+        } else {
+            UserController.create(req.body.mail, req.body.password).then((user) => {
+                const userExpress = {
+                    id: user.iduser, mail: user.mail
+                };
 
-    UserController.create(req.query.mail, req.query.password).then((user) => {
-        const userExpress = {
-            id: user.iduser,
-            mail: user.mail
-        };
-
-        console.log("User express: " + JSON.stringify(userExpress));
-
-        req.login(userExpress, (err) => {
-            if (err) {
-                res.send("Error logging in");
-                return next(err);
-            }
-            res.send("Logged in");
-        });
+                req.login(userExpress, (err) => {
+                    if (err) {
+                        res.send({type: "error", message: "Error logging in"});
+                        return next(err);
+                    }
+                    const token = UserController.genJWT({id: user.iduser, mail: user.mail});
+                    res.send({type: "success", message: "Logged in", token: token});
+                });
+            });
+        }
     });
+
 });
+

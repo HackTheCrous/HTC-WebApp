@@ -7,15 +7,16 @@
                 <h4>Bienvenue ! Entrez vos informations pour rejoindre hack the cr*us</h4>
                 <div>
                     <label for="mail">Email</label>
-                    <input type="email" name="mail" id="mail" placeholder="Entrez votre mail"/>
+                    <input v-model="mail" type="email" name="mail" id="mail" placeholder="Entrez votre mail"/>
                 </div>
                 <div>
                     <label for="password">Mot de passe</label>
-                    <input type="password" name="password" id="password" placeholder="Entrez votre mot de passe"/>
+                    <input type="password" v-model="password" name="password" id="password"
+                           placeholder="Entrez votre mot de passe"/>
                 </div>
 
 
-                <button>Se connecter</button>
+                <button @click="submit">Se connecter</button>
                 <span>
                     <p>Vous n'avez pas de compte ?</p> <router-link to="/register">Inscrivez-vous</router-link>
                 </span>
@@ -31,8 +32,43 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useUserStore} from "@/stores/user";
+import {useAlertsStore} from "@/stores/alerts";
+
+
+
 export default {
-    name: "Login"
+    name: "Login",
+    emits: ['triggerAlert'],
+
+    data() {
+        return {
+            mail: '',
+            password: '',
+        }
+    },
+    setup() {
+        const userStore = useUserStore();
+        const alertStore = useAlertsStore();
+        return {userStore,alertStore}
+    },
+    methods: {
+        submit(e) {
+            e.preventDefault();
+            axios.post(`http://localhost:4000/login`, {
+                mail: this.mail,
+                password: this.password
+            }).then(res => {
+                this.userStore.login(res.data.mail, res.data.token);
+                this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
+                this.$router.push('/');
+            }).catch(err => {
+                this.alertStore.addAlert({message: "Erreur d'authentification : " + err, status: 'Error'});
+                console.log(err);
+            })
+        }
+    }
 }
 </script>
 

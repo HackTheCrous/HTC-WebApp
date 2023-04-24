@@ -1,37 +1,36 @@
 <template>
-  <main>
-    <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
-    <div id="nav" :class="reduceBar ? 'squeezed' : '' ">
-      <router-link to="/">
-        <img src="./assets/logoV2.png" alt="logo">
-      </router-link>
-      <div id="tools">
-        <router-link class="icon" to="/login" v-slot="{isActive}">
-          <account v-if="isActive" opacity="1" color="#63F49E"/>
-          <account v-else opacity="0.5" color="white"/>
-          <p v-if="!reduceBar">Login</p>
-        </router-link>
-        <router-link class="icon" to="/register" v-slot="{isActive}">
-          <account v-if="isActive" opacity="1" color="#63F49E"/>
-          <account v-else opacity="0.5" color="white"/>
+    <main>
+        <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
+        <div id="nav" :class="reduceBar ? 'squeezed' : '' ">
+            <router-link to="/">
+                <img src="./assets/logoV2.png" alt="logo">
+            </router-link>
+            <div id="tools">
+                <router-link class="icon" to="/login" v-slot="{isActive}">
+                    <account v-if="isActive" opacity="1" color="#63F49E"/>
+                    <account v-else opacity="0.5" color="white"/>
+                    <p v-if="!reduceBar">Login</p>
+                </router-link>
+                <router-link class="icon" to="/register" v-slot="{isActive}">
+                    <account v-if="isActive" opacity="1" color="#63F49E"/>
+                    <account v-else opacity="0.5" color="white"/>
 
-          <p v-if="!reduceBar">Register</p>
-        </router-link>
-        <router-link class="icon" to="/" v-slot="{isActive}">
-          <restaurant v-if="isActive" opacity="1" color="#63F49E"/>
-          <restaurant v-else opacity="0.5" color="white"/>
-          <p v-if="!reduceBar">Restaurants</p>
-        </router-link>
-      </div>
-      <button @click="reduceBar=!reduceBar" class="icon">
-        <squeeze opacity="0.5" color="white"/>
-
-      </button>
-    </div>
-    <div id="content" :class="reduceBar ? 'squeezed' : '' ">
-      <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
-    </div>
-  </main>
+                    <p v-if="!reduceBar">Register</p>
+                </router-link>
+                <router-link class="icon" to="/" v-slot="{isActive}">
+                    <restaurant v-if="isActive" opacity="1" color="#63F49E"/>
+                    <restaurant v-else opacity="0.5" color="white"/>
+                    <p v-if="!reduceBar">Restaurants</p>
+                </router-link>
+            </div>
+            <button @click="reduceBar=!reduceBar" class="icon">
+                <squeeze opacity="0.5" color="white"/>
+            </button>
+        </div>
+        <div id="content" :class="reduceBar ? 'squeezed' : '' ">
+            <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
+        </div>
+    </main>
 </template>
 
 <script>
@@ -40,30 +39,63 @@ import squeeze from "./assets/squeeze.vue";
 import account from "./assets/account.vue";
 import search from "./assets/search.vue";
 import restaurant from "./assets/restaurant.vue";
+import {useAlertsStore} from "@/stores/alerts";
 
 export default {
-  name: "App",
-  components: {Alert, squeeze, account, search, restaurant},
-  data() {
-    return {
-      alertTriggered: false,
-      alert: {
-        msg: '',
-        status: ''
-      },
-      reduceBar: true
+    name: "App",
+    components: {Alert, squeeze, account, search, restaurant},
+    data() {
+        return {
+            alertTriggered: false,
+            alert: {
+                msg: '',
+                status: ''
+            },
+            reduceBar: true
+        }
+    },
+    setup() {
+        const alerts = useAlertsStore();
+
+
+        return {alerts}
+
+
+    },
+    mounted() {
+        this.alerts.$subscribe(() => {
+
+            this.triggerAlert();
+        }, {
+            detached: true
+        })
+    },
+    methods: {
+        triggerAlert() {
+
+
+            const alert = this.alerts.getLastAlert;
+
+
+            this.alert.msg = alert.message;
+            this.alert.status = alert.status;
+            this.alertTriggered = true;
+
+
+            console.log(this.alert);
+
+
+            setTimeout(() => {
+                this.alertTriggered = false;
+                this.alerts.popAlert();
+                if (this.alerts.alerts.length > 0) {
+                    this.triggerAlert(); //dangereux
+                }
+            }, 3000)
+
+
+        }
     }
-  },
-  methods: {
-    triggerAlert(msg, status) {
-      this.alertTriggered = true;
-      this.alert.msg = msg;
-      this.alert.status = status;
-      setTimeout(() => {
-        this.alertTriggered = false;
-      }, 3000)
-    }
-  }
 }
 </script>
 
@@ -72,6 +104,7 @@ export default {
 $widthSideBar: 200px;
 $minWidthSideBar: 100px;
 $paddingIcons: 20px;
+
 
 main {
   width: 100%;
@@ -92,8 +125,7 @@ main {
     min-width: fit-content;
 
     a, button {
-      padding-left: $paddingIcons;
-      padding-right: calc($paddingIcons - 10px);
+
     }
 
     a svg {
@@ -130,6 +162,10 @@ main {
 
     text-wrap: avoid;
 
+    padding-left: $paddingIcons;
+    padding-right: calc($paddingIcons - 10px);
+
+
     svg {
       margin-right: calc($paddingIcons - 10px);;
     }
@@ -146,11 +182,18 @@ main {
     }
   }
 
+  a, button {
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
   #tools {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    a{
+
+    a {
       margin-bottom: 5px;
       margin-top: 5px;
     }

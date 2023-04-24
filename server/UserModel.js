@@ -5,5 +5,13 @@ export default class UserModel{
         this.password = password;
     }
 
+    getJson(){
+        return {
+            iduser: this.iduser,
+            mail: this.mail,
+            password: this.password
+        }
+    }
+
 
 }
