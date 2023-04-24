@@ -60,6 +60,27 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+  .restaurant{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    h3{
 
+      padding: 0;
+      width:100%;
+      margin: 0 0 10px;
+
+      a{
+        color: rgba(255, 255, 255, 0.71);
+        text-decoration: none;
+        font-size:25px;
+        font-weight: 600;
+
+        &:hover{
+          text-decoration: underline;
+        }
+      }
+    }
+  }
 </style>

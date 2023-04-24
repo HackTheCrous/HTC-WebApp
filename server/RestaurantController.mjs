@@ -48,6 +48,7 @@ export default class RestaurantController {
 
         let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
 
+
         return restaurants;
     }
 

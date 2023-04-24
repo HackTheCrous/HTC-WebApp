@@ -1,21 +1,35 @@
 <template>
   <main>
     <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
-    <div id="nav">
+    <div id="nav" :class="reduceBar ? 'squeezed' : '' ">
       <router-link to="/">
         <img src="./assets/logoV2.png" alt="logo">
       </router-link>
       <div id="tools">
-        <router-link class="icon" to="/login"><account/>Login</router-link>
-        <router-link class="icon" to="/register"><account/>Register</router-link>
-        <router-link class="icon" to="/"><restaurant/>Restaurants</router-link>
+        <router-link class="icon" to="/login" v-slot="{isActive}">
+          <account v-if="isActive" opacity="1" color="#63F49E"/>
+          <account v-else opacity="0.5" color="white"/>
+          <p v-if="!reduceBar">Login</p>
+        </router-link>
+        <router-link class="icon" to="/register" v-slot="{isActive}">
+          <account v-if="isActive" opacity="1" color="#63F49E"/>
+          <account v-else opacity="0.5" color="white"/>
+
+          <p v-if="!reduceBar">Register</p>
+        </router-link>
+        <router-link class="icon" to="/" v-slot="{isActive}">
+          <restaurant v-if="isActive" opacity="1" color="#63F49E"/>
+          <restaurant v-else opacity="0.5" color="white"/>
+          <p v-if="!reduceBar">Restaurants</p>
+        </router-link>
       </div>
-      <button class="icon">
-        <squeeze/>
+      <button @click="reduceBar=!reduceBar" class="icon">
+        <squeeze opacity="0.5" color="white"/>
+
       </button>
     </div>
-    <div id="content">
-      <router-view  @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
+    <div id="content" :class="reduceBar ? 'squeezed' : '' ">
+      <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
     </div>
   </main>
 </template>
@@ -29,14 +43,15 @@ import restaurant from "./assets/restaurant.vue";
 
 export default {
   name: "App",
-  components: {Alert,squeeze,account,search,restaurant},
+  components: {Alert, squeeze, account, search, restaurant},
   data() {
     return {
       alertTriggered: false,
       alert: {
         msg: '',
         status: ''
-      }
+      },
+      reduceBar: true
     }
   },
   methods: {
@@ -54,8 +69,9 @@ export default {
 
 <style scoped lang="scss">
 
-$widthSideBar: 19%;
+$widthSideBar: 200px;
 $minWidthSideBar: 100px;
+$paddingIcons: 20px;
 
 main {
   width: 100%;
@@ -69,18 +85,44 @@ main {
 #nav {
   width: $widthSideBar;
   min-width: $minWidthSideBar;
+  border-right: 1px solid rgba(26, 22, 22, 0.25);
+
+  &.squeezed {
+    width: fit-content;
+    min-width: fit-content;
+
+    a, button {
+      padding-left: $paddingIcons;
+      padding-right: calc($paddingIcons - 10px);
+    }
+
+    a svg {
+
+      margin-right: 0;
+
+    }
+
+    button svg {
+      transform: rotate(180deg);
+      transition: transform 0.25s ease-in-out;
+    }
+  }
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100dvh;
   position: fixed;
-  background: #0C0C0C;
+  background: rgba(12, 12, 12, 0.78);
+  padding-top: 10px;
+  padding-bottom: 10px;
 
   a {
-    padding-left:10%;
+    padding-left: $paddingIcons;
+
     color: rgba(255, 255, 255, 0.75);
     font-family: Inter, sans-serif;
-    font-size: 25px;
+    font-size: 20px;
     text-decoration: none;
     display: flex;
     flex-direction: row;
@@ -88,44 +130,69 @@ main {
 
     text-wrap: avoid;
 
+    svg {
+      margin-right: calc($paddingIcons - 10px);;
+    }
+
     &.router-link-active {
       color: #63F49E;
 
     }
-    img{
-      height:50px;
+
+    img {
+
+      height: 50px;
       width: 55px;
     }
   }
-  #tools{
+
+  #tools {
     display: flex;
     flex-direction: column;
     justify-content: center;
-
+    a{
+      margin-bottom: 5px;
+      margin-top: 5px;
+    }
   }
-  button{
-    width:100%;
+
+  button {
+    width: 100%;
     background: transparent;
     display: flex;
     flex-direction: row;
     justify-content: start;
     align-items: center;
     border: none;
+    padding-left: $paddingIcons;
+    color: rgba(255, 255, 255, 0.75);
+    font-family: Inter, sans-serif;
+    font-size: 25px;
+
+    svg {
+      transition: transform 0.25s ease-in-out;
+    }
   }
 
-  .icon{
+  .icon {
 
-    &.router-link-active{
+    &.router-link-active {
       border-left: 5px solid #63F49E;
-      padding-left:calc(10% - 5px);
+      padding-left: calc($paddingIcons - 5px);
     }
   }
 }
 
 #content {
   margin-top: 30px;
-  width: calc(100% - #{$widthSideBar} - #{$minWidthSideBar} + 20px);
-  min-width: calc(100% - #{$minWidthSideBar} - #{$widthSideBar} + 20px);
-  margin-left: calc(#{$widthSideBar} + 20px);
+  width: calc(100% - #{$widthSideBar} - #{$minWidthSideBar} + 30px);
+  min-width: calc(100% - #{$minWidthSideBar} - #{$widthSideBar} + 30px);
+  margin-left: calc(#{$widthSideBar} + 30px);
+
+  &.squeezed {
+    width: calc(100% - 100px - 60px);
+    min-width: calc(100% - 100px - 60px);
+    margin-left: calc(100px + 20px);
+  }
 }
 </style>
