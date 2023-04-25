@@ -9,9 +9,14 @@ export default class UserModel{
         return {
             iduser: this.iduser,
             mail: this.mail,
-            password: this.password
+            password: this.password,
+            name : this.name || ""
         }
     }
 
+
+    setName(name){
+        this.name = name;
+    }
 
 }

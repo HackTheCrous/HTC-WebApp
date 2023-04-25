@@ -5,12 +5,14 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "start": "nodemon index.mjs"
+    "start": "nodemon index.mjs",
+    "test": "mocha test --R spec --recursive"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^3.12.0",
+    "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "connect-pg-simple": "^8.0.0",
     "cors": "^2.8.5",
@@ -26,6 +28,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.10.0",
+    "unit.js": "^2.1.1",
     "uuid": "^9.0.0"
   }
 }

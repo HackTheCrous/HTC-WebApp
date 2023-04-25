@@ -9,6 +9,7 @@ import Signout from "../assets/signout.vue";
 import {useUserStore} from "@/stores/user";
 import axios from "axios";
 import {useAlertsStore} from "@/stores/alerts";
+import LoginBanner from "@/components/LoginBanner.vue";
 
 
 export default {
@@ -16,6 +17,7 @@ export default {
     name: "Home",
 
     components: {
+        LoginBanner,
         Signout,
         SearchBar,
         TagPlace,
@@ -55,6 +57,7 @@ export default {
             restaurants: [],
             focusSearch: false,
             keyPressed: [],
+
         }
     },
     mounted() {
@@ -103,6 +106,7 @@ export default {
                 this.$router.push('/login');
                 this.alerts.addAlert({message: 'Vous êtes déconnecté !', status: 'Success'});
             }).catch(err => {
+                this.userStore.logout();
                 this.alerts.addAlert({message: err.response.data, status: 'Error'});
                 console.log("ERR" + err);
             });
@@ -128,33 +132,63 @@ export default {
 </script>
 
 <template>
-    <header>
-        <div id="infos">
-            <h1>Hello {{ this.userStore.mail }} ! 👋</h1>
-            <h2>Crous · restaurants</h2>
+    <div v-if="!this.userStore.logged">
+        <header class="blurred">
+            <div id="infos">
+                <h2>Crous · restaurants</h2>
+            </div>
+            <div id="sidetools">
+                <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
+                <signout color="grey" opacity="0.5" @click="this.logout"/>
+            </div>
+        </header>
+        <div id="tags" class="blurred">
+            <!--La façon dont le focus est gérée est dégueulasse-->
+            <TagPlace v-for="tag in tags" :name="tag.name" :focused="this.focusedTag"
+                      @child-clicked="this.focusedTag=tag.name"
+                      :key="tag.name"/>
+            <div class="filler"></div>
         </div>
-        <div id="sidetools">
-            <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
-            <signout color="grey" opacity="0.5" @click="this.logout"/>
-        </div>
-    </header>
-    <div id="tags">
-        <!--La façon dont le focus est gérée est dégueulasse-->
-        <TagPlace v-for="tag in tags" :name="tag.name" :focused="this.focusedTag"
-                  @child-clicked="this.focusedTag=tag.name"
-                  :key="tag.name"/>
-        <div class="filler"></div>
-    </div>
-    <main>
+        <main class="blurred">
 
-        <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
-    </main>
+            <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
+        </main>
+        <LoginBanner/>
+
+    </div>
+    <div v-else>
+        <header >
+            <div id="infos">
+                <h1>Hello {{ this.userStore.getName }} ! 👋</h1>
+                <h2>Crous · restaurants</h2>
+            </div>
+            <div id="sidetools">
+                <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
+                <signout color="grey" opacity="0.5" @click="this.logout"/>
+            </div>
+        </header>
+        <div id="tags">
+            <!--La façon dont le focus est gérée est dégueulasse-->
+            <TagPlace v-for="tag in tags" :name="tag.name" :focused="this.focusedTag"
+                      @child-clicked="this.focusedTag=tag.name"
+                      :key="tag.name"/>
+            <div class="filler"></div>
+        </div>
+        <main >
+
+            <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
+        </main>
+    </div>
 </template>
 
 <style lang="scss">
 
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;600&display=swap');
+
+.blurred{
+  filter: blur(4px);
+}
 
 header {
   display: flex;

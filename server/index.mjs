@@ -31,6 +31,7 @@ passport.use(UserController.getJWTStrategy({
 
 const server = new ApolloServer({
     typeDefs, resolvers, context: ({req, res}) => {
+
         return buildContext({req, res});
     }
 });
@@ -94,7 +95,7 @@ app.post('/logout', passport.authenticate('jwt', {session: false}), (req, res, n
 app.post('/signup', (req, res, next) => {
     UserController.checkIfUserExists(req.body.mail).then((exists) => {
         if (exists) {
-            res.send({type: "error", message: "User already exists"});
+            res.send({type: "Error", message: "User already exists"});
             return next('User already exists');
         } else {
             UserController.create(req.body.mail, req.body.password).then((user) => {
@@ -104,11 +105,11 @@ app.post('/signup', (req, res, next) => {
 
                 req.login(userExpress, (err) => {
                     if (err) {
-                        res.send({type: "error", message: "Error logging in"});
+                        res.send({type: "Error", message: "Error logging in"});
                         return next(err);
                     }
                     const token = UserController.genJWT({id: user.iduser, mail: user.mail});
-                    res.send({type: "success", message: "Logged in", token: token});
+                    res.send({type: "Success", message: "Logged in", token: token, mail : user.mail});
                 });
             });
         }

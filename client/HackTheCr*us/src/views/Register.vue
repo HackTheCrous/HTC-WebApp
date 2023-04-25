@@ -41,10 +41,11 @@
 
 import {apolloClient} from "@/main";
 import axios from "axios";
+import {useUserStore} from "@/stores/user";
+import {useAlertsStore} from "@/stores/alerts";
 
 export default {
     name: "Register",
-    emits: ['triggerAlert'],
 
     data() {
         return {
@@ -52,6 +53,11 @@ export default {
             password: '',
             passwordConfirmation: ''
         }
+    },
+    setup() {
+        const userStore = useUserStore();
+        const alertStore = useAlertsStore();
+        return {userStore, alertStore}
     },
     methods: {
         submit(e) {
@@ -62,22 +68,23 @@ export default {
                     password: this.password
                 }).then((response) => {
                     switch (response.data.type) {
-                        case 'success':
-                            this.$emit('triggerAlert', 'Votre inscription a été validée', 'Success');
+                        case 'Success':
+                            this.userStore.login(response.data.mail, response.data.token);
+                            this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
                             this.$router.push({name: 'Home', query: {redirect: '/'}});
                             break;
                         default:
-                            this.$emit('triggerAlert', response.data.message, 'Error');
+                            this.alertStore.addAlert({message: response.data.message, status: 'Error'});
                             break;
                     }
 
 
                 }).catch((error) => {
                     console.error(error)
-                    this.$emit('triggerAlert', error, 'Error');
+                    this.alertStore.addAlert({message:error, status: 'Error'});
                 })
             } else {
-                this.$emit('triggerAlert', 'Les mots de passe ne correspondent pas', 'Error');
+                this.alertStore.addAlert({message:'Les mots de passes doivent correspondre', status: 'Error'});
             }
         }
     },

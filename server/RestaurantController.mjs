@@ -40,14 +40,23 @@ export default class RestaurantController {
     }
 
     static async getRestaurants() {
+
+        const query = 'SELECT rest.idrestaurant as idrestaurant,\n' +
+            '       url,\n' +
+            '       name,\n' +
+            '        coalesce(SUM(jsonb_array_length(foodies)), 0) as nbMeals\n' +
+            'FROM radulescut.restaurant as rest\n' +
+            '         left join radulescut.meal as m on rest.idrestaurant = m.idrestaurant\n' +
+            'group by rest.idrestaurant, url, name\n' +
+            'order by nbMeals DESC'
+
         const client = DatabaseManager.getConnection();
 
         await client.connect();
-        const result = await client.query('SELECT idrestaurant, url, name FROM radulescut.restaurant');
+        const result = await client.query(query);
         await client.end();
 
         let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
-
 
         return restaurants;
     }

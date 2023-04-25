@@ -2,11 +2,14 @@ import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
     scalar JSON
+    
+    directive @auth on FIELD_DEFINITION
 
     type Query {
         restaurant(url: String): Restaurant,
         restaurants: [Restaurant],
         search(query: String): [Restaurant],
+        user(iduser: Int): User,
     }
 
 
@@ -22,6 +25,12 @@ export const typeDefs = gql`
         typemeal: String
         foodies: JSON
         day: String
+    }
+    
+    type User {
+        iduser: Int
+        name: String
+        mail: String
     }
     
    

@@ -40,8 +40,8 @@ app.use(pinia);
 
 const userStore = useUserStore(); //c'est dégueulasse mais ça marche
 
-const authMiddleware = new ApolloLink((operation, forward) => {
-    const token = userStore.getToken;
+const authMiddleware = (token) => new ApolloLink((operation, forward) => {
+
     operation.setContext({
         headers: {
             authorization: token ? `Bearer ${token}` : null,
@@ -51,7 +51,7 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 });
 
 export const apolloClient = new ApolloClient({
-    link: concat(authMiddleware,httpLink),
+    link: concat(authMiddleware(userStore.token),httpLink),
     cache,
 });
 
