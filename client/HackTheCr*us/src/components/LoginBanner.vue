@@ -1,8 +1,8 @@
 <template>
     <div class="banner">
         <div>
-            <h2>Ne manque pas ce qu'il se passe</h2>
-            <p>Les utilisateurs d'Hack The Cr*us promesse de vente bidon</p>
+            <h2>Marre de l'ent ?</h2>
+            <p>Adopte hackTheCr*us! Une plateforme pour les étudiants par des étudiants.</p>
         </div>
         <span>
           <router-link to="/login">Se connecter</router-link>

@@ -1,7 +1,7 @@
 <template>
     <main>
         <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
-        <div id="nav" :class="reduceBar ? 'squeezed' : '' ">
+        <div id="nav" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
             <router-link to="/">
                 <img src="./assets/logoV2.png" alt="logo">
             </router-link>
@@ -27,7 +27,10 @@
                 <squeeze opacity="0.5" color="white"/>
             </button>
         </div>
-        <div id="content" :class="reduceBar ? 'squeezed' : '' ">
+        <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
+            <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
+        </div>
+        <div id="content" v-else class="notLogged">
             <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
         </div>
     </main>
@@ -40,6 +43,7 @@ import account from "./assets/account.vue";
 import search from "./assets/search.vue";
 import restaurant from "./assets/restaurant.vue";
 import {useAlertsStore} from "@/stores/alerts";
+import {useUserStore} from "@/stores/user";
 
 export default {
     name: "App",
@@ -56,9 +60,10 @@ export default {
     },
     setup() {
         const alerts = useAlertsStore();
+        const userStore = useUserStore();
 
 
-        return {alerts}
+        return {alerts, userStore}
 
 
     },
@@ -236,6 +241,12 @@ main {
     width: calc(100% - 100px - 60px);
     min-width: calc(100% - 100px - 60px);
     margin-left: calc(100px + 20px);
+  }
+
+  &.notLogged {
+      margin-top: 0px;
+    margin-left: 0px;
+    width: 100%;
   }
 }
 </style>

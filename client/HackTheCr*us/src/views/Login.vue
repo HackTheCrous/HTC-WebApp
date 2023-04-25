@@ -73,6 +73,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
 @import '@/styles/login.scss';
 
 </style>

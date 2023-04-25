@@ -2,6 +2,8 @@ import {createRouter, createWebHashHistory, createWebHistory} from "vue-router";
 import Home from '@/views/Home.vue';
 import Login from "@/views/Login.vue";
 import Register from "@/views/Register.vue";
+import RestaurantDetail from "@/views/RestaurantDetail.vue";
+import RegistrationConfirmation from "@/views/RegistrationConfirmation.vue";
 
 
 const routes = [
@@ -12,13 +14,23 @@ const routes = [
     },
     {
         path: '/login',
-        name : 'Login',
+        name: 'Login',
         component: Login
     },
     {
         path: '/register',
-        name : 'Register',
+        name: 'Register',
         component: Register
+    },
+    {
+        path: '/restaurant/:id',
+        name: 'RestaurantDetail',
+        component: RestaurantDetail
+    },
+    {
+        path: '/register/confirmation',
+        name: 'RegistrationConfirmation',
+        component : RegistrationConfirmation
     }
 ]
 

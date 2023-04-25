@@ -1,7 +1,7 @@
 <template>
     <div class="restaurant">
         <h3>
-            <a :href="this.url">{{ this.name }}</a>
+            <router-link :to="getLink()">{{ this.name }}</router-link>
             <p></p>
         </h3>
         <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
@@ -55,6 +55,11 @@ export default {
     data() {
         return {
             meals: []
+        }
+    },
+    methods: {
+        getLink() {
+            return '/restaurant/'+this.name;
         }
     }
 
