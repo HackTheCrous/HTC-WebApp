@@ -14,7 +14,6 @@ dotenv.config();
 export default class UserController {
     static async create(mail, password) {
         const client = DatabaseManager.getConnection();
-        console.log("Inserting user: " + mail + " " + "password");
         await client.connect();
         await client.query('INSERT INTO radulescut.user(mail, password) values ($1, $2)', [mail, password]);
 
@@ -38,10 +37,8 @@ export default class UserController {
                     const rows = response;
                     client.end().then(() => {
                         if (rows.rowCount === 0) {
-                            console.log("Incorrect credentials " + JSON.stringify(rows));
                             return done(null, false, {message: "Incorrect credentials"});
                         }
-                        console.log("good");
                         return done(null, rows.rows[0]);
                     });
                 });
@@ -58,7 +55,6 @@ export default class UserController {
                     const rows = response;
                     client.end().then(() => {
                         if (rows.rowCount === 0) {
-                            console.log("Incorrect credentials " + JSON.stringify(rows));
                             return done(null, false, {message: "Incorrect credentials"});
                         }
                         return done(null, rows.rows[0]);
@@ -98,7 +94,7 @@ export default class UserController {
             token = jwt.sign(
                 {id, mail},
                 process.env.JWT_SECRET,
-                {expiresIn: "12h"}
+                {expiresIn: "3h"}
             );
         } catch (err) {
             console.log(err);

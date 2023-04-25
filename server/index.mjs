@@ -31,18 +31,8 @@ passport.use(UserController.getJWTStrategy({
 
 const server = new ApolloServer({
     typeDefs, resolvers, context: ({req, res}) => {
-         passport.authenticate('jwt', {session: false}, (err, user, info) => {
-            if (err) {
-                console.log(err);
-                res.send('error');
-            }
-            if (user) {
-                req.user = user;
-            }
-
-        })(req, res);
-        return buildContext({req, res})
-    },
+        return buildContext({req, res});
+    }
 });
 
 
@@ -91,7 +81,7 @@ app.post('/login', passport.authenticate('local'), (req, res) => {
     });
 });
 
-app.post('/logout',passport.authenticate('jwt',{session: false}), (req, res, next) => {
+app.post('/logout', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     req.logout((err) => {
         if (err) {
             res.send("Error logging out");
