@@ -12,11 +12,13 @@ export const usePreferencesStore = defineStore('preferences', {
         getRestaurants() {
             return this.restaurants;
         },
+        getState(){
+            return this;
+        }
 
     },
     actions: {
         setName(name) {
-            console.log(name);
             this.name = name;
         },
         setSchool(school) {
@@ -29,6 +31,7 @@ export const usePreferencesStore = defineStore('preferences', {
             this.restaurants = restaurants;
         },
         addRestaurant(restaurant) {
+
             if(!this.restaurants.includes(restaurant)){
                 this.restaurants.push(restaurant);
             }else{
@@ -43,6 +46,9 @@ export const usePreferencesStore = defineStore('preferences', {
         },
         containsRestaurant(restaurant) {
             return this.restaurants.includes(restaurant) ? 'selected' : '';
+        },
+        savePreferences() {
+
         }
     }
 });

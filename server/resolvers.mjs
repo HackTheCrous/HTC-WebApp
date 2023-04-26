@@ -4,6 +4,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 
 import dotenv from 'dotenv';
+import SchoolController from "./controllers/SchoolController.mjs";
 
 dotenv.config();
 
@@ -36,7 +37,18 @@ export const resolvers = {
         searchRestaurant: async (parent, args, context, info) => {
             const {query} = args;
             return await RestaurantController.getRestaurantLike(query);
+        },
+        searchSchool: async (parent, args, context, info) => {
+            const {query} = args;
+            return (await SchoolController.getSchooLike(query)).slice(0, 5);
         }
+    },
+
+    Mutation:{
+        createSchool: async (parent, args, context, info) => {
+            const {name, coords} = args;
+            return await SchoolController.create(name, coords);
+        },
     }
 };
 

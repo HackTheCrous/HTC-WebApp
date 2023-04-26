@@ -10,10 +10,14 @@ export const typeDefs = gql`
         restaurants: [Restaurant],
         search(query: String): [Restaurant],
         user(iduser: Int): User,
-        searchRestaurant(query: String): [Restaurant]
+        searchRestaurant(query: String): [Restaurant],
+        searchSchool(query: String): [School]
     }
-
-
+    
+    type Mutation {
+        createSchool(name: String, coords: String): School
+    }
+    
     type Restaurant {
         idrestaurant: Int
         url: String
@@ -32,6 +36,17 @@ export const typeDefs = gql`
         iduser: Int
         name: String
         mail: String
+    }
+    
+    type School{
+        idschool: Int
+        name: String
+        coords: Coordinates
+    }
+    
+    type Coordinates{
+        x: Float
+        y: Float
     }
     
    

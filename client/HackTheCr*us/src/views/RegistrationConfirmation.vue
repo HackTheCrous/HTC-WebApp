@@ -12,13 +12,13 @@
             <div id="main">
                 <h3>Quel est ton prénom ?</h3>
                 <p class="sub">Ceci nous permettra de t’identifier sur l’application</p>
-                <input type="text" v-model="name" placeholder="Entre ton prénom..."/>
+                <input  type="text" v-model="name" placeholder="Entre ton prénom..."/>
                 <span class="submitters">
                     <span>
-                        <button @click="this.currentStep++">Suivant</button>
+                        <button @click="this.nextStep">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
-                    <button class="skip">Passer</button>
+
                 </span>
             </div>
         </form>
@@ -32,16 +32,10 @@
                 <p class="sub">Cette adresse te permettra de ne pas avoir à activer ta localisation</p>
                 <input v-model="school" type="text" placeholder="Entre le nom de ton établissement..."/>
                 <ul class="suggestions">
-                    <li>
-                        IUT Montpellier-Sète (Montpellier)
+                    <li @click="this.setSchool" v-for="school in this.schoolSuggestions">
+                        {{ school }}
                     </li>
-                    <li>
-                        IUT Montpellier-Sète (Sète)
-                    </li>
-                    <li>
-                        Polytech Montpellier
-                    </li>
-                    <li>
+                    <li @click="this.addSchool">
                         + ajouter un établissement
                     </li>
                 </ul>
@@ -75,12 +69,12 @@
                 <p class="sub">Si tu es fan du CROUS</p>
                 <input v-model="restaurant" type="text" placeholder="Chercher un resto..."/>
                 <span class="tags">
-          <p class="tag" v-for="resto in this.restaurantSuggestions" @click="addRestaurant" :class="this.preferencesStore.containsRestaurant(resto.name)">{{ resto.name }}</p>
-
+          <p class="tag" v-for="resto in this.restaurantSuggestions" @click="addRestaurant"
+             :class="this.preferencesStore.containsRestaurant(resto.name)">{{ resto.name }}</p>
         </span>
                 <span class="submitters">
                     <span>
-                        <button @click="this.currentStep++">Suivant</button>
+                        <button @click="this.nextStep">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
                     <button class="skip">Passer</button>
@@ -104,6 +98,14 @@ query Search ($queryValue: String){
     }
 }`
 
+const GET_SCHOOL_LIkE = gql`
+query SearchSchool($queryValue: String){
+    searchSchool(query: $queryValue) {
+        name
+    }
+}
+`
+
 export default {
     name: "RegistrationConfirmation",
     components: {ProgessSteps},
@@ -116,7 +118,8 @@ export default {
             ical: '',
             restaurants: [],
             restaurant: '',
-            restaurantSuggestions: []
+            restaurantSuggestions: [],
+            schoolSuggestions: [],
         }
     },
     mounted() {
@@ -128,11 +131,21 @@ export default {
         return {preferencesStore}
     },
     methods: {
+        nextStep(e){
+            e.preventDefault();
+            this.currentStep++;
+        },
         setName(val) {
             this.preferencesStore.setName(val);
         },
-        setSchool(val) {
-            this.preferencesStore.setSchool(val);
+        addSchool(){
+          this.preferencesStore.setSchool(this.school);
+          this.currentStep++;
+        },
+        setSchool(e) {
+            e.preventDefault();
+            this.preferencesStore.setSchool(e.target.innerText);
+            this.currentStep++;
         },
         setICal(val) {
             this.preferencesStore.setIcalLink(val);
@@ -140,11 +153,10 @@ export default {
         setRestaurants(val) {
             this.preferencesStore.setRestaurants(val);
         },
-        addRestaurant(e){
+        addRestaurant(e) {
             this.preferencesStore.addRestaurant(e.target.innerText);
         },
         getSuggestionsRestaurant(val) {
-            this.restaurants = [];
             apolloClient.query({
                 query: GET_SEARCH_RESULT,
                 variables: {
@@ -153,15 +165,24 @@ export default {
             }).then((result) => {
                 this.restaurantSuggestions = result.data.searchRestaurant;
             });
+        },
+        getSuggestionsSchool(val) {
+            apolloClient.query({
+                query: GET_SCHOOL_LIkE,
+                variables: {
+                    queryValue: val
+                }
+            }).then((result) => {
+                this.schoolSuggestions = result.data.searchSchool.map((school) => school.name);
+            })
         }
     },
     watch: {
         name: function (val) {
-            console.log(val);
             this.setName(val);
         },
         school: function (val) {
-            this.setSchool(val);
+            this.getSuggestionsSchool(val);
         },
         ical: function (val) {
             this.setICal(val);
@@ -171,6 +192,11 @@ export default {
         },
         restaurant: function (val) {
             this.getSuggestionsRestaurant(val);
+        },
+        currentStep: function(val){
+            if(val === this.steps.length){
+                console.log(this.preferencesStore.getState);
+            }
         }
     }
 }
@@ -204,6 +230,7 @@ main {
     width: 70%;
     display: flex;
     flex-direction: row;
+    padding-bottom: 100px;
 
     #side {
       padding-top: 7px;
@@ -233,16 +260,22 @@ main {
         list-style: none;
         padding: 0;
         margin: 0;
+        position: absolute;
+        width: 100%;
 
         li {
           font-size: 20px;
           padding: 10px 0;
           border-bottom: 1px solid var(--color-border);
 
+          &:hover {
+            background: var(--color-border);
+            cursor: pointer;
+          }
+
           &:last-of-type {
             color: #24EE76;
             border-bottom: 1px solid #24EE76;
-
           }
         }
       }
