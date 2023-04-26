@@ -8,7 +8,12 @@ export const usePreferencesStore = defineStore('preferences', {
         restaurants: [],
     }),
 
-    getters: {},
+    getters: {
+        getRestaurants() {
+            return this.restaurants;
+        },
+
+    },
     actions: {
         setName(name) {
             console.log(name);
@@ -24,13 +29,20 @@ export const usePreferencesStore = defineStore('preferences', {
             this.restaurants = restaurants;
         },
         addRestaurant(restaurant) {
-            this.restaurants.push(restaurant);
+            if(!this.restaurants.includes(restaurant)){
+                this.restaurants.push(restaurant);
+            }else{
+                this.restaurants.splice(this.restaurants.indexOf(restaurant), 1);
+            }
         },
         setPreferences(name, school, icalLink, restaurants) {
             this.name = name;
             this.school = school;
             this.icalLink = icalLink;
             this.restaurants = restaurants;
+        },
+        containsRestaurant(restaurant) {
+            return this.restaurants.includes(restaurant) ? 'selected' : '';
         }
     }
 });

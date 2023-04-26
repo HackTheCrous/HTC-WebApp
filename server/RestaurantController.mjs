@@ -11,6 +11,14 @@ export default class RestaurantController {
         }
     }
 
+    static async getRestaurantLike(name) {
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        const result = await client.query('SELECT DISTINCT idrestaurant, url, name FROM radulescut.restaurant WHERE UPPER(name) LIKE $1', ['%' + name.toUpperCase() + '%']);
+        await client.end();
+        return result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
+    }
+
     static async getRestaurantByUrl(url) {
         const client = DatabaseManager.getConnection();
 

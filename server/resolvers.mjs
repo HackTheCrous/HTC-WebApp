@@ -32,6 +32,10 @@ export const resolvers = {
             }
             await assertIsUser(iduser, token);
             return await UserController.get(iduser);
+        },
+        searchRestaurant: async (parent, args, context, info) => {
+            const {query} = args;
+            return await RestaurantController.getRestaurantLike(query);
         }
     }
 };

@@ -10,6 +10,7 @@ export const typeDefs = gql`
         restaurants: [Restaurant],
         search(query: String): [Restaurant],
         user(iduser: Int): User,
+        searchRestaurant(query: String): [Restaurant]
     }
 
 

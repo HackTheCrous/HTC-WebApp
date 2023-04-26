@@ -1,160 +1,178 @@
 <template>
-  <header>
-    <img src="@/assets/logoV2.png" alt="logo">
-  </header>
-  <main>
-    <ProgessSteps :steps="steps" :current="this.currentStep"/>
+    <header>
+        <img src="@/assets/logoV2.png" alt="logo">
+    </header>
+    <main>
+        <ProgessSteps :steps="steps" :current="this.currentStep"/>
 
-    <form v-if="this.currentStep === 1 ">
-      <div id="side">
-        <p>{{ this.currentStep }} <b>-></b></p>
-      </div>
-      <div id="main">
-        <h3>Quel est ton prénom ?</h3>
-        <p class="sub">Ceci nous permettra de t’identifier sur l’application</p>
-        <input type="text" v-model="name" placeholder="Entre ton prénom..."/>
-        <span class="submitters">
+        <form v-if="this.currentStep === 1 ">
+            <div id="side">
+                <p>{{ this.currentStep }} <b>-></b></p>
+            </div>
+            <div id="main">
+                <h3>Quel est ton prénom ?</h3>
+                <p class="sub">Ceci nous permettra de t’identifier sur l’application</p>
+                <input type="text" v-model="name" placeholder="Entre ton prénom..."/>
+                <span class="submitters">
                     <span>
                         <button @click="this.currentStep++">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
                     <button class="skip">Passer</button>
                 </span>
-      </div>
-    </form>
+            </div>
+        </form>
 
-    <form v-else-if="this.currentStep === 2 ">
-      <div id="side">
-        <p>{{ this.currentStep }} <b>-></b></p>
-      </div>
-      <div id="main">
-        <h3>Où étudies-tu ?</h3>
-        <p class="sub">Cette adresse te permettra de ne pas avoir à activer ta localisation</p>
-        <input v-model="school" type="text" placeholder="Entre le nom de ton établissement..."/>
-        <ul class="suggestions">
-          <li>
-            IUT Montpellier-Sète (Montpellier)
-          </li>
-          <li>
-            IUT Montpellier-Sète (Sète)
-          </li>
-          <li>
-            Polytech Montpellier
-          </li>
-          <li>
-            + ajouter un établissement
-          </li>
-        </ul>
-      </div>
-    </form>
+        <form v-else-if="this.currentStep === 2 ">
+            <div id="side">
+                <p>{{ this.currentStep }} <b>-></b></p>
+            </div>
+            <div id="main">
+                <h3>Où étudies-tu ?</h3>
+                <p class="sub">Cette adresse te permettra de ne pas avoir à activer ta localisation</p>
+                <input v-model="school" type="text" placeholder="Entre le nom de ton établissement..."/>
+                <ul class="suggestions">
+                    <li>
+                        IUT Montpellier-Sète (Montpellier)
+                    </li>
+                    <li>
+                        IUT Montpellier-Sète (Sète)
+                    </li>
+                    <li>
+                        Polytech Montpellier
+                    </li>
+                    <li>
+                        + ajouter un établissement
+                    </li>
+                </ul>
+            </div>
+        </form>
 
-    <form v-if="this.currentStep === 3 ">
-      <div id="side">
-        <p>{{ this.currentStep }} <b>-></b></p>
-      </div>
-      <div id="main">
-        <h3>Entre ton lien ICal</h3>
-        <p class="sub">Tu le trouveras sur <a
-            href="https://app.umontpellier.fr/prose-etudiant/protected/ical">Moodle</a></p>
-        <input v-model="ical" type="text" placeholder="Colle ton lien ICal..."/>
-        <span class="submitters">
+        <form v-if="this.currentStep === 3 ">
+            <div id="side">
+                <p>{{ this.currentStep }} <b>-></b></p>
+            </div>
+            <div id="main">
+                <h3>Entre ton lien ICal</h3>
+                <p class="sub">Tu le trouveras sur <a
+                        href="https://app.umontpellier.fr/prose-etudiant/protected/ical">Moodle</a></p>
+                <input v-model="ical" type="text" placeholder="Colle ton lien ICal..."/>
+                <span class="submitters">
                     <span>
                         <button @click="this.currentStep++">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
                     <button class="skip">Passer</button>
                 </span>
-      </div>
-    </form>
-    <form v-if="this.currentStep === 4">
-      <div id="side">
-        <p>{{ this.currentStep }} <b>-></b></p>
-      </div>
-      <div id="main">
-        <h3>Où manges-tu d'habitude ?</h3>
-        <p class="sub">Si tu es fan du CROUS</p>
-        <input v-model="restaurant" type="text" placeholder="Chercher un resto..."/>
-        <span class="tags">
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
-          <p class="tag">brasserie boutonnet</p>
+            </div>
+        </form>
+        <form v-if="this.currentStep === 4">
+            <div id="side">
+                <p>{{ this.currentStep }} <b>-></b></p>
+            </div>
+            <div id="main">
+                <h3>Où manges-tu d'habitude ?</h3>
+                <p class="sub">Si tu es fan du CROUS</p>
+                <input v-model="restaurant" type="text" placeholder="Chercher un resto..."/>
+                <span class="tags">
+          <p class="tag" v-for="resto in this.restaurantSuggestions" @click="addRestaurant" :class="this.preferencesStore.containsRestaurant(resto.name)">{{ resto.name }}</p>
+
         </span>
-        <span class="submitters">
+                <span class="submitters">
                     <span>
                         <button @click="this.currentStep++">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
                     <button class="skip">Passer</button>
                 </span>
-      </div>
-    </form>
-  </main>
+            </div>
+        </form>
+    </main>
 </template>
 
 <script>
 import ProgessSteps from "@/components/ProgessSteps.vue";
 import {usePreferencesStore} from "../stores/preferences";
+import {apolloClient} from "@/main";
+import gql from "graphql-tag";
+
+
+const GET_SEARCH_RESULT = gql`
+query Search ($queryValue: String){
+    searchRestaurant(query: $queryValue) {
+        name
+    }
+}`
 
 export default {
-  name: "RegistrationConfirmation",
-  components: {ProgessSteps},
-  data() {
-    return {
-      steps: ['Inscription', 'Prénom', 'Etablissement', 'ICal', 'Préférences'],
-      currentStep: 1,
-      name: '',
-      school: '',
-      ical: '',
-      restaurants: [],
-      restaurant: '',
-      restaurantSuggestions: []
-    }
-  },
-  setup() {
-    const preferencesStore = usePreferencesStore();
+    name: "RegistrationConfirmation",
+    components: {ProgessSteps},
+    data() {
+        return {
+            steps: ['Inscription', 'Prénom', 'Etablissement', 'ICal', 'Préférences'],
+            currentStep: 1,
+            name: '',
+            school: '',
+            ical: '',
+            restaurants: [],
+            restaurant: '',
+            restaurantSuggestions: []
+        }
+    },
+    mounted() {
+        this.getSuggestionsRestaurant('');
+    },
+    setup() {
+        const preferencesStore = usePreferencesStore();
 
-    return {preferencesStore}
-  },
-  methods: {
-    setName(val) {
-
-      this.preferencesStore.setName(val);
+        return {preferencesStore}
     },
-    setSchool(val) {
-      this.preferencesStore.setSchool(val);
+    methods: {
+        setName(val) {
+            this.preferencesStore.setName(val);
+        },
+        setSchool(val) {
+            this.preferencesStore.setSchool(val);
+        },
+        setICal(val) {
+            this.preferencesStore.setIcalLink(val);
+        },
+        setRestaurants(val) {
+            this.preferencesStore.setRestaurants(val);
+        },
+        addRestaurant(e){
+            this.preferencesStore.addRestaurant(e.target.innerText);
+        },
+        getSuggestionsRestaurant(val) {
+            this.restaurants = [];
+            apolloClient.query({
+                query: GET_SEARCH_RESULT,
+                variables: {
+                    queryValue: val
+                }
+            }).then((result) => {
+                this.restaurantSuggestions = result.data.searchRestaurant;
+            });
+        }
     },
-    setICal(val) {
-      this.preferencesStore.setIcalLink(val);
-    },
-    setRestaurants(val) {
-      this.preferencesStore.setRestaurants(val);
-    },
-    getSuggestionsRestaurant(val){
-      if(val.length>2){
-        
-      }
+    watch: {
+        name: function (val) {
+            console.log(val);
+            this.setName(val);
+        },
+        school: function (val) {
+            this.setSchool(val);
+        },
+        ical: function (val) {
+            this.setICal(val);
+        },
+        restaurants: function (val) {
+            this.setRestaurants(val);
+        },
+        restaurant: function (val) {
+            this.getSuggestionsRestaurant(val);
+        }
     }
-  },
-  watch: {
-    name: function (val) {
-      console.log(val);
-      this.setName(val);
-    },
-    school: function (val) {
-      this.setSchool(val);
-    },
-    ical: function (val) {
-      this.setICal(val);
-    },
-    restaurants: function (val) {
-      this.setRestaurants(val);
-    }
-  }
 }
 </script>
 
