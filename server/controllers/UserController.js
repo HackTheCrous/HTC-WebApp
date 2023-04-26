@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import bcrypt from "bcrypt";
 import SchoolModel from "../models/SchoolModel.mjs";
 import RestaurantModel from "../models/RestaurantModel.mjs";
+import RestaurantController from "./RestaurantController.mjs";
 
 dotenv.config();
 
@@ -173,5 +174,28 @@ export default class UserController {
         return response.rows.map((row) => {
             return RestaurantModel.buildRestaurant(row);
         });
+    }
+
+    static async like(idrestaurant, iduser){
+        const query='insert into favoriterestaurant(idrestaurant, iduser) values ($1, $2)';
+        const params=[parseInt(idrestaurant), parseInt(iduser)];
+
+        const client =DatabaseManager.getConnection();
+        await client.connect();
+        await client.query(query, params);
+        await client.end();
+
+        return RestaurantController.get(idrestaurant);
+    }
+
+    static async dislike(idrestaurant, iduser){
+        const query='delete from favoriterestaurant where idrestaurant=$1 and iduser=$2';
+        const params=[idrestaurant, iduser];
+
+        const client=DatabaseManager.getConnection();
+        await client.connect();
+        await client.query(query, params);
+        await client.end();
+        return RestaurantController.get(idrestaurant);
     }
 }

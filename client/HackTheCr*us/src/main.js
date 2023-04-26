@@ -34,7 +34,6 @@ pinia.use(piniaPluginPersistedState)
 
 const authMiddleware = () => new ApolloLink((operation, forward) => {
     const token = userStore.getToken;
-    console.log("token : " + token)
     operation.setContext({
         headers: {
             authorization: token ? `Bearer ${token}` : null,

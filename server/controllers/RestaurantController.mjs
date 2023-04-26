@@ -11,6 +11,16 @@ export default class RestaurantController {
         }
     }
 
+
+    static async get(id){
+        const query = 'SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE idrestaurant=$1';
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        const result = await client.query(query, [id]);
+        await client.end();
+        return RestaurantModel.buildRestaurant(result.rows[0]);
+    }
+
     static async getRestaurantLike(name) {
         const client = DatabaseManager.getConnection();
         await client.connect();

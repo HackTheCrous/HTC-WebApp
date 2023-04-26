@@ -85,6 +85,9 @@ export const useUserStore = defineStore('user', {
         setName() {
             return this.name;
         },
+        addFavorite(restaurant){
+            this.favorites.push(restaurant)
+        },
         //clean the store
         logout() {
             this.mail = '';
@@ -95,7 +98,7 @@ export const useUserStore = defineStore('user', {
             this.logged = false;
             this.name='';
             this.provided = false;
-        }
+        },
     },
     persist: true,
 },);

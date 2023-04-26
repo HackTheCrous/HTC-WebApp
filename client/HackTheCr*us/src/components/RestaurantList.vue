@@ -1,9 +1,3 @@
-<template>
-    <div id="restaurants">
-        <RestaurantCard class="restaurant" v-for="restaurant in this.filteredRestaurants" :name="restaurant.name" :url="restaurant.url" :key="restaurant.idrestaurant"/>
-    </div>
-</template>
-
 <script>
 import RestaurantCard from "../components/RestaurantCard.vue";
 import {useUserStore} from "@/stores/user";
@@ -13,15 +7,15 @@ export default {
         RestaurantCard
     },
     setup(){
-      const userStore = useUserStore();
-      return {
-          userStore
-      }
+        const userStore = useUserStore();
+        return {
+            userStore
+        }
     },
     props:{
         restaurants: Object,
         tag:String,
-
+        
     },
     computed: {
         filteredRestaurants(){
@@ -37,6 +31,12 @@ export default {
     }
 }
 </script>
+
+<template>
+    <div id="restaurants">
+        <RestaurantCard class="restaurant" v-for="restaurant in this.filteredRestaurants" :idRestaurant="restaurant.idrestaurant" :name="restaurant.name" :url="restaurant.url" :key="restaurant.idrestaurant"/>
+    </div>
+</template>
 
 <style>
 

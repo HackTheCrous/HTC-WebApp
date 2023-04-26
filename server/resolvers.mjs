@@ -56,6 +56,18 @@ export const resolvers = {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             await UserController.modify(decoded.id, name, school, ical, restaurants);
             return await UserController.get(decoded.id);
+        },
+        like : async (parent, args, context, info) => {
+            const {idrestaurant} = args;
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return await UserController.like(idrestaurant,decoded.id);
+        },
+        dislike : async (parent, args, context, info) => {
+            const {idrestaurant} = args;
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return await UserController.dislike(idrestaurant,decoded.id);
         }
     },
     Restaurant: {
@@ -80,4 +92,5 @@ const assertIsUser = async (idSupposed, token) => {
     if (decoded.id !== idSupposed) {
         throw new Error("Not authenticated");
     }
+    return decoded;
 }

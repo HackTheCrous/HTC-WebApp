@@ -20,6 +20,9 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import {ExtractJwt} from "passport-jwt";
 
+import jwt from "jsonwebtoken";
+import RestaurantController from "./controllers/RestaurantController.mjs";
+
 
 passport.use(UserController.getLocalStrategy());
 
@@ -31,7 +34,7 @@ passport.use(UserController.getJWTStrategy({
 
 const server = new ApolloServer({
     typeDefs, resolvers, context: ({req, res}) => {
-
+        
         return buildContext({req, res});
     }
 });
@@ -102,7 +105,7 @@ app.post('/signup', (req, res, next) => {
                 const userExpress = {
                     id: user.iduser, mail: user.mail
                 };
-
+                
                 req.login(userExpress, (err) => {
                     if (err) {
                         res.send({type: "Error", message: "Error logging in"});
@@ -114,6 +117,7 @@ app.post('/signup', (req, res, next) => {
             });
         }
     });
-
+    
 });
+
 

@@ -20,9 +20,9 @@
                 result.restaurant.name
                 }}
           </h4>
-            <a href="#">
+            <router-link :to="`/restaurant/${result.restaurant.name}`">
               Voir le menu <b>></b>
-            </a>
+            </router-link>
           </span>
                     <ul>
                         <li v-for="food of result.meals">
@@ -61,6 +61,7 @@ import Search from "../assets/search.vue";
 const GET_SEARCH_RESULT = gql`
 query Search ($queryValue: String){
     search(query: $queryValue) {
+
         url
         name
         meals{

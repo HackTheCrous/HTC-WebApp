@@ -17,6 +17,8 @@ export const typeDefs = gql`
     type Mutation {
         createSchool(name: String, coords: String): School,
         modifyUser(name: String, ical: String, school: Int, restaurants : [Int]): User,
+        like(idrestaurant: Int): Restaurant,
+        dislike(idrestaurant: Int): Restaurant
     }
     
     type Restaurant {
