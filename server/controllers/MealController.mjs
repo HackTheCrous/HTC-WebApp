@@ -1,5 +1,5 @@
-import DatabaseManager from "./DatabaseManager.mjs";
-import MealModel from "./MealModel.mjs";
+import DatabaseManager from "../DatabaseManager.mjs";
+import MealModel from "../models/MealModel.mjs";
 
 export default class MealController{
     static async getMealsFromRestaurant(idrestaurant){

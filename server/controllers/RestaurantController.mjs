@@ -1,5 +1,5 @@
-import DatabaseManager from "./DatabaseManager.mjs";
-import RestaurantModel from "./RestaurantModel.mjs";
+import DatabaseManager from "../DatabaseManager.mjs";
+import RestaurantModel from "../models/RestaurantModel.mjs";
 import MealController from "./MealController.mjs";
 
 export default class RestaurantController {

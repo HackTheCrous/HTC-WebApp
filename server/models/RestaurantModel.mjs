@@ -1,4 +1,4 @@
-import DatabaseManager from './DatabaseManager.mjs';
+import DatabaseManager from '../DatabaseManager.mjs';
 
 export default class RestaurantModel {
     constructor(idrestaurant, url, name) {

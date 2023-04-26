@@ -1,5 +1,5 @@
 import test from "unit.js";
-import RestaurantModel from "../RestaurantModel.mjs";
+import RestaurantModel from "../models/RestaurantModel.mjs";
 import RestaurantRecommendationStrategies from "../strategies/RestaurantRecommendationStrategies.mjs";
 
 describe('Test RestaurantController', () => {

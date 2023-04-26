@@ -14,7 +14,7 @@ dotenv.config();
 import {ApolloServer} from "apollo-server-express";
 import {resolvers} from './resolvers.mjs';
 import {typeDefs} from './schemas.mjs';
-import UserController from "./UserController.js";
+import UserController from "./controllers/UserController.js";
 
 import cors from "cors";
 import bodyParser from "body-parser";

@@ -1,5 +1,5 @@
-import RestaurantController from './RestaurantController.mjs';
-import UserController from "./UserController.js";
+import RestaurantController from './controllers/RestaurantController.mjs';
+import UserController from "./controllers/UserController.js";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 

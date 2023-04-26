@@ -1,5 +1,5 @@
-import DatabaseManager from "./DatabaseManager.mjs";
-import UserModel from "./UserModel.js";
+import DatabaseManager from "../DatabaseManager.mjs";
+import UserModel from "../models/UserModel.js";
 import passport from "passport";
 import LocalStrategy from "passport-local";
 
