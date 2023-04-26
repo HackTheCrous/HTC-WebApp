@@ -29,9 +29,13 @@ export default {
     color: #848c84;
 }
 
+.step.current::before {
+    font-weight: bold;
+}
+
 .line{
     height: 2px;
-    width: 30%;
+    width: 20%;
     background-color: #848c84;
 }
 
