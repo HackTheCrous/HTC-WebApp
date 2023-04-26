@@ -10,6 +10,10 @@ export const useUserStore = defineStore('user', {
         token: '',
         name: '',
         logged: false,
+        ical: '',
+        school: {},
+        favorites: [],
+        provided: false,
     }),
 
     getters: {
@@ -26,25 +30,16 @@ export const useUserStore = defineStore('user', {
             return state;
         },
         getName: (state) => {
-            if(state.name === ''){
-                const GET_USER_FROM_TOKEN = gql`
-                    query {
-                        user{
-                            name
-                            iduser
-                            mail
-                        }
-                    }`;
-
-                apolloClient.query({
-                    query: GET_USER_FROM_TOKEN,
-                }).then((response) => {
-                    state.mail = response.data.user.mail;
-                    state.logged = true;
-                    state.name = response.data.user.name;
-                });
+            if(!state.provided){
+                state.getData();
             }
             return state.name;
+        },
+        getFavorites: (state) => {
+            if(!state.provided){
+                state.getData();
+            }
+            return state.favorites;
         }
     },
     actions: {
@@ -54,16 +49,52 @@ export const useUserStore = defineStore('user', {
             this.token = token;
             this.logged = true;
         },
-        hydrate(state) {
+        getData() {
+            this.provided = true;
 
+            const GET_DATA_USER = gql`
+                query User{
+                    user{
+                        name
+                        ical
+                        school {
+                            idschool
+                            name
+                        }
+                        favorites {
+                            idrestaurant
+                            url
+                            name
+                        }
+                    }
+                }
+            `;
 
+            apolloClient.query({
+                query: GET_DATA_USER,
+            }).then((result) => {
+                this.name = result.data.user.name;
+                this.ical = result.data.user.ical;
+                this.school = result.data.user.school;
+                this.favorites = result.data.user.favorites;
+            }).catch((error) => {
+                this.provided = false;
+            });
+
+        },
+        setName() {
+            return this.name;
         },
         //clean the store
         logout() {
             this.mail = '';
             this.token = '';
+            this.ical = '';
+            this.school= {};
+            this.favorites = [];
             this.logged = false;
             this.name='';
+            this.provided = false;
         }
     },
     persist: true,

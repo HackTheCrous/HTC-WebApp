@@ -15,7 +15,8 @@ export const typeDefs = gql`
     }
     
     type Mutation {
-        createSchool(name: String, coords: String): School
+        createSchool(name: String, coords: String): School,
+        modifyUser(name: String, ical: String, school: Int, restaurants : [Int]): User,
     }
     
     type Restaurant {
@@ -23,6 +24,7 @@ export const typeDefs = gql`
         url: String
         name: String
         meals: [Meal]
+        coords: Coordinates
     }
 
     type Meal{
@@ -36,6 +38,9 @@ export const typeDefs = gql`
         iduser: Int
         name: String
         mail: String
+        ical: String
+        school: School
+        favorites: [Restaurant]
     }
     
     type School{

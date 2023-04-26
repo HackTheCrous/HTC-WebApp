@@ -51,9 +51,9 @@ export default {
 
     data() {
         return {
-            tags: [{name: 'Tout'}, {name: 'Resto'}, {name: 'Cafet’'}, {name: 'Brasserie'}],
+            tags: [{name: 'Tout'}, {name: 'Resto'}, {name: 'Cafet’'}, {name: 'Brasserie'}, {name: 'Favoris'}],
             focusedTag: 'Tout',
-            username: 'Tristan',
+            username:'',
             restaurants: [],
             focusSearch: false,
             keyPressed: [],
@@ -132,7 +132,7 @@ export default {
 </script>
 
 <template>
-    <div v-if="!this.userStore.logged">
+    <div v-if="!this.userStore.isLogged">
         <header class="blurred">
             <div id="infos">
                 <h2>Crous · restaurants</h2>
@@ -150,7 +150,6 @@ export default {
             <div class="filler"></div>
         </div>
         <main class="blurred">
-
             <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
         </main>
         <LoginBanner/>

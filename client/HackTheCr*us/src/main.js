@@ -24,24 +24,17 @@ const pinia = createPinia();
 
 
 
+
 pinia.use(piniaPluginPersistedState)
 
-const app = createApp({
-    setup() {
-        provide(DefaultApolloClient, apolloClient)
-    },
-
-    render: () => h(App)
-})
 
 
-app.use(pinia);
 
 
-const userStore = useUserStore(); //c'est dégueulasse mais ça marche
 
-const authMiddleware = (token) => new ApolloLink((operation, forward) => {
-
+const authMiddleware = () => new ApolloLink((operation, forward) => {
+    const token = userStore.getToken;
+    console.log("token : " + token)
     operation.setContext({
         headers: {
             authorization: token ? `Bearer ${token}` : null,
@@ -51,9 +44,22 @@ const authMiddleware = (token) => new ApolloLink((operation, forward) => {
 });
 
 export const apolloClient = new ApolloClient({
-    link: concat(authMiddleware(userStore.token),httpLink),
+    link: concat(authMiddleware(), httpLink),
     cache,
 });
+
+
+
+const app = createApp({
+    setup() {
+        provide(DefaultApolloClient, apolloClient)
+    },
+
+    render: () => h(App)
+})
+
+app.use(pinia);
+const userStore = useUserStore(); //c'est dégueulasse mais ça marche
 
 
 

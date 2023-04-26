@@ -1,8 +1,6 @@
 <template>
-    <header>
-        <img src="@/assets/logoV2.png" alt="logo">
-    </header>
-    <main>
+
+    <main v-if="this.userStore.isLogged">
         <ProgessSteps :steps="steps" :current="this.currentStep"/>
 
         <form v-if="this.currentStep === 1 ">
@@ -12,12 +10,15 @@
             <div id="main">
                 <h3>Quel est ton prénom ?</h3>
                 <p class="sub">Ceci nous permettra de t’identifier sur l’application</p>
-                <input  type="text" v-model="name" placeholder="Entre ton prénom..."/>
+                <input type="text" v-model="name" placeholder="Entre ton prénom..."/>
                 <span class="submitters">
                     <span>
                         <button @click="this.nextStep">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
+
                     </span>
+
+
 
                 </span>
             </div>
@@ -32,13 +33,18 @@
                 <p class="sub">Cette adresse te permettra de ne pas avoir à activer ta localisation</p>
                 <input v-model="school" type="text" placeholder="Entre le nom de ton établissement..."/>
                 <ul class="suggestions">
-                    <li @click="this.setSchool" v-for="school in this.schoolSuggestions">
-                        {{ school }}
+                    <li @click="this.setSchool" :id="school.idschool" v-for="school in this.schoolSuggestions">
+                        {{ school.name }}
                     </li>
                     <li @click="this.addSchool">
                         + ajouter un établissement
                     </li>
+                    <span class="submitters">
+                        <br/>
+                        <button class="skip" @click="this.goBack">Revenir</button>
+                    </span>
                 </ul>
+
             </div>
         </form>
 
@@ -56,7 +62,7 @@
                         <button @click="this.currentStep++">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
-                    <button class="skip">Passer</button>
+                    <button @click="this.goBack" class="skip">Revenir</button>
                 </span>
             </div>
         </form>
@@ -70,17 +76,23 @@
                 <input v-model="restaurant" type="text" placeholder="Chercher un resto..."/>
                 <span class="tags">
           <p class="tag" v-for="resto in this.restaurantSuggestions" @click="addRestaurant"
-             :class="this.preferencesStore.containsRestaurant(resto.name)">{{ resto.name }}</p>
+             :class="this.preferencesStore.containsRestaurant(resto.idrestaurant)"
+             :id="resto.idrestaurant">{{ resto.name }}</p>
         </span>
                 <span class="submitters">
                     <span>
                         <button @click="this.nextStep">Suivant</button>
                         <p>press <b>Enter ↵</b></p>
                     </span>
-                    <button class="skip">Passer</button>
+                    <button @click="this.goBack" class="skip">Revenir</button>
                 </span>
             </div>
         </form>
+    </main>
+    <main v-else class="notLogged">
+        <h2>500 - Authentication error</h2>
+        <h1>Vous devez être connecté pour accéder à cette page</h1>
+        <router-link to="/login/redirect">Se connecter</router-link>
     </main>
 </template>
 
@@ -89,11 +101,13 @@ import ProgessSteps from "@/components/ProgessSteps.vue";
 import {usePreferencesStore} from "../stores/preferences";
 import {apolloClient} from "@/main";
 import gql from "graphql-tag";
+import {useUserStore} from "@/stores/user";
 
 
 const GET_SEARCH_RESULT = gql`
 query Search ($queryValue: String){
     searchRestaurant(query: $queryValue) {
+        idrestaurant
         name
     }
 }`
@@ -101,6 +115,7 @@ query Search ($queryValue: String){
 const GET_SCHOOL_LIkE = gql`
 query SearchSchool($queryValue: String){
     searchSchool(query: $queryValue) {
+        idschool
         name
     }
 }
@@ -127,24 +142,28 @@ export default {
     },
     setup() {
         const preferencesStore = usePreferencesStore();
-
-        return {preferencesStore}
+        const userStore = useUserStore();
+        return {preferencesStore, userStore}
     },
     methods: {
-        nextStep(e){
+        nextStep(e) {
             e.preventDefault();
             this.currentStep++;
+        },
+        goBack(e) {
+            e.preventDefault();
+            this.currentStep--;
         },
         setName(val) {
             this.preferencesStore.setName(val);
         },
-        addSchool(){
-          this.preferencesStore.setSchool(this.school);
-          this.currentStep++;
+        addSchool() {
+            this.preferencesStore.setSchool(this.school);
+            this.currentStep++;
         },
         setSchool(e) {
             e.preventDefault();
-            this.preferencesStore.setSchool(e.target.innerText);
+            this.preferencesStore.setSchool(e.target.id);
             this.currentStep++;
         },
         setICal(val) {
@@ -154,7 +173,8 @@ export default {
             this.preferencesStore.setRestaurants(val);
         },
         addRestaurant(e) {
-            this.preferencesStore.addRestaurant(e.target.innerText);
+            console.log(e.target.id);
+            this.preferencesStore.addRestaurant(e.target.id);
         },
         getSuggestionsRestaurant(val) {
             apolloClient.query({
@@ -173,7 +193,7 @@ export default {
                     queryValue: val
                 }
             }).then((result) => {
-                this.schoolSuggestions = result.data.searchSchool.map((school) => school.name);
+                this.schoolSuggestions = result.data.searchSchool;
             })
         }
     },
@@ -193,9 +213,9 @@ export default {
         restaurant: function (val) {
             this.getSuggestionsRestaurant(val);
         },
-        currentStep: function(val){
-            if(val === this.steps.length){
-                console.log(this.preferencesStore.getState);
+        currentStep: function (val) {
+            if (val === this.steps.length) {
+                this.preferencesStore.savePreferences();
             }
         }
     }
@@ -203,18 +223,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-header {
-  height: 75px;
-  position: fixed;
-  left: 0;
-  top: 0;
 
-  img {
-    margin-top: 15px;
-    margin-left: 25px;
-    height: 100%;
-  }
-}
 
 main {
   height: 100vh;
@@ -262,7 +271,9 @@ main {
         margin: 0;
         position: absolute;
         width: 100%;
-
+        button{
+            margin-top: 10px;
+        }
         li {
           font-size: 20px;
           padding: 10px 0;
@@ -381,6 +392,25 @@ main {
     }
 
 
+  }
+
+  &.notLogged {
+    h2 {
+      font-size: 30px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    a {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #24EE76;
+    }
   }
 }
 

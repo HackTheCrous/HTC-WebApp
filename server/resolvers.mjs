@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 import dotenv from 'dotenv';
 import SchoolController from "./controllers/SchoolController.mjs";
+import MealController from "./controllers/MealController.mjs";
 
 dotenv.config();
 
@@ -44,11 +45,31 @@ export const resolvers = {
         }
     },
 
-    Mutation:{
+    Mutation: {
         createSchool: async (parent, args, context, info) => {
             const {name, coords} = args;
             return await SchoolController.create(name, coords);
         },
+        modifyUser: async (parent, args, context, info) => {
+            const {name, ical, school, restaurants} = args;
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            await UserController.modify(decoded.id, name, school, ical, restaurants);
+            return await UserController.get(decoded.id);
+        }
+    },
+    Restaurant: {
+        meals: async (parent, args, context, info) => {
+            return await MealController.getMealsFromRestaurant(parent.idrestaurant);
+        }
+    },
+    User: {
+        school: async (parent, args, context, info) => {
+            return await UserController.getSchool(parent.iduser);
+        },
+        favorites: async (parent, args, context, info) => {
+            return await UserController.getFavoriteRestaurants(parent.iduser);
+        }
     }
 };
 

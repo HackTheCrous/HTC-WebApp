@@ -33,9 +33,8 @@
 
 <script>
 import axios from "axios";
-import { useUserStore} from "@/stores/user";
+import {useUserStore} from "@/stores/user";
 import {useAlertsStore} from "@/stores/alerts";
-
 
 
 export default {
@@ -46,12 +45,13 @@ export default {
         return {
             mail: '',
             password: '',
+            redirect: this.$route.path === '/login/redirect'
         }
     },
     setup() {
         const userStore = useUserStore();
         const alertStore = useAlertsStore();
-        return {userStore,alertStore}
+        return {userStore, alertStore}
     },
     methods: {
         submit(e) {
@@ -61,8 +61,13 @@ export default {
                 password: this.password
             }).then(res => {
                 this.userStore.login(res.data.mail, res.data.token);
+                console.log(this.userStore.getToken)
                 this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
-                this.$router.push('/');
+                if (this.redirect) {
+                    this.$router.push('/register/confirmation');
+                } else {
+                    this.$router.push('/');
+                }
             }).catch(err => {
                 this.alertStore.addAlert({message: "Erreur d'authentification : " + err, status: 'Error'});
                 console.log(err);

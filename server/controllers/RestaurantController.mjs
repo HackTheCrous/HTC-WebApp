@@ -14,21 +14,21 @@ export default class RestaurantController {
     static async getRestaurantLike(name) {
         const client = DatabaseManager.getConnection();
         await client.connect();
-        const result = await client.query('SELECT DISTINCT idrestaurant, url, name FROM radulescut.restaurant WHERE UPPER(name) LIKE $1', ['%' + name.toUpperCase() + '%']);
+        const result = await client.query('SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE UPPER(name) LIKE $1', ['%' + name.toUpperCase() + '%']);
         await client.end();
-        return result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
+        return result.rows.map(row => {
+            return RestaurantModel.buildRestaurant(row);
+        });
     }
 
     static async getRestaurantByUrl(url) {
         const client = DatabaseManager.getConnection();
 
         await client.connect();
-        const result = await client.query('SELECT idrestaurant, url, name FROM radulescut.restaurant WHERE url = $1', [url]);
+        const result = await client.query('SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE url = $1', [url]);
         await client.end();
-        let restaurant = new RestaurantModel(result.rows[0].idrestaurant, result.rows[0].url, result.rows[0].name);
+        let restaurant = RestaurantModel.buildRestaurant(result.rows[0]);
 
-
-        restaurant.meals = await MealController.getMealsFromRestaurant(restaurant.idrestaurant);
 
         return restaurant;
     }
@@ -37,14 +37,9 @@ export default class RestaurantController {
         const client = DatabaseManager.getConnection();
 
         await client.connect();
-        const result = await client.query('SELECT idrestaurant, url, name FROM radulescut.restaurant WHERE name = $1', [name]);
+        const result = await client.query('SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE name = $1', [name]);
         await client.end();
-        let restaurant = new RestaurantModel(result.rows[0].idrestaurant, result.rows[0].url, result.rows[0].name);
-
-
-        restaurant.meals = await MealController.getMealsFromRestaurant(restaurant.idrestaurant);
-
-        return restaurant;
+        return RestaurantModel.buildRestaurant(result.rows[0]);
     }
 
     static async getRestaurants() {
@@ -52,7 +47,8 @@ export default class RestaurantController {
         const query = 'SELECT rest.idrestaurant as idrestaurant,\n' +
             '       url,\n' +
             '       name,\n' +
-            '        coalesce(SUM(jsonb_array_length(foodies)), 0) as nbMeals\n' +
+            '        coalesce(SUM(jsonb_array_length(foodies)), 0) as nbMeals,\n' +
+            '        rest.gpscoord\n' +
             'FROM radulescut.restaurant as rest\n' +
             '         left join radulescut.meal as m on rest.idrestaurant = m.idrestaurant\n' +
             'group by rest.idrestaurant, url, name\n' +
@@ -64,26 +60,9 @@ export default class RestaurantController {
         const result = await client.query(query);
         await client.end();
 
-        let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
-
-        return restaurants;
+        return result.rows.map(row => RestaurantModel.buildRestaurant(row));
     }
 
-    static async getRestaurantsAndMeals() {
-        const client = DatabaseManager.getConnection();
-
-        await client.connect();
-        const result = await client.query('SELECT idrestaurant, url, name FROM radulescut.restaurant');
-        await client.end();
-
-        let restaurants = result.rows.map(row => new RestaurantModel(row.idrestaurant, row.url, row.name));
-
-        for (let restaurant of restaurants) {
-            restaurant.meals = await MealController.getMealsFromRestaurant(restaurant.idrestaurant);
-        }
-
-        return restaurants;
-    }
 
     static async getRestaurantsFromMeal(name) {
         const client = DatabaseManager.getConnection();
