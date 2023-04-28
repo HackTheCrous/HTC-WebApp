@@ -45,7 +45,7 @@ export default {
         return {
             mail: '',
             password: '',
-            redirect: this.$route.path === '/login/redirect'
+            redirect: this.$route.path.includes('/login/redirect')
         }
     },
     setup() {
@@ -64,7 +64,7 @@ export default {
                 console.log(this.userStore.getToken)
                 this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
                 if (this.redirect) {
-                    this.$router.push('/register/confirmation');
+                    this.$router.push('/register/confirmation/'+this.$route.params.nonce);
                 } else {
                     this.$router.push('/');
                 }

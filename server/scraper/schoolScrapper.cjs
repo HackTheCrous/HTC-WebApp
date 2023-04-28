@@ -45,4 +45,36 @@ const getSchools = async () => {
     });
 }
 
+
+const revertCoords = async () => {
+    let revertCoords = [];
+    const getCoords = 'SELECT idSchool, coords FROM radulescut.school';
+    const client = new Client(clientInfo);
+    await client.connect();
+    const coords = await client.query(getCoords);
+
+
+    for(const row of coords.rows){
+        console.log(row);
+        revertCoords.push([row.idschool, row.coords.y, row.coords.x]);
+    }
+    console.log(revertCoords);
+    await client.end();
+    return revertCoords;
+}
+
 //getSchools();
+
+const alterCoords = async (coords) => {
+    const query = 'UPDATE radulescut.school SET coords = $1 WHERE idschool = $2';
+    const client = new Client(clientInfo);
+    await client.connect();
+    for(const coord of coords){
+        await client.query(query, [coord[1] + ', ' + coord[2], coord[0]]);
+    }
+    await client.end();
+}
+
+revertCoords().then((coords) => {
+    alterCoords(coords);
+});

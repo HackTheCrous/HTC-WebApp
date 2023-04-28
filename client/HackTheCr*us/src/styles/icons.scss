@@ -1,0 +1,11 @@
+svg {
+  path {
+    fill:var(--color-text);
+  }
+
+
+}
+
+.active path {
+  fill: var(--color-text);
+}

@@ -13,8 +13,13 @@ dotenv.config();
 export const resolvers = {
     Query: {
         restaurant: async (parent, args, context, info) => {
-            const {url} = args;
-            return await RestaurantController.getRestaurant(url);
+            const {url,idschool} = args;
+            if(idschool !== undefined){
+                const restaurant = await RestaurantController.getRestaurant(url);
+                restaurant.idschool = idschool;
+                return restaurant;
+            }
+            return (await RestaurantController.getRestaurant(url));
         },
         restaurants: async (parent, args, context, info) => {
 
@@ -73,10 +78,14 @@ export const resolvers = {
     Restaurant: {
         meals: async (parent, args, context, info) => {
             return await MealController.getMealsFromRestaurant(parent.idrestaurant);
+        },
+        distance: async (parent, args, context, info) => {
+            return await SchoolController.getDistance(parent.idschool, parent.coords);
         }
     },
     User: {
         school: async (parent, args, context, info) => {
+
             return await UserController.getSchool(parent.iduser);
         },
         favorites: async (parent, args, context, info) => {

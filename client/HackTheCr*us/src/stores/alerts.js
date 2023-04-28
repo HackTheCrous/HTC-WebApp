@@ -7,9 +7,6 @@ export const useAlertsStore = defineStore('alerts', {
 
     getters: {
         getLastAlert: (state) => {
-            if (state.alerts.length === 0) return null;
-
-
             return state.alerts[state.alerts.length - 1];
         },
         hasNext(state){

@@ -6,19 +6,19 @@ export const typeDefs = gql`
     directive @auth on FIELD_DEFINITION
 
     type Query {
-        restaurant(url: String): Restaurant,
+        restaurant(url: String, idschool: Int): Restaurant,
         restaurants: [Restaurant],
         search(query: String): [Restaurant],
         user(iduser: Int): User,
         searchRestaurant(query: String): [Restaurant],
-        searchSchool(query: String): [School]
+        searchSchool(query: String): [School],
     }
     
     type Mutation {
         createSchool(name: String, coords: String): School,
         modifyUser(name: String, ical: String, school: Int, restaurants : [Int]): User,
-        like(idrestaurant: Int): Restaurant,
-        dislike(idrestaurant: Int): Restaurant
+        like(idrestaurant: Int): [Restaurant],
+        dislike(idrestaurant: Int): [Restaurant]
     }
     
     type Restaurant {
@@ -26,7 +26,8 @@ export const typeDefs = gql`
         url: String
         name: String
         meals: [Meal]
-        coords: Coordinates
+        coords: Coordinates,
+        distance: Float
     }
 
     type Meal{
@@ -55,6 +56,4 @@ export const typeDefs = gql`
         x: Float
         y: Float
     }
-    
-   
 `;

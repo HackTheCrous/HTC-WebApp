@@ -88,6 +88,30 @@ export default class RestaurantController {
             resto.meals = await MealController.getMealsFromRestaurant(row.idrestaurant);
             return resto;
         });
+    }
 
+    static async getDistance(idRestaurant, position){
+        const query= 'select gpscoord from restaurant where idrestaurant=$1';
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        const result = await client.query(query, [idRestaurant]);
+        await client.end();
+
+        const position2 = result.rows[0].gpscoord;
+
+        console.log(position2);
+
+
+        const R = 6371e3;
+        const phi1 = position.x * Math.PI/180;
+        const phi2 = position2.x * Math.PI/180;
+        const deltaPhi = (position2.x-position.x) * Math.PI/180;
+        const deltaLambda = (position2.y-position.y) * Math.PI/180;
+
+        const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        return R * c;
     }
 }

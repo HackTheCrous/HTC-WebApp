@@ -89,11 +89,7 @@
             </div>
         </form>
     </main>
-    <main v-else class="notLogged">
-        <h2>500 - Authentication error</h2>
-        <h1>Vous devez être connecté pour accéder à cette page</h1>
-        <router-link to="/login/redirect">Se connecter</router-link>
-    </main>
+
 </template>
 
 <script>
@@ -102,6 +98,7 @@ import {usePreferencesStore} from "../stores/preferences";
 import {apolloClient} from "@/main";
 import gql from "graphql-tag";
 import {useUserStore} from "@/stores/user";
+import {useRoute} from "vue-router";
 
 
 const GET_SEARCH_RESULT = gql`
@@ -139,8 +136,12 @@ export default {
     },
     mounted() {
         this.getSuggestionsRestaurant('');
+        if(!this.userStore.logged){
+            this.$router.push({path: '/login/redirect/'+this.$route.params.nonce})
+        }
     },
     setup() {
+        const route = useRoute();
         const preferencesStore = usePreferencesStore();
         const userStore = useUserStore();
         return {preferencesStore, userStore}

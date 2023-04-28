@@ -13,7 +13,6 @@ export const useUserStore = defineStore('user', {
         ical: '',
         school: {},
         favorites: [],
-        provided: false,
     }),
 
     getters: {
@@ -30,17 +29,25 @@ export const useUserStore = defineStore('user', {
             return state;
         },
         getName: (state) => {
-            if(!state.provided){
-                state.getData();
-            }
+
             return state.name;
         },
         getFavorites: (state) => {
-            if(!state.provided){
-                state.getData();
-            }
+
             return state.favorites;
-        }
+        },
+        getNames: (state) => {
+            console.log(state.favorites);
+            return state.favorites.map((favorite) => favorite.name);
+        },
+        getSchool: (state) => {
+            if(state.school === undefined || state.school === null){
+                return false;
+            }
+
+            return state.school;
+        },
+
     },
     actions: {
         //set the store
@@ -48,9 +55,9 @@ export const useUserStore = defineStore('user', {
             this.mail = mail;
             this.token = token;
             this.logged = true;
+            this.getData();
         },
         getData() {
-            this.provided = true;
 
             const GET_DATA_USER = gql`
                 query User{
@@ -73,31 +80,31 @@ export const useUserStore = defineStore('user', {
             apolloClient.query({
                 query: GET_DATA_USER,
             }).then((result) => {
-                this.name = result.data.user.name;
+                this.name = result.data.user.name || '';
                 this.ical = result.data.user.ical;
-                this.school = result.data.user.school;
+                this.school = result.data.user.school ;
+
                 this.favorites = result.data.user.favorites;
             }).catch((error) => {
-                this.provided = false;
             });
 
         },
         setName() {
             return this.name;
         },
-        addFavorite(restaurant){
-            this.favorites.push(restaurant)
+        setFavorites(favorites) {
+            this.favorites = favorites;
         },
         //clean the store
         logout() {
+            apolloClient.resetStore();
             this.mail = '';
             this.token = '';
             this.ical = '';
-            this.school= {};
+            this.school = {};
             this.favorites = [];
             this.logged = false;
-            this.name='';
-            this.provided = false;
+            this.name = '';
         },
     },
     persist: true,

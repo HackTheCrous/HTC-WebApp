@@ -22,6 +22,10 @@ svg{
     &.filled{
         fill:#24EE76;
         transition: all linear 0.3s;
+        path{
+            stroke: #24EE76;
+            transition: all linear 0.3s;
+        }
     }
     
     &:hover{

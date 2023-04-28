@@ -18,7 +18,7 @@ const routes = [
         component: Login
     },
     {
-      path: '/login/redirect',
+      path: '/login/redirect/:nonce',
         name: 'LoginRedirect',
         component: Login
     },
@@ -33,7 +33,7 @@ const routes = [
         component: RestaurantDetail
     },
     {
-        path: '/register/confirmation',
+        path: '/register/confirmation/:nonce',
         name: 'RegistrationConfirmation',
         component : RegistrationConfirmation
     }

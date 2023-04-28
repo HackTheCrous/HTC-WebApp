@@ -2,36 +2,41 @@
     <main>
         <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
         <div id="nav" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
-            <router-link to="/">
+            <router-link to="/" id="logo">
                 <img src="./assets/logoV2.png" alt="logo">
+                <h4 v-if="!reduceBar">hack<br/><span>the cr*us</span></h4>
+
             </router-link>
             <div id="tools">
+                <h3></h3>
                 <router-link class="icon" to="/login" v-slot="{isActive}">
-                    <account v-if="isActive" opacity="1" color="#63F49E"/>
-                    <account v-else opacity="0.5" color="white"/>
+                    <account size="35" class="active" v-if="isActive" opacity="1"/>
+                    <account size="35" v-else opacity="0.5"/>
                     <p v-if="!reduceBar">Login</p>
                 </router-link>
                 <router-link class="icon" to="/register" v-slot="{isActive}">
-                    <account v-if="isActive" opacity="1" color="#63F49E"/>
-                    <account v-else opacity="0.5" color="white"/>
+                    <account size="35" class="active" v-if="isActive" opacity="1"/>
+                    <account size="35" v-else opacity="0.5"/>
 
                     <p v-if="!reduceBar">Register</p>
                 </router-link>
                 <router-link class="icon" to="/" v-slot="{isActive}">
-                    <restaurant v-if="isActive" opacity="1" color="#63F49E"/>
-                    <restaurant v-else opacity="0.5" color="white"/>
+                    <restaurant size="35" class="active" v-if="isActive" opacity="1"/>
+                    <restaurant size="35" v-else opacity="0.5"/>
                     <p v-if="!reduceBar">Restaurants</p>
                 </router-link>
             </div>
+
             <button @click="reduceBar=!reduceBar" class="icon">
-                <squeeze opacity="0.5" color="white"/>
+                <squeeze size="30" opacity="0.5" color="white"/>
             </button>
+
         </div>
         <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
-            <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
+            <router-view />
         </div>
         <div id="content" v-else class="notLogged">
-            <router-view @triggerAlert="(msg, type) => { triggerAlert(msg,type) }"/>
+            <router-view />
         </div>
     </main>
 </template>
@@ -69,7 +74,6 @@ export default {
     },
     mounted() {
         this.alerts.$subscribe(() => {
-
             this.triggerAlert();
         }, {
             detached: true
@@ -77,28 +81,25 @@ export default {
     },
     methods: {
         triggerAlert() {
+            if (this.alerts.hasNext) {
+
+                const alert = this.alerts.getLastAlert;
+
+                this.alert.msg = alert.message;
+                this.alert.status = alert.status;
+                this.alertTriggered = true;
+
+                console.log(this.alert);
+
+                setTimeout(() => {
+                    this.alertTriggered = false;
+                    this.alerts.popAlert();
+                    this.triggerAlert();
 
 
-            const alert = this.alerts.getLastAlert;
+                }, 3000)
 
-
-            this.alert.msg = alert.message;
-            this.alert.status = alert.status;
-            this.alertTriggered = true;
-
-
-            console.log(this.alert);
-
-
-            setTimeout(() => {
-                this.alertTriggered = false;
-                this.alerts.popAlert();
-                if (this.alerts.alerts.length > 0) {
-                    this.triggerAlert(); //dangereux
-                }
-            }, 3000)
-
-
+            }
         }
     }
 }
@@ -123,7 +124,13 @@ main {
 #nav {
   width: $widthSideBar;
   min-width: $minWidthSideBar;
-  border-right: 1px solid rgba(26, 22, 22, 0.25);
+  border-right: 1px solid var(--color-border);
+  box-shadow: 0px 0px 10px 0px var(--color-shadow);
+
+  #logo {
+    margin-top: 15px;
+  }
+
 
   &.squeezed {
     width: fit-content;
@@ -150,20 +157,30 @@ main {
   justify-content: space-between;
   height: 100dvh;
   position: fixed;
-  background: rgba(12, 12, 12, 0.78);
+  background: var(--color-background);
   padding-top: 10px;
   padding-bottom: 10px;
 
   a {
     padding-left: $paddingIcons;
 
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--color-text);
     font-family: Inter, sans-serif;
     font-size: 20px;
     text-decoration: none;
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    p {
+      font-weight: 300;
+      opacity: 0.5;
+    }
+
+    h4 {
+      font-weight: 300;
+      line-height: 17px;
+    }
 
     text-wrap: avoid;
 
@@ -172,12 +189,16 @@ main {
 
 
     svg {
-      margin-right: calc($paddingIcons - 10px);;
+      margin-right: calc($paddingIcons - 15px);;
     }
 
     &.router-link-active {
-      color: #63F49E;
+      color: var(--color-text);
 
+      p {
+        font-weight: 500;
+        opacity: 1;
+      }
     }
 
     img {
@@ -199,8 +220,8 @@ main {
     justify-content: center;
 
     a {
-      margin-bottom: 5px;
-      margin-top: 5px;
+      margin-bottom: 15px;
+      margin-top: 15px;
     }
   }
 
@@ -225,7 +246,7 @@ main {
   .icon {
 
     &.router-link-active {
-      border-left: 5px solid #63F49E;
+      border-left: 5px solid var(--color-text);
       padding-left: calc($paddingIcons - 5px);
     }
   }
@@ -244,7 +265,7 @@ main {
   }
 
   &.notLogged {
-      margin-top: 0px;
+    margin-top: 0px;
     margin-left: 0px;
     width: 100%;
   }

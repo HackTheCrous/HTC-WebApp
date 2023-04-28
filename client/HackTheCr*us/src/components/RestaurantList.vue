@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         filteredRestaurants(){
-            const favoriteNames = this.userStore.getFavorites.map(restaurant => restaurant.name);
+            const favoriteNames = this.userStore.getNames;
             if(this.tag === "Tout"){
                 return this.restaurants;
             }else if(this.tag === "Favoris"){

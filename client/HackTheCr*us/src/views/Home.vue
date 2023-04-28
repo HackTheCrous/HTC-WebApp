@@ -183,10 +183,14 @@ export default {
 <style lang="scss">
 
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
 
 .blurred{
   filter: blur(4px);
+}
+
+body{
+    background: var(--color-background-soft) !important;
 }
 
 header {

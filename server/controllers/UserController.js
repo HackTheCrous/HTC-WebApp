@@ -137,6 +137,9 @@ export default class UserController {
         await client.connect();
         const result = await client.query(query, params);
         await client.end();
+        if(result.rowCount === 0){
+            return null;
+        }
         return new SchoolModel(result.rows[0].idschool, result.rows[0].name, result.rows[0].coords);
     }
 
@@ -185,7 +188,7 @@ export default class UserController {
         await client.query(query, params);
         await client.end();
 
-        return RestaurantController.get(idrestaurant);
+        return UserController.getFavoriteRestaurants(iduser);
     }
 
     static async dislike(idrestaurant, iduser){
@@ -196,6 +199,6 @@ export default class UserController {
         await client.connect();
         await client.query(query, params);
         await client.end();
-        return RestaurantController.get(idrestaurant);
+        return UserController.getFavoriteRestaurants(iduser);
     }
 }
