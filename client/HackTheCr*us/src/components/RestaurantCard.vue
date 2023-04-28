@@ -7,7 +7,7 @@
             <heart v-else color="#24EE76" @click="this.like()" :filled="this.isFavorite()" size="20"/>
         </h3>
         <div class="tags">
-            <p v-if="this.distance != null">{{ Math.round(this.distance / 10) / 100 }}km</p>
+            <p v-if="this.distance !== 0">{{ Math.round(this.distance / 10) / 100 }}km</p>
         </div>
         <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
               class="menu"></Menu>
@@ -42,6 +42,7 @@ mutation Like($idrestaurant: Int){
 const GET_RESTAURANT = gql`
 query Restaurant($url: String){
     restaurant(url: $url){
+    distance
         meals{
             idmeal
             typemeal
@@ -89,27 +90,6 @@ export default {
     setup(props) {
         const userStore = useUserStore();
 
-        if (userStore.getSchool !== false) {
-            console.log("GETTING DISTANCE")
-            const {result} = useQuery(
-                GET_RESTAURANT_AND_DISTANCE,
-                () => ({
-                    url: props.url,
-                    idschool: userStore.getSchool.idschool
-                })
-            )
-
-            const meals = computed(() => result.value?.restaurant.meals ?? []);
-
-            const distance = computed(() => result.value?.restaurant.distance ?? 0);
-            return {
-                meals,
-                userStore,
-                distance
-            }
-        }
-
-
 
         const {result} = useQuery(
             GET_RESTAURANT,
@@ -120,11 +100,15 @@ export default {
 
         const meals = computed(() => result.value?.restaurant.meals ?? []);
 
+        const distance = computed(() => result.value?.restaurant.distance ?? null);
+
         return {
             meals,
             userStore,
-            distance: null
+            distance
         }
+
+
     },
     name: "RestaurantCard",
     data() {
@@ -198,17 +182,18 @@ export default {
   }
 
   .tags {
-      flex:100%;
-      margin-bottom:10px;
+    flex: 100%;
+    margin-bottom: 10px;
+
     p {
       border-radius: 30px;
       border: 1px var(--color-text) solid;
-        opacity: 0.8;
-        background-color:var(--color-text);
-        width:fit-content;
-        font-size: 12px;
-        padding: 2px 7px;
-        color:var(--color-background-soft);
+      opacity: 0.8;
+      background-color: var(--color-text);
+      width: fit-content;
+      font-size: 12px;
+      padding: 2px 7px;
+      color: var(--color-background-soft);
     }
   }
 

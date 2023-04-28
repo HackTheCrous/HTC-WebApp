@@ -13,12 +13,19 @@ dotenv.config();
 export const resolvers = {
     Query: {
         restaurant: async (parent, args, context, info) => {
-            const {url,idschool} = args;
-            if(idschool !== undefined){
-                const restaurant = await RestaurantController.getRestaurant(url);
-                restaurant.idschool = idschool;
-                return restaurant;
+            const {url} = args;
+
+            if (context.req.headers.authorization) {
+                const token = context.req.headers.authorization.split(' ')[1];
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                if (decoded.id != null) {
+                    const school = await UserController.getSchool(decoded.id);
+                    const restaurant = await RestaurantController.getRestaurant(url);
+                    restaurant.school = school;
+                    return restaurant;
+                }
             }
+
             return (await RestaurantController.getRestaurant(url));
         },
         restaurants: async (parent, args, context, info) => {
@@ -62,17 +69,17 @@ export const resolvers = {
             await UserController.modify(decoded.id, name, school, ical, restaurants);
             return await UserController.get(decoded.id);
         },
-        like : async (parent, args, context, info) => {
+        like: async (parent, args, context, info) => {
             const {idrestaurant} = args;
             const token = context.req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            return await UserController.like(idrestaurant,decoded.id);
+            return await UserController.like(idrestaurant, decoded.id);
         },
-        dislike : async (parent, args, context, info) => {
+        dislike: async (parent, args, context, info) => {
             const {idrestaurant} = args;
             const token = context.req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            return await UserController.dislike(idrestaurant,decoded.id);
+            return await UserController.dislike(idrestaurant, decoded.id);
         }
     },
     Restaurant: {
@@ -80,12 +87,14 @@ export const resolvers = {
             return await MealController.getMealsFromRestaurant(parent.idrestaurant);
         },
         distance: async (parent, args, context, info) => {
-            return await SchoolController.getDistance(parent.idschool, parent.coords);
+            if(parent.school == null){
+                return 0;
+            }
+            return await SchoolController.getDistance(parent.school.idschool, parent.coords);
         }
     },
     User: {
         school: async (parent, args, context, info) => {
-
             return await UserController.getSchool(parent.iduser);
         },
         favorites: async (parent, args, context, info) => {

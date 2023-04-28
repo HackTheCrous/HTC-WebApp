@@ -29,7 +29,6 @@ export const useUserStore = defineStore('user', {
             return state;
         },
         getName: (state) => {
-
             return state.name;
         },
         getFavorites: (state) => {
@@ -41,7 +40,7 @@ export const useUserStore = defineStore('user', {
             return state.favorites.map((favorite) => favorite.name);
         },
         getSchool: (state) => {
-            if(state.school.idschool === undefined){
+            if(state.school.status === 'no data' ){
                 return false;
             }
             return state.school;
@@ -57,7 +56,6 @@ export const useUserStore = defineStore('user', {
             this.getData();
         },
         getData() {
-
             const GET_DATA_USER = gql`
                 query User{
                     user{
@@ -83,6 +81,7 @@ export const useUserStore = defineStore('user', {
                 this.ical = result.data.user.ical;
                 if(result.data.user.school){
                     this.school = result.data.user.school;
+
                 }else{
                     this.school = {status: 'no data'};
 

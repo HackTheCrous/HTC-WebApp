@@ -11,10 +11,10 @@ dotenv.config({
 
 export default class MailService {
 
-    async sendConfirmationMail(to, nonce, name) {
+    static async sendConfirmationMail(to, nonce, name) {
         const subject = "Confirm your account";
         const pathToConfirm = path.join(path.dirname(fileURLToPath(import.meta.url)), "../view/confirm.html");
-        const link = process.env.CLIENT_URL + "/register/confirm/" + nonce;
+        const link = process.env.CLIENT_URL + "/register/confirmation/" + nonce;
         fs.readFile(pathToConfirm, "utf8", (err, html) => {
             if (err) {
                 console.log(err);
@@ -26,7 +26,7 @@ export default class MailService {
         });
     }
 
-    async sendMail(to, subject, text, html) {
+    static async sendMail(to, subject, text, html) {
         const testAccount = await nodemailer.createTestAccount();
 
         const transporter = nodemailer.createTransport({
@@ -50,7 +50,7 @@ export default class MailService {
         console.log("Message sent: %s", info.messageId);
         console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     }
+
+
 }
 
-const test = new MailService();
-await test.sendConfirmationMail("radulescutristan@gmail.com","nonce","Tristan");

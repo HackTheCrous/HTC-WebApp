@@ -99,6 +99,8 @@ import {apolloClient} from "@/main";
 import gql from "graphql-tag";
 import {useUserStore} from "@/stores/user";
 import {useRoute} from "vue-router";
+import axios from "axios";
+import {useAlertsStore} from "@/stores/alerts";
 
 
 const GET_SEARCH_RESULT = gql`
@@ -139,12 +141,26 @@ export default {
         if(!this.userStore.logged){
             this.$router.push({path: '/login/redirect/'+this.$route.params.nonce})
         }
+        axios.post('http://localhost:4000/mail/confirm',{
+            nonce: this.$route.params.nonce
+        },{
+            headers: axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userStore.token
+        }).then((res) => {
+            if(res.data.type === 'Error'){
+                this.alertStore.addAlert({message: res.data.message, status: 'Error'});
+                this.userStore.logout();
+                this.$router.push({path: '/'});
+            }
+        }).catch((err) => {
+            console.log(err)
+        })
     },
     setup() {
         const route = useRoute();
         const preferencesStore = usePreferencesStore();
         const userStore = useUserStore();
-        return {preferencesStore, userStore}
+        const alertStore = useAlertsStore();
+        return {preferencesStore, userStore, alertStore}
     },
     methods: {
         nextStep(e) {
@@ -217,6 +233,7 @@ export default {
         currentStep: function (val) {
             if (val === this.steps.length) {
                 this.preferencesStore.savePreferences();
+                this.userStore.getData();
             }
         }
     }

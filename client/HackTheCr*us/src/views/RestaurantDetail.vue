@@ -1,5 +1,5 @@
 <template>
-    <h2>{{ this.name }}</h2>
+    <h2>{{ this.name }} à {{ this.distance }}</h2>
     <div id="meals">
         <div v-for="meal in this.meals" class="meal">
             <h3>{{ meal.typemeal }}</h3>
@@ -26,6 +26,7 @@ const GET_RESTAURANT_BY_NAME = gql`
             idrestaurant
             url
             name
+            distance
             meals{
                 typemeal
                 foodies
@@ -43,7 +44,8 @@ export default {
             id: this.$route.params.id,
             name: '',
             url: '',
-            meals: []
+            meals: [],
+            distance : 0
         }
     },
     mounted() {
@@ -56,6 +58,7 @@ export default {
             this.name = result.data.restaurant.name;
             this.url = result.data.restaurant.url;
             this.meals = result.data.restaurant.meals;
+            this.distance = result.data.restaurant.distance;
         })
     },
 }

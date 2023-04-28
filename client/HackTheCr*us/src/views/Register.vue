@@ -78,7 +78,6 @@ export default {
                             break;
                     }
 
-
                 }).catch((error) => {
                     console.error(error)
                     this.alertStore.addAlert({message:error, status: 'Error'});

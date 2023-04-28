@@ -10,6 +10,7 @@ import {useUserStore} from "@/stores/user";
 import axios from "axios";
 import {useAlertsStore} from "@/stores/alerts";
 import LoginBanner from "@/components/LoginBanner.vue";
+import {useRestaurantStore} from "@/stores/restaurants";
 
 
 export default {
@@ -27,7 +28,7 @@ export default {
 
         const userStore = useUserStore();
 
-        const {result} = useQuery(
+        /*const {result} = useQuery(
             gql`query Restaurants{
     restaurants{
         idrestaurant
@@ -39,12 +40,16 @@ export default {
 
         const restaurants = computed(() => {
             return result.value?.restaurants ?? []
-        });
+        });*/
+
+        const restaurantStore = useRestaurantStore();
+
+
 
         const alerts = useAlertsStore();
 
         return {
-            restaurants, userStore,alerts
+            restaurantStore, userStore,alerts
         }
     },
 
@@ -150,7 +155,7 @@ export default {
             <div class="filler"></div>
         </div>
         <main class="blurred">
-            <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
+            <RestaurantList :restaurants="this.restaurantStore.getRestaurants" :tag="focusedTag"/>
         </main>
         <LoginBanner/>
 

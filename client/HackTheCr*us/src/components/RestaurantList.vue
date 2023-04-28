@@ -1,6 +1,7 @@
 <script>
 import RestaurantCard from "../components/RestaurantCard.vue";
 import {useUserStore} from "@/stores/user";
+import {useRestaurantStore} from "@/stores/restaurants";
 
 export default {
     components: {
@@ -8,8 +9,9 @@ export default {
     },
     setup(){
         const userStore = useUserStore();
+        const restaurantStore = useRestaurantStore();
         return {
-            userStore
+            userStore,restaurantStore
         }
     },
     props:{
@@ -21,11 +23,11 @@ export default {
         filteredRestaurants(){
             const favoriteNames = this.userStore.getNames;
             if(this.tag === "Tout"){
-                return this.restaurants;
+                return this.restaurantStore.getRestaurants;
             }else if(this.tag === "Favoris"){
-                return this.restaurants.filter(restaurant => favoriteNames.includes(restaurant.name));
+                return this.restaurantStore.getRestaurants.filter(restaurant => favoriteNames.includes(restaurant.name));
             }else{
-                return this.restaurants.filter(restaurant => restaurant.name.includes(this.tag));
+                return this.restaurantStore.getRestaurants.filter(restaurant => restaurant.name.includes(this.tag));
             }
         }
     }

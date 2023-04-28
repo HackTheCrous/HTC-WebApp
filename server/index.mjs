@@ -117,7 +117,19 @@ app.post('/signup', (req, res, next) => {
             });
         }
     });
-    
+});
+
+app.post('/mail/confirm', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    UserController.confirm(decoded.mail,req.body.nonce).then((status) => {
+       if(status){
+          res.send({type: "Success", message: "Mail confirmed"});
+      }else{
+            res.send({type: "Error", message: "Error confirming mail : bad nonce"});
+      }
+   });
 });
 
 

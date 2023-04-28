@@ -6,7 +6,7 @@ export const typeDefs = gql`
     directive @auth on FIELD_DEFINITION
 
     type Query {
-        restaurant(url: String, idschool: Int): Restaurant,
+        restaurant(url: String): Restaurant,
         restaurants: [Restaurant],
         search(query: String): [Restaurant],
         user(iduser: Int): User,
