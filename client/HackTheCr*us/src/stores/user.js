@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', {
         name: '',
         logged: false,
         ical: '',
-        school: {},
+        school: {status: 'no data'},
         favorites: [],
     }),
 
@@ -41,10 +41,9 @@ export const useUserStore = defineStore('user', {
             return state.favorites.map((favorite) => favorite.name);
         },
         getSchool: (state) => {
-            if(state.school === undefined || state.school === null){
+            if(state.school.idschool === undefined){
                 return false;
             }
-
             return state.school;
         },
 
@@ -82,7 +81,12 @@ export const useUserStore = defineStore('user', {
             }).then((result) => {
                 this.name = result.data.user.name || '';
                 this.ical = result.data.user.ical;
-                this.school = result.data.user.school ;
+                if(result.data.user.school){
+                    this.school = result.data.user.school;
+                }else{
+                    this.school = {status: 'no data'};
+
+                }
 
                 this.favorites = result.data.user.favorites;
             }).catch((error) => {
@@ -101,7 +105,7 @@ export const useUserStore = defineStore('user', {
             this.mail = '';
             this.token = '';
             this.ical = '';
-            this.school = {};
+            this.school = {status: 'no data'};
             this.favorites = [];
             this.logged = false;
             this.name = '';

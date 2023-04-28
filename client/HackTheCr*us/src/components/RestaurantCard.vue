@@ -7,7 +7,7 @@
             <heart v-else color="#24EE76" @click="this.like()" :filled="this.isFavorite()" size="20"/>
         </h3>
         <div class="tags">
-            <p v-if="this.userStore.getSchool !== false">{{ Math.round(this.distance / 10) / 100 }}km</p>
+            <p v-if="this.distance != null">{{ Math.round(this.distance / 10) / 100 }}km</p>
         </div>
         <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
               class="menu"></Menu>
@@ -90,6 +90,7 @@ export default {
         const userStore = useUserStore();
 
         if (userStore.getSchool !== false) {
+            console.log("GETTING DISTANCE")
             const {result} = useQuery(
                 GET_RESTAURANT_AND_DISTANCE,
                 () => ({
@@ -101,13 +102,13 @@ export default {
             const meals = computed(() => result.value?.restaurant.meals ?? []);
 
             const distance = computed(() => result.value?.restaurant.distance ?? 0);
-
             return {
                 meals,
                 userStore,
                 distance
             }
         }
+
 
 
         const {result} = useQuery(
