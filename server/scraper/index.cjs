@@ -226,9 +226,45 @@ const getRestaurantId = async (url) => {
     await client.end();
 
     return id;
-
 }
 
+const getRestaurantsInDB = async () => {
+    const client = new Client(clientInfo);
+    await client.connect();
+    const result = await client.query('SELECT idrestaurant,url FROM radulescut.restaurant');
+    await client.end();
+    return result.rows;
+}
+
+
+const deleteAllFromMenus = async () => {
+    const client = new Client(clientInfo);
+    await client.connect();
+    await client.query('DELETE FROM radulescut.meal');
+    await client.end();
+}
+
+const updateMeals = async () => {
+    await deleteAllFromMenus();
+    getRestaurantsInDB().then(async restaurants => {
+        for(const restaurant of restaurants){
+            getRestaurantDetailsFromCrous(restaurant.url).then(async menus => {
+                if(menus.food.name !== "No data"){
+                    const time = menus.food.time;
+                    const idRestaurant = restaurant.idrestaurant;
+                    console.log(menus.food);
+                    for(const menu of menus.food.menus){
+                        await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant)); //that's where things could go ricas :D
+                    }
+                }
+            });
+        }
+    });
+}
+
+updateMeals();
+
+/*
 
 getRestaurantFromCrous(url).then(async restaurants => {
     for (const restaurant of restaurants) {
@@ -244,6 +280,7 @@ getRestaurantFromCrous(url).then(async restaurants => {
 });
 
 
+*/
 
 /*
 getRestaurantFromCrous(url).then(async restaurants => {

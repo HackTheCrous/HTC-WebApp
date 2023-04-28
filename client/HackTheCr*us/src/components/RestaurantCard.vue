@@ -7,10 +7,11 @@
             <heart v-else color="#24EE76" @click="this.like()" :filled="this.isFavorite()" size="20"/>
         </h3>
         <div class="tags">
-            <p v-if="this.distance !== 0">{{ Math.round(this.distance / 10) / 100 }}km</p>
+            <TagDetail v-if="this.distance !== 0"> {{ Math.round(this.distance / 10) / 100 }}km</TagDetail>
         </div>
         <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
               class="menu"></Menu>
+        <p v-if="this.meals.length === 0" class="no-menu">Pas de menu disponible :(</p>
     </div>
 </template>
 
@@ -27,6 +28,7 @@ import {useUserStore} from '@/stores/user';
 
 import axios from "axios";
 import {apolloClient} from "../main";
+import TagDetail from "@/components/TagDetail.vue";
 
 
 const LIKE_RESTAURANT = gql`
@@ -66,6 +68,7 @@ const GET_RESTAURANT_AND_DISTANCE = gql`
 query Restaurant($url: String, $idschool: Int){
     restaurant(url: $url, idschool: $idschool){
         distance
+
         meals{
             idmeal
             typemeal
@@ -80,7 +83,8 @@ query Restaurant($url: String, $idschool: Int){
 export default {
     components: {
         Menu,
-        heart
+        heart,
+        TagDetail
     },
     props: {
         name: String,
@@ -102,10 +106,11 @@ export default {
 
         const distance = computed(() => result.value?.restaurant.distance ?? null);
 
+
         return {
             meals,
             userStore,
-            distance
+            distance,
         }
 
 
@@ -185,18 +190,16 @@ export default {
     flex: 100%;
     margin-bottom: 10px;
 
-    p {
-      border-radius: 30px;
-      border: 1px var(--color-text) solid;
-      opacity: 0.8;
-      background-color: var(--color-text);
-      width: fit-content;
-      font-size: 12px;
-      padding: 2px 7px;
-      color: var(--color-background-soft);
-    }
-  }
 
+  }
+    .no-menu{
+        flex: 100%;
+        margin-bottom: 10px;
+        margin-top: 15px;
+        color: var(--color-text);
+        font-size: 20px;
+        font-weight: 300;
+    }
   .menu {
     flex: 1;
 

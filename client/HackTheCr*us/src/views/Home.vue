@@ -45,24 +45,23 @@ export default {
         const restaurantStore = useRestaurantStore();
 
 
-
         const alerts = useAlertsStore();
 
         return {
-            restaurantStore, userStore,alerts
+            restaurantStore, userStore, alerts
         }
     },
 
 
     data() {
         return {
-            tags: [{name: 'Tout'}, {name: 'Resto'}, {name: 'Cafet’'}, {name: 'Brasserie'}, {name: 'Favoris'}],
+            tags: [{name: 'Tout'}, {name: 'Resto'}, {name: 'Cafet’'}, {name: 'Brasserie'}],
             focusedTag: 'Tout',
-            username:'',
+            username: '',
             restaurants: [],
             focusSearch: false,
             keyPressed: [],
-
+            sortCriteria: 'Favoris'
         }
     },
     mounted() {
@@ -153,15 +152,16 @@ export default {
                       @child-clicked="this.focusedTag=tag.name"
                       :key="tag.name"/>
             <div class="filler"></div>
+
         </div>
         <main class="blurred">
-            <RestaurantList :restaurants="this.restaurantStore.getRestaurants" :tag="focusedTag"/>
+            <RestaurantList :restaurants="this.restaurantStore.getRestaurants" :sort="sortCriteria" :tag="focusedTag"/>
         </main>
         <LoginBanner/>
 
     </div>
     <div v-else>
-        <header >
+        <header>
             <div id="infos">
                 <h1>Hello {{ this.userStore.getName }} ! 👋</h1>
                 <h2>Crous · restaurants</h2>
@@ -177,10 +177,14 @@ export default {
                       @child-clicked="this.focusedTag=tag.name"
                       :key="tag.name"/>
             <div class="filler"></div>
+            <select v-model="this.sortCriteria">
+                <option>Favoris</option>
+                <option>Proximité</option>
+            </select>
         </div>
-        <main >
+        <main>
 
-            <RestaurantList :restaurants="this.restaurants" :tag="focusedTag"/>
+            <RestaurantList :restaurants="this.restaurants" :sort="sortCriteria" :tag="focusedTag"/>
         </main>
     </div>
 </template>
@@ -190,12 +194,12 @@ export default {
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
 
-.blurred{
+.blurred {
   filter: blur(4px);
 }
 
-body{
-    background: var(--color-background-soft) !important;
+body {
+  background: var(--color-background-soft) !important;
 }
 
 header {
@@ -235,10 +239,35 @@ main {
   z-index: 1;
   width: 100%;
 
+
   .filler {
     flex-grow: 1;
     border-bottom: solid 1px var(--color-border);
+  }
 
+  select {
+
+    border: none;
+    background: none;
+    font-family: Inter, sans-serif;
+
+    font-size: 15px;
+    padding-bottom: 10px;
+    padding-right: 5px;
+    font-weight: 200;
+    color: var(--color-text);
+    border-bottom: solid 1px var(--color-border);
+    outline: none;
+
+    option {
+      font-family: Inter, sans-serif;
+      border: none;
+
+      &:hover {
+        background: var(--color-background-soft);
+
+      }
+    }
   }
 }
 

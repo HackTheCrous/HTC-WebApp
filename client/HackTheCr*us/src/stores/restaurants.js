@@ -9,6 +9,7 @@ const GET_RESTAURANTS = gql`
             idrestaurant
             name
             url
+            distance
         }
     }`;
 

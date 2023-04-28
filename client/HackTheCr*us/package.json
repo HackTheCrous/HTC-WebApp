@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.12",
+    "@fawmi/vue-google-maps": "^0.9.79",
     "@vue/apollo-composable": "^4.0.0-beta.4",
     "axios": "^1.3.6",
     "graphql": "^16.6.0",
@@ -20,6 +21,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
+    "@vue-leaflet/vue-leaflet": "^0.9.0",
+    "leaflet": "^1.9.3",
     "sass": "^1.62.0",
     "sass-loader": "^13.2.2",
     "vite": "^4.1.4"

@@ -1,7 +1,7 @@
 <template>
     <div class="menu-foody">
         <h4>
-            {{ this.name }} du {{ this.formatDate(new Date(parseInt(this.time))) }}
+            {{ this.name }} du {{ this.formatDate(this.time) }}
         </h4>
         <div v-for="foody in this.foodies">
             <h5>{{ foody.type }}</h5>
@@ -11,6 +11,7 @@
                 </li>
             </ul>
         </div>
+
     </div>
 </template>
 
@@ -25,12 +26,19 @@ export default {
     methods: {
         /**
          * format the given date to dayasname mm yyyy
-         * @param date of type Date
+         * @param date of type Int
          */
         formatDate(date) {
-            const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-            const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-            return days[date.getDay()] + " " + months[date.getMonth()] + " " + date.getFullYear();
+            const dateFormat = new Date(parseInt(date));
+
+            const formated = dateFormat.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            return formated.charAt(0).toUpperCase() + formated.slice(1);
         }
     }
 }

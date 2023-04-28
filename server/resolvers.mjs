@@ -29,6 +29,22 @@ export const resolvers = {
             return (await RestaurantController.getRestaurant(url));
         },
         restaurants: async (parent, args, context, info) => {
+            if (context.req.headers.authorization) {
+                const token = context.req.headers.authorization.split(' ')[1];
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                if (decoded.id != null) {
+                    const school = await UserController.getSchool(decoded.id);
+                    if (school != null) {
+                        const restaurants = await RestaurantController.getRestaurants();
+                        restaurants.forEach(restaurant => {
+                            restaurant.school = school;
+                        });
+                        console.log(restaurants);
+                        return restaurants;
+                    }
+
+                }
+            }
 
             return await RestaurantController.getRestaurants();
         },
@@ -87,7 +103,10 @@ export const resolvers = {
             return await MealController.getMealsFromRestaurant(parent.idrestaurant);
         },
         distance: async (parent, args, context, info) => {
-            if(parent.school == null){
+            if (parent.school == null) {
+                return 0;
+            }
+            if(parent.coords == null){
                 return 0;
             }
             return await SchoolController.getDistance(parent.school.idschool, parent.coords);
