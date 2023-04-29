@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
 import SchoolController from "./controllers/SchoolController.mjs";
 import MealController from "./controllers/MealController.mjs";
+import PlanningController from './controllers/PlanningController.js';
 
 dotenv.config();
 
@@ -70,6 +71,10 @@ export const resolvers = {
         searchSchool: async (parent, args, context, info) => {
             const {query} = args;
             return (await SchoolController.getSchooLike(query)).slice(0, 5);
+        },
+        day: async (parent, args, context, info) => {
+            const {date} = args;
+            return await (new PlanningController).getEventsByDate(date);
         }
     },
 

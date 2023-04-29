@@ -12,6 +12,7 @@ export const typeDefs = gql`
         user(iduser: Int): User,
         searchRestaurant(query: String): [Restaurant],
         searchSchool(query: String): [School],
+        day(date: String): [PlanningDay],
     }
     
     type Mutation {
@@ -56,5 +57,13 @@ export const typeDefs = gql`
     type Coordinates{
         x: Float
         y: Float
+    }
+
+    type PlanningDay{
+        start: Int
+        end: Int
+        summary: String
+        location: String
+        description: String
     }
 `;
