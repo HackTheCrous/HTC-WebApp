@@ -8,22 +8,17 @@
 
             </router-link>
             <div id="tools">
-                <h3></h3>
-                <router-link class="icon" to="/login" v-slot="{isActive}">
-                    <account size="35" class="active" v-if="isActive" opacity="1"/>
-                    <account size="35" v-else opacity="0.5"/>
-                    <p v-if="!reduceBar">Login</p>
-                </router-link>
-                <router-link class="icon" to="/register" v-slot="{isActive}">
-                    <account size="35" class="active" v-if="isActive" opacity="1"/>
-                    <account size="35" v-else opacity="0.5"/>
 
-                    <p v-if="!reduceBar">Register</p>
-                </router-link>
+
                 <router-link class="icon" to="/" v-slot="{isActive}">
                     <restaurant size="35" class="active" v-if="isActive" opacity="1"/>
                     <restaurant size="35" v-else opacity="0.5"/>
                     <p v-if="!reduceBar">Restaurants</p>
+                </router-link>
+                <router-link class="icon" to="/account" v-slot="{isActive}">
+                    <account size="35" class="active" v-if="isActive" opacity="1"/>
+                    <account size="35" v-else opacity="0.5"/>
+                    <p v-if="!reduceBar">Mon compte</p>
                 </router-link>
             </div>
 

@@ -14,6 +14,19 @@ export default class SchoolController {
         return result.rows.map(row => new SchoolModel(row.idschool, row.name, row.coords));
     }
 
+    static async getSchoolId(name) {
+        const query = "SELECT idschool FROM school WHERE name=$1";
+        const params = [name];
+
+        const client = DatabaseManager.getConnection();
+
+        await client.connect();
+        const result = await client.query(query, params);
+        await client.end();
+
+        return result.rows[0].idschool;
+    }
+
     static async create(name){
         let query = "INSERT INTO school(name) VALUES($1)";
         let params = [name];

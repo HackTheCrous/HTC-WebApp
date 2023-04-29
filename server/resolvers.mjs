@@ -85,6 +85,15 @@ export const resolvers = {
             await UserController.modify(decoded.id, name, school, ical, restaurants);
             return await UserController.get(decoded.id);
         },
+        modifyUserBySchoolName: async (parent, args, context, info) => {
+            const {name, ical, school, restaurants} = args;
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const idSchool = await SchoolController.getSchoolId(school);
+
+            await UserController.modify(decoded.id, name, idschool, ical, restaurants);
+            return await UserController.get(decoded.id);
+        },
         like: async (parent, args, context, info) => {
             const {idrestaurant} = args;
             const token = context.req.headers.authorization.split(' ')[1];

@@ -45,6 +45,9 @@ export const useUserStore = defineStore('user', {
             }
             return state.school;
         },
+        getIcal: (state) => {
+            return state.ical;
+        }
 
     },
     actions: {

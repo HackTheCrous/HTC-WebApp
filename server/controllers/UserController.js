@@ -184,13 +184,16 @@ export default class UserController {
         const client = DatabaseManager.getConnection();
         console.log(iduser);
         await client.connect();
-        await client.query('DELETE FROM radulescut.favoriterestaurant WHERE iduser = $1', [iduser]);
-        for (const restaurant of restaurants) {
-            await client.query('INSERT INTO radulescut.favoriterestaurant(iduser, idrestaurant) VALUES ($1, $2)', [iduser, restaurant]);
+        if(restaurants != null){
+            await client.query('DELETE FROM radulescut.favoriterestaurant WHERE iduser = $1', [iduser]);
+
+            for (const restaurant of restaurants) {
+                await client.query('INSERT INTO radulescut.favoriterestaurant(iduser, idrestaurant) VALUES ($1, $2)', [iduser, restaurant]);
+            }
         }
+
         const response = await client.query('UPDATE radulescut.user SET name = $1, idschool = $2, ical = $3 WHERE iduser = $4', [name, school, ical, iduser]);
         await client.end();
-
     }
 
     static async getFavoriteRestaurants(iduser) {

@@ -364,6 +364,7 @@ main {
           padding: 5px 20px;
           background: #24EE76;
           box-shadow: 0px 4px 17px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
 
           &.skip {
             background: #CFCFCF;

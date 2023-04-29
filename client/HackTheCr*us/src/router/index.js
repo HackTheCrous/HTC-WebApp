@@ -4,6 +4,7 @@ import Login from "@/views/Login.vue";
 import Register from "@/views/Register.vue";
 import RestaurantDetail from "@/views/RestaurantDetail.vue";
 import RegistrationConfirmation from "@/views/RegistrationConfirmation.vue";
+import Account from "@/views/Account.vue";
 
 
 const routes = [
@@ -36,6 +37,11 @@ const routes = [
         path: '/register/confirmation/:nonce',
         name: 'RegistrationConfirmation',
         component : RegistrationConfirmation
+    },
+    {
+        path: '/account',
+        name: 'Account',
+        component: Account
     }
 ]
 

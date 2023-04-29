@@ -14,6 +14,10 @@ export const useAlertsStore = defineStore('alerts', {
         }
     },
     actions: {
+        /**
+         * Push an alert to the stack
+         * @param alert an object with the following fields: type (Success or Error), message
+         */
         addAlert(alert) {
             this.alerts.push(alert);
         },
