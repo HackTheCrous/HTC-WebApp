@@ -13,15 +13,15 @@
                     <restaurant size="35" v-else opacity="0.5"/>
                     <p v-if="!reduceBar">Restaurants</p>
                 </router-link>
-                <router-link class="icon" to="/account" v-slot="{isActive}">
-                    <account size="35" class="active" v-if="isActive" opacity="1"/>
-                    <account size="35" v-else opacity="0.5"/>
-                    <p v-if="!reduceBar">Mon compte</p>
-                </router-link>
                 <router-link class="icon" to="/calendar" v-slot="{isActive}">
                     <calendar size="35" class="active" v-if="isActive" opacity="1"/>
                     <calendar size="35" v-else opacity="0.5"/>
                     <p v-if="!reduceBar">Agenda</p>
+                </router-link>
+                <router-link class="icon" to="/account" v-slot="{isActive}">
+                    <account size="35" class="active" v-if="isActive" opacity="1"/>
+                    <account size="35" v-else opacity="0.5"/>
+                    <p v-if="!reduceBar">Mon compte</p>
                 </router-link>
             </div>
 
