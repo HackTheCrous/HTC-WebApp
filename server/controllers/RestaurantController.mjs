@@ -99,7 +99,6 @@ export default class RestaurantController {
 
         const position2 = result.rows[0].gpscoord;
 
-        console.log(position2);
 
 
         const R = 6371e3;

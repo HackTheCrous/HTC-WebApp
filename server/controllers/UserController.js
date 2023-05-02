@@ -182,7 +182,6 @@ export default class UserController {
      */
     static async modify(iduser, name, school, ical, restaurants) {
         const client = DatabaseManager.getConnection();
-        console.log(iduser);
         await client.connect();
         if(restaurants != null){
             await client.query('DELETE FROM radulescut.favoriterestaurant WHERE iduser = $1', [iduser]);
@@ -192,7 +191,7 @@ export default class UserController {
             }
         }
 
-        const response = await client.query('UPDATE radulescut.user SET name = $1, idschool = $2, ical = $3 WHERE iduser = $4', [name, school, ical, iduser]);
+        await client.query('UPDATE radulescut.user SET name = $1, idschool = $2, ical = $3 WHERE iduser = $4', [name, school, ical, iduser]);
         await client.end();
     }
 

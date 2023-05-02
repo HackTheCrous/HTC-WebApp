@@ -14,6 +14,11 @@ export default class SchoolController {
         return result.rows.map(row => new SchoolModel(row.idschool, row.name, row.coords));
     }
 
+    /**
+     * Get the id of a school from its name
+     * @param name
+     * @returns {Promise<*>}
+     */
     static async getSchoolId(name) {
         const query = "SELECT idschool FROM school WHERE name=$1";
         const params = [name];

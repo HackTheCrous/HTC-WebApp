@@ -40,7 +40,6 @@ export const resolvers = {
                         restaurants.forEach(restaurant => {
                             restaurant.school = school;
                         });
-                        console.log(restaurants);
                         return restaurants;
                     }
 
@@ -95,8 +94,7 @@ export const resolvers = {
             const token = context.req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const idSchool = await SchoolController.getSchoolId(school);
-
-            await UserController.modify(decoded.id, name, idschool, ical, restaurants);
+            await UserController.modify(decoded.id, name, idSchool, ical, restaurants);
             return await UserController.get(decoded.id);
         },
         like: async (parent, args, context, info) => {

@@ -8,7 +8,7 @@
             <input type="text" v-model="etablissement" placeholder="Etablissement"/>
             <div class="suggestions">
                 <ul>
-                    <li v-for="school in this.schoolSuggestions">{{ school.name }}</li>
+                    <li v-for="school in this.schoolSuggestions" @click="select" :id="school.idschool">{{ school.name }}</li>
                 </ul>
             </div>
             <input type="text" v-model="ical" placeholder="Lien ical"/>
@@ -59,27 +59,33 @@ export default {
             etablissement: this.userStore.getSchool === false ? '' : this.userStore.getSchool.name,
             ical: this.userStore.getIcal,
             schoolSuggestions: [],
+            schoolData : {idSchool : 0, name : ''}
         }
     },
     methods: {
         async submit(e) {
+            console.log("click");
             e.preventDefault();
             apolloClient.mutate({
                 mutation: MODIFY_USER,
                 variables: {
                     name: this.username,
-                    school: parseInt(this.etablissement),
+                    school: this.schoolData.name,
                     ical: this.ical
                 }
             }).then(() => {
                 this.userStore.getData();
-                this.restaurantStore.getData();
+                this.restaurantStore.setRestaurants();
                 this.alerts.addAlert({
                     message: 'Vos informations ont été modifiées !',
                     status: 'Success'
                 });
             }).catch(err => {
-
+                console.log(err);
+                this.alerts.addAlert({
+                    message: 'Une erreur est survenue ! ' + err,
+                    status: 'Error'
+                });
             })
         },
         getSuggestionsSchool(val) {
@@ -92,6 +98,12 @@ export default {
                 this.schoolSuggestions = result.data.searchSchool;
             })
         },
+        select(e){
+            console.log(e.target.id);
+            this.schoolData.idSchool = e.target.id;
+            this.schoolData.name = e.target.innerText;
+            this.etablissement = e.target.innerText;
+        }
     },
     watch: {
         etablissement(val) {

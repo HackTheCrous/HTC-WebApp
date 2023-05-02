@@ -34,7 +34,6 @@ export default {
                 restaurantList = this.restaurantStore.getRestaurants.filter(restaurant => restaurant.name.includes(this.tag)).map(restaurant => restaurant);
             }
 
-            console.log(restaurantList);
 
             restaurantList=restaurantList.sort((a,b) => {
                 if(a.distance < b.distance){
