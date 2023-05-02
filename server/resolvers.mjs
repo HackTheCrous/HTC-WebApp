@@ -73,7 +73,26 @@ export const resolvers = {
         },
         day: async (parent, args, context, info) => {
             const {date} = args;
-            return await (new PlanningController).getEventsByDate(date);
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const ical = await UserController.getIcal(decoded.id);
+
+            return await (new PlanningController(ical)).getEventsByDate(date);
+        },
+        today: async (parent, args, context, info) => {
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            const ical = await UserController.getIcal(decoded.id);
+            return await (new PlanningController(ical)).getEventsByDate((new Date()).toLocaleDateString());
+        },
+        period: async (parent, args, context, info) => {
+            const {start, end} = args;
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            const ical = await UserController.getIcal(decoded.id);
+            return await (new PlanningController(ical)).getEventsByPeriod(start, end);
         }
     },
 
@@ -118,7 +137,7 @@ export const resolvers = {
             if (parent.school == null) {
                 return 0;
             }
-            if(parent.coords == null){
+            if (parent.coords == null) {
                 return 0;
             }
             return await SchoolController.getDistance(parent.school.idschool, parent.coords);

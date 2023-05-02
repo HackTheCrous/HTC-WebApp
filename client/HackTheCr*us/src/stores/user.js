@@ -3,6 +3,7 @@ import {hydrate, provide} from "vue";
 import {provideApolloClient} from "@vue/apollo-composable";
 import {apolloClient} from "@/main";
 import gql from "graphql-tag";
+import {useCalendarStore} from "@/stores/calendar";
 
 export const useUserStore = defineStore('user', {
     state: () => ({
@@ -14,7 +15,10 @@ export const useUserStore = defineStore('user', {
         school: {status: 'no data'},
         favorites: [],
     }),
-
+    setup() {
+        const calendarStore = useCalendarStore();
+        return {calendarStore}
+    },
     getters: {
         isLogged: (state) => {
             return state.logged;
@@ -111,6 +115,7 @@ export const useUserStore = defineStore('user', {
             this.favorites = [];
             this.logged = false;
             this.name = '';
+            this.calendarStore.clean();
         },
     },
     persist: true,

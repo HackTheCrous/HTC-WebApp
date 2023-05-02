@@ -8,8 +8,6 @@
 
             </router-link>
             <div id="tools">
-
-
                 <router-link class="icon" to="/" v-slot="{isActive}">
                     <restaurant size="35" class="active" v-if="isActive" opacity="1"/>
                     <restaurant size="35" v-else opacity="0.5"/>
@@ -19,6 +17,11 @@
                     <account size="35" class="active" v-if="isActive" opacity="1"/>
                     <account size="35" v-else opacity="0.5"/>
                     <p v-if="!reduceBar">Mon compte</p>
+                </router-link>
+                <router-link class="icon" to="/calendar" v-slot="{isActive}">
+                    <calendar size="35" class="active" v-if="isActive" opacity="1"/>
+                    <calendar size="35" v-else opacity="0.5"/>
+                    <p v-if="!reduceBar">Agenda</p>
                 </router-link>
             </div>
 
@@ -44,10 +47,11 @@ import search from "./assets/search.vue";
 import restaurant from "./assets/restaurant.vue";
 import {useAlertsStore} from "@/stores/alerts";
 import {useUserStore} from "@/stores/user";
+import Calendar from "@/assets/calendar.vue";
 
 export default {
     name: "App",
-    components: {Alert, squeeze, account, search, restaurant},
+    components: {Calendar, Alert, squeeze, account, search, restaurant},
     data() {
         return {
             alertTriggered: false,

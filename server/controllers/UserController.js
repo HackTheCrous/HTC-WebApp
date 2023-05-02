@@ -142,6 +142,17 @@ export default class UserController {
         return UserModel.buildUser(response.rows[0]);
     }
 
+    static async getIcal(iduser) {
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        const response = await client.query('SELECT ical FROM radulescut.user WHERE iduser = $1', [iduser]);
+        await client.end();
+        if (response.rowCount === 0) {
+            return null;
+        }
+        return response.rows[0].ical;
+    }
+
     static genJWT({id, mail}) {
         let token;
         try {

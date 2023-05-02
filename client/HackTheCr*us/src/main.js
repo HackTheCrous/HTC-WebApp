@@ -12,6 +12,7 @@ import './assets/main.css'
 import {DefaultApolloClient} from "@vue/apollo-composable";
 import {ApolloLink, concat, HttpLink} from "apollo-boost";
 import {useUserStore} from "@/stores/user";
+import {onError} from "@apollo/client/link/error";
 
 
 
@@ -43,8 +44,23 @@ const authMiddleware = () => new ApolloLink((operation, forward) => {
     return forward(operation);
 });
 
+
+//manage errors. If the token is expired, we logout the user
+const errorLink = onError(({graphQLErrors, networkError}) => {
+   if(graphQLErrors){
+       for(let err of graphQLErrors){
+           if(err.extensions.code === "UNAUTHENTICATED"){
+               userStore.logout();
+           }
+           if(err.message==="jwt expired"){
+                userStore.logout();
+           }
+       }
+   }
+});
+
 export const apolloClient = new ApolloClient({
-    link: concat(authMiddleware(), httpLink),
+    link: errorLink.concat(authMiddleware()).concat(httpLink),
     cache,
 });
 

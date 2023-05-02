@@ -64,7 +64,6 @@ export default {
     },
     methods: {
         async submit(e) {
-            console.log("click");
             e.preventDefault();
             apolloClient.mutate({
                 mutation: MODIFY_USER,

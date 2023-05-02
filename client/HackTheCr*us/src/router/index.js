@@ -5,6 +5,8 @@ import Register from "@/views/Register.vue";
 import RestaurantDetail from "@/views/RestaurantDetail.vue";
 import RegistrationConfirmation from "@/views/RegistrationConfirmation.vue";
 import Account from "@/views/Account.vue";
+import Calendar from "@/assets/calendar.vue";
+import CalendarDetails from "@/views/CalendarDetails.vue";
 
 
 const routes = [
@@ -42,6 +44,11 @@ const routes = [
         path: '/account',
         name: 'Account',
         component: Account
+    },
+    {
+        path: '/calendar',
+        name: 'Calendar',
+        component: CalendarDetails
     }
 ]
 

@@ -2,6 +2,7 @@ import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
     scalar JSON
+    scalar Date
     
     directive @auth on FIELD_DEFINITION
 
@@ -13,6 +14,8 @@ export const typeDefs = gql`
         searchRestaurant(query: String): [Restaurant],
         searchSchool(query: String): [School],
         day(date: String): [PlanningDay],
+        today: [PlanningDay],
+        period(start: Date, end: Date): [PlanningDay],
     }
     
     type Mutation {
@@ -60,8 +63,8 @@ export const typeDefs = gql`
     }
 
     type PlanningDay{
-        start: Int
-        end: Int
+        start: Date
+        end: Date
         summary: String
         location: String
         description: String

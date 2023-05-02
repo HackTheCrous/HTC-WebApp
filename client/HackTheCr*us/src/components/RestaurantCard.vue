@@ -9,7 +9,7 @@
         <div class="tags">
             <TagDetail v-if="this.distance !== 0"> {{ Math.round(this.distance / 10) / 100 }}km</TagDetail>
         </div>
-        <Menu v-for="meal in this.meals" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
+        <Menu v-for="meal in this.meals" :key="meal.typemeal" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
               class="menu"></Menu>
         <p v-if="this.meals.length === 0" class="no-menu">Pas de menu disponible :(</p>
     </div>
@@ -64,21 +64,7 @@ mutation Dislike($idrestaurant: Int){
 }
 `;
 
-const GET_RESTAURANT_AND_DISTANCE = gql`
-query Restaurant($url: String, $idschool: Int){
-    restaurant(url: $url, idschool: $idschool){
-        distance
 
-        meals{
-            idmeal
-            typemeal
-            foodies
-            day
-        }
-    }
-
-}
-`;
 
 export default {
     components: {
