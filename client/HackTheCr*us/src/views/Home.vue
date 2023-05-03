@@ -1,9 +1,7 @@
 <script>
 import TagPlace from "@/components/TagPlace.vue";
 import SearchBar from "@/components/SearchBar.vue";
-import {useQuery} from "@vue/apollo-composable";
-import {computed} from "vue";
-import gql from "graphql-tag";
+
 import RestaurantList from "@/components/RestaurantList.vue";
 import Signout from "../assets/signout.vue";
 import {useUserStore} from "@/stores/user";

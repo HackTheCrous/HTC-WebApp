@@ -22,8 +22,6 @@
 
 <script>
 
-import {computed} from "vue";
-import {useQuery} from "@vue/apollo-composable";
 import gql from "graphql-tag";
 import {apolloClient} from "@/main";
 import TagDetail from "@/components/TagDetail.vue";

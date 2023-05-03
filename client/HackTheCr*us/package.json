@@ -9,15 +9,18 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.12",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link-http": "^1.5.17",
     "@fawmi/vue-google-maps": "^0.9.79",
     "@vue/apollo-composable": "^4.0.0-beta.4",
     "axios": "^1.3.6",
-    "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "pinia": "^2.0.35",
     "pinia-plugin-persistedstate": "^3.1.0",
     "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vue-apollo": "^3.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
@@ -25,6 +28,6 @@
     "leaflet": "^1.9.3",
     "sass": "^1.62.0",
     "sass-loader": "^13.2.2",
-    "vite": "^4.1.4"
+    "vite": "^4.3.4"
   }
 }

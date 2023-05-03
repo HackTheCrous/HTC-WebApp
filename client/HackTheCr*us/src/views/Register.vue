@@ -39,7 +39,6 @@
 
 <script>
 
-import {apolloClient} from "@/main";
 import axios from "axios";
 import {useUserStore} from "@/stores/user";
 import {useAlertsStore} from "@/stores/alerts";

@@ -10,7 +10,9 @@ import {ApolloClient, createHttpLink, InMemoryCache} from "@apollo/client/core";
 
 import './assets/main.css'
 import {DefaultApolloClient} from "@vue/apollo-composable";
-import {ApolloLink, concat, HttpLink} from "apollo-boost";
+import {concat} from "@apollo/client/core";
+import {ApolloLink} from "@apollo/client/core";
+import {HttpLink} from "apollo-link-http";
 import {useUserStore} from "@/stores/user";
 import {onError} from "@apollo/client/link/error";
 
