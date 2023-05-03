@@ -44,12 +44,17 @@ export default {
         },
         getHeightOfEvent(timestampStart, timestampEnd) {
             return this.getOffsetOfEvent(timestampEnd) - this.getOffsetOfEvent(timestampStart);
+        },
+        onResize(){
+            this.width = this.$refs.title[0].clientWidth;
+            this.margin = this.$refs.title[0].clientHeight;
+            this.height = this.$refs.hours[0].clientHeight;
         }
     },
     mounted() {
-        this.width = this.$refs.title[0].clientWidth;
-        this.margin = this.$refs.title[0].clientHeight;
-        this.height = this.$refs.hours[0].clientHeight;
+        this.$nextTick(()=>{
+            window.addEventListener('resize', this.onResize);
+        })
     },
     computed: {
         days() {
