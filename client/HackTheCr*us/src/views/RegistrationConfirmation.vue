@@ -120,7 +120,7 @@ query SearchSchool($queryValue: String){
 }
 `
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT;
+import {endpoint} from "@/main";
 
 export default {
     name: "RegistrationConfirmation",

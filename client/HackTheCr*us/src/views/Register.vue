@@ -43,7 +43,7 @@ import axios from "axios";
 import {useUserStore} from "@/stores/user";
 import {useAlertsStore} from "@/stores/alerts";
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT;
+import {endpoint} from "@/main";
 
 export default {
     name: "Register",

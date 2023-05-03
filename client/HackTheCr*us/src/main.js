@@ -10,14 +10,13 @@ import {ApolloClient, createHttpLink, InMemoryCache} from "@apollo/client/core";
 
 import './assets/main.css'
 import {DefaultApolloClient} from "@vue/apollo-composable";
-import {concat} from "@apollo/client/core";
 import {ApolloLink} from "@apollo/client/core";
 import {HttpLink} from "apollo-link-http";
 import {useUserStore} from "@/stores/user";
 import {onError} from "@apollo/client/link/error";
 
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT;
+export const endpoint = import.meta.env.VITE_API_ENDPOINT || process.env.API_ENDPOINT;
 
 
 const httpLink = new HttpLink({

@@ -9,8 +9,8 @@ import axios from "axios";
 import {useAlertsStore} from "@/stores/alerts";
 import LoginBanner from "@/components/LoginBanner.vue";
 import {useRestaurantStore} from "@/stores/restaurants";
+import {endpoint} from "@/main";
 
-const endpoint = import.meta.env.VITE_API_ENDPOINT;
 export default {
 
     name: "Home",
