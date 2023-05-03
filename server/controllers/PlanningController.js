@@ -53,8 +53,6 @@ export default class PlanningScrappingService{
         const events = await this.getEvents();
         let event;
 
-
-
         for(let k in events){
             event = events[k];
 

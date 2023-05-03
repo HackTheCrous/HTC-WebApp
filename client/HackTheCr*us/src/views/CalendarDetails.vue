@@ -1,6 +1,6 @@
 <template>
     <input type="date" placeholder="Choisir une semaine" v-model="dayOfWeek"/>
-    <Planning :data="getDays(start,end)" :start="start" :end="end"/>
+    <Planning @previous-triggered="goOneWeekBefore" @next-triggered="goOneWeekAfter" :data="getDays(start,end)" :start="start" :end="end"/>
 </template>
 
 <script>
@@ -30,12 +30,18 @@ export default {
     },
     methods: {
         getStartOfWeek(date) {
-            date.setDate(date.getDate() - date.getDay() + 1);
+            date.setDate(date.getDate() - date.getDay() );
             return date;
         },
         getEndOfWeek(date) {
             date.setDate(date.getDate() - date.getDay() + 6);
             return date;
+        },
+        goOneWeekBefore(){
+            this.dayOfWeek = new Date(this.dayOfWeek.getTime() - (86400000-3)*7);
+        },
+        goOneWeekAfter(){
+            this.dayOfWeek = new Date(this.dayOfWeek.getTime() +( 86400000-3)*7);
         }
     },
     computed: {
