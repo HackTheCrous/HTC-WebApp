@@ -2,17 +2,6 @@ import {defineStore} from "pinia";
 import gql from "graphql-tag";
 import {apolloClient} from "@/main";
 
-const GET_CALENDAR_ON = gql`
-    query Day($date: String){
-        day(date: $date){
-            start
-            end
-            summary
-            location
-            description
-        }
-    }
-`
 
 const GET_CALENDAR_ON_PERIOD = gql`
     query Period($start: Date, $end: Date){
@@ -28,27 +17,30 @@ const GET_CALENDAR_ON_PERIOD = gql`
 
 export const useCalendarStore = defineStore('calendar', {
     state: () => ({
-        days: new Map(),
+        days: {},
     }),
 
     getters: {
         getDays :(state) =>{
-
             return (start, end) => {
-
                 let days = [];
-                for (const [key, value] of state.days.entries()) {
+
+                for (let key of Object.entries(state.days)) {
                     if (key >= start && key <= end) {
-                        days.push(value);
+                        days.push(state.days[key]);
                     }
                 }
-                return state.days;
+
+                return days;
             };
+        },
+        getAllDays: (state) => {
+            return state.days;
         }
     },
     actions: {
         clean() {
-            this.days = new Map();
+            this.days = {};
         },
         setDays(start, end){
             apolloClient.query({
@@ -60,9 +52,12 @@ export const useCalendarStore = defineStore('calendar', {
             }).then((result) => {
                 const days = result.data.period;
                 for(const day of days){
-                    this.days.set(day.start, day);
+                    this.days[day.start] = day;
                 }
             });
         }
+    },
+    persist: {
+        storage:sessionStorage
     }
 });

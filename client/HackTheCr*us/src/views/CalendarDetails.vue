@@ -30,7 +30,6 @@ export default {
     },
     methods: {
         getStartOfWeek(date) {
-            console.log(date)
             date.setDate(date.getDate() - date.getDay() + 1);
             return date;
         },

@@ -12,6 +12,7 @@
 
 <script>
 import DetailEventCard from "@/components/DetailEventCard.vue";
+import {useCalendarStore} from "@/stores/calendar";
 
 export default {
     name: "Planning",
@@ -28,9 +29,12 @@ export default {
             height: 0
         }
     },
+    setup(){
+      const calendarStore = useCalendarStore();
+      return {calendarStore}
+    },
     methods: {
         getDay(timestamp) {
-            console.log(timestamp)
             const date = new Date(timestamp);
             const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             return days[date.getDay()];
@@ -69,7 +73,7 @@ export default {
 
             for (let day = startToTimestamp; day < endToTimestamp + lengthDay; day += lengthDay) {
                 const dayData = {timestamp: day, data: []};
-                for (const event of this.data) {
+                for (const event of Object.entries(this.calendarStore.getAllDays)) {
                     if (event[1].start > day && event[1].start < day + lengthDay) {
                         dayData.data.push(event[1])
                     }
