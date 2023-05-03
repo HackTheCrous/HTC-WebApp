@@ -4,22 +4,18 @@
         <div class="day" v-for="day in this.days" :key="day.timestamp">
             <h2 :id="this.getDay(day.timestamp)" ref="title"> {{ new Date(day.timestamp).getDate() }}</h2>
             <div v-for="hour in 13" class="hour" :key="hour" :id="hour+6" ref="hours"></div>
-            <div class="event" v-for="event in day.data" :key="event.start"
-                 :style="{'top' : this.margin +  this.height* (this.getOffsetOfEvent(event.start)-7)+ 'px', 'height' : this.height* this.getHeightOfEvent(event.start, event.end)+ 'px'}">
-                <b>{{ event.summary }}</b>
-                {{ event.location }}<br/>
-                {{ new Date(event.start).getHours() }}h{{ new Date(event.start).getMinutes() }} -
-                {{ new Date(event.end).getHours() }}h{{ new Date(event.start).getMinutes() }}
-            </div>
+            <DetailEventCard :height="this.height* this.getHeightOfEvent(event.start, event.end)" :offset-y="this.margin +  this.height* (this.getOffsetOfEvent(event.start)-7)" v-for="event in day.data" :key="event.start" :summary="event.summary" :start="new Date(event.start)" :end="new Date(event.end)" :location="event.location"/>
+            <div v-if="this.sameDay(Date.now(), day.timestamp)" id="now" :style="{'width' : this.width  + 'px', 'top': this.margin + this.height* (this.getOffsetOfEvent(Date.now())-7) + 'px', 'left': (new Date()).getDate() * this.width}"></div>
         </div>
-        <div id="now"
-             :style="{'width' : this.width  + 'px', 'top': this.margin + this.height* (this.getOffsetOfEvent(Date.now())-7) + 'px', 'left': (new Date()).getDate() * this.width}"></div>
     </div>
 </template>
 
 <script>
+import DetailEventCard from "@/components/DetailEventCard.vue";
+
 export default {
     name: "Planning",
+    components: {DetailEventCard},
     props: {
         data: Object,
         start: Date,
@@ -34,6 +30,7 @@ export default {
     },
     methods: {
         getDay(timestamp) {
+            console.log(timestamp)
             const date = new Date(timestamp);
             const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             return days[date.getDay()];
@@ -46,12 +43,18 @@ export default {
             return this.getOffsetOfEvent(timestampEnd) - this.getOffsetOfEvent(timestampStart);
         },
         onResize(){
-            this.width = this.$refs.title[0].clientWidth;
+            this.width = this.$refs.hours[this.$refs.hours.length-1].clientWidth;
             this.margin = this.$refs.title[0].clientHeight;
             this.height = this.$refs.hours[0].clientHeight;
+        },
+        sameDay(dateA, dateB){
+            const todateA = new Date(dateA);
+            const todateB = new Date(dateB);
+            return todateA.getDay() === todateB.getDay() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
         }
     },
     mounted() {
+        this.onResize()
         this.$nextTick(()=>{
             window.addEventListener('resize', this.onResize);
         })
@@ -127,21 +130,6 @@ export default {
     }
 
 
-    .event {
-      position: absolute;
-      border: 1px solid rgba(36, 238, 118, 0.82);
-      border-radius: 5px;
-      width: 100%;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: var(--color-background-soft);
-
-      b {
-        font-weight: 600;
-      }
-    }
 
     &:last-of-type {
       border-right: 1px solid var(--color-border);
