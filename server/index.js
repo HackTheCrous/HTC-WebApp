@@ -34,7 +34,6 @@ passport.use(UserController.getJWTStrategy({
 
 const server = new ApolloServer({
     typeDefs, resolvers, context: ({req, res}) => {
-        
         return buildContext({req, res});
     }
 });
@@ -66,7 +65,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cors({
-    credentials: true,
+    origin: true,
 }));
 
 
