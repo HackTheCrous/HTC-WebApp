@@ -16,7 +16,7 @@ import {useUserStore} from "@/stores/user";
 import {onError} from "@apollo/client/link/error";
 
 
-export const endpoint = import.meta.env.VITE_API_ENDPOINT || "https://hack-the-crous.vercel.app/";
+export const endpoint = import.meta.env.VITE_API_ENDPOINT || "https://hack-the-crous.vercel.app";
 
 console.log("endpoint : "+ endpoint);
 
