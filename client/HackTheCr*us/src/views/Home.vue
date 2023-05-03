@@ -10,7 +10,7 @@ import {useAlertsStore} from "@/stores/alerts";
 import LoginBanner from "@/components/LoginBanner.vue";
 import {useRestaurantStore} from "@/stores/restaurants";
 
-
+const endpoint = import.meta.env.VITE_API_ENDPOINT;
 export default {
 
     name: "Home",
@@ -100,7 +100,7 @@ export default {
             }
         },
         logout() {
-            axios.post('http://localhost:4000/logout', {}, {
+            axios.post(`${endpoint}/logout`, {}, {
                 headers: axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userStore.token
             }).then(res => {
                 console.log(res);

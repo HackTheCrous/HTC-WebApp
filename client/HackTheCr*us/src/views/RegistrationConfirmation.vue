@@ -120,6 +120,8 @@ query SearchSchool($queryValue: String){
 }
 `
 
+const endpoint = import.meta.env.VITE_API_ENDPOINT;
+
 export default {
     name: "RegistrationConfirmation",
     components: {ProgessSteps},
@@ -141,7 +143,7 @@ export default {
         if(!this.userStore.logged){
             this.$router.push({path: '/login/redirect/'+this.$route.params.nonce})
         }
-        axios.post('http://localhost:4000/mail/confirm',{
+        axios.post(`${endpoint}/mail/confirm`,{
             nonce: this.$route.params.nonce
         },{
             headers: axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userStore.token

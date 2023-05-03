@@ -36,6 +36,7 @@ import axios from "axios";
 import {useUserStore} from "@/stores/user";
 import {useAlertsStore} from "@/stores/alerts";
 
+const endpoint = import.meta.env.VITE_API_ENDPOINT;
 
 export default {
     name: "Login",
@@ -56,7 +57,7 @@ export default {
     methods: {
         submit(e) {
             e.preventDefault();
-            axios.post(`http://localhost:4000/login`, {
+            axios.post(`${endpoint}/login`, {
                 mail: this.mail,
                 password: this.password
             }).then(res => {

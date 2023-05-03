@@ -43,6 +43,8 @@ import axios from "axios";
 import {useUserStore} from "@/stores/user";
 import {useAlertsStore} from "@/stores/alerts";
 
+const endpoint = import.meta.env.VITE_API_ENDPOINT;
+
 export default {
     name: "Register",
 
@@ -62,7 +64,7 @@ export default {
         submit(e) {
             e.preventDefault();
             if (this.password === this.passwordConfirmation) {
-                axios.post(`http://localhost:4000/signup`, {
+                axios.post(`${endpoint}/signup`, {
                     mail: this.mail,
                     password: this.password
                 }).then((response) => {

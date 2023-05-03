@@ -17,9 +17,11 @@ import {useUserStore} from "@/stores/user";
 import {onError} from "@apollo/client/link/error";
 
 
+const endpoint = import.meta.env.VITE_API_ENDPOINT;
+
 
 const httpLink = new HttpLink({
-    uri: 'http://localhost:4000/graphql',
+    uri: `${endpoint}/graphql`,
 })
 
 const cache = new InMemoryCache();
