@@ -1,9 +1,15 @@
 <template>
     <h2>{{ this.name }}</h2>
+    <h2 v-if="loading">
+        <LoadingFillerBox height="40px" width="30%"></LoadingFillerBox>
+    </h2>
     <div id="tags">
         <TagDetail v-if="this.distance !== 0"> {{ Math.round(this.distance / 10) / 100 }}km</TagDetail>
     </div>
     <hr/>
+
+    <LoadingFillerBox v-if="loading" height="400px" width="100%"></LoadingFillerBox>
+
     <h2>{{ this.day }}</h2>
 
     <div id="meals">
@@ -25,6 +31,7 @@
 import gql from "graphql-tag";
 import {apolloClient} from "@/main";
 import TagDetail from "@/components/TagDetail.vue";
+import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
 
 const GET_RESTAURANT_BY_NAME = gql`
     query Restaurant($id: String){
@@ -49,7 +56,7 @@ const GET_RESTAURANT_BY_NAME = gql`
 
 export default {
     name: "RestaurantDetail",
-    components: {TagDetail},
+    components: {LoadingFillerBox, TagDetail},
     data() {
         return {
             id: this.$route.params.id,
@@ -61,10 +68,12 @@ export default {
                 x: 0,
                 y: 0
             },
-            day: ''
+            day: '',
+            loading :false
         }
     },
     mounted() {
+        this.loading=true;
         apolloClient.query(({
             query: GET_RESTAURANT_BY_NAME,
             variables: {
@@ -87,6 +96,8 @@ export default {
             });
 
             this.day = formated.charAt(0).toUpperCase() + formated.slice(1);
+
+            this.loading = false;
         })
     },
 }

@@ -29,8 +29,8 @@ export default {
   }
 
  .loading-box{
-     background: linear-gradient(90deg, hsla(146, 13%, 61%, 0.2) 0%, hsla(150, 61%, 48%, 0.6) 50%, hsla(145, 84%, 73%, 0.2) 100%);
-
+     //background: linear-gradient(90deg, rgba(220, 220, 220, 0.5) 0%, rgba(140, 140, 140, 0.8) 50%, rgba(220, 220, 220, 0.5) 100%);
+    background: rgba(110, 241, 163, 0.2);
 
      background-size: 400% 400%;
 
