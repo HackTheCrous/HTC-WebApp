@@ -55,7 +55,7 @@ h4{
     margin: 0px;
     padding: 0px;
     font-size: 1.2em;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 </style>
