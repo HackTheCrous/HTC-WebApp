@@ -39,6 +39,9 @@
 
                 </li>
             </ul>
+            <ul class="suggestions" v-else-if="this.loading">
+                <LoadingFillerBox height="50px" width="100%">Recherche...</LoadingFillerBox>
+            </ul>
 
         </div>
     </div>
@@ -57,6 +60,7 @@
 import {apolloClient} from "@/main";
 import gql from "graphql-tag";
 import Search from "../assets/search.vue";
+import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
 
 const GET_SEARCH_RESULT = gql`
 query Search ($queryValue: String){
@@ -75,7 +79,7 @@ query Search ($queryValue: String){
 export default {
 
     name: "SearchBar.vue",
-    components: {Search},
+    components: {LoadingFillerBox, Search},
     props: {
         focused: Boolean
     },
@@ -83,7 +87,8 @@ export default {
     data() {
         return {
             queryValue: '',
-            searchResults: []
+            searchResults: [],
+            loading: false
         }
     },
     watch: {
@@ -91,6 +96,7 @@ export default {
         queryValue(newQuery) {
             this.searchResults = [];
             if (newQuery.length > 2) {
+                this.loading=true;
                 apolloClient.query(({
                     query: GET_SEARCH_RESULT,
                     variables: {
@@ -112,6 +118,7 @@ export default {
                                 }
                             }
 
+                            this.loading = false;
                             return {
                                 restaurant: {
                                     name: restaurant.name,

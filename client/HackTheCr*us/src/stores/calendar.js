@@ -18,6 +18,7 @@ const GET_CALENDAR_ON_PERIOD = gql`
 export const useCalendarStore = defineStore('calendar', {
     state: () => ({
         days: {},
+        loading: false
     }),
 
     getters: {
@@ -43,6 +44,7 @@ export const useCalendarStore = defineStore('calendar', {
             this.days = {};
         },
         setDays(start, end){
+            this.loading= true;
             apolloClient.query({
                 query: GET_CALENDAR_ON_PERIOD,
                 variables: {
@@ -54,6 +56,8 @@ export const useCalendarStore = defineStore('calendar', {
                 for(const day of days){
                     this.days[day.start] = day;
                 }
+                this.loading=false;
+                
             });
         }
     },

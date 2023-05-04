@@ -9,7 +9,7 @@
         <div class="day" v-for="day in this.days" :key="day.timestamp">
             <h2 :data-day="this.getDay(day.timestamp)" :data-month="this.getMonth(day.timestamp)" ref="title">
                 {{ new Date(day.timestamp).getDate() }}</h2>
-            <div v-for="hour in 14" class="hour" :key="hour" :id="hour+6" ref="hours"></div>
+            <div v-for="hour in 14" :class="!this.calendarStore.loading ? 'hour' : 'hour loading'" :key="hour" :id="hour+6" ref="hours"></div>
             <DetailEventCard :height="this.height* this.getHeightOfEvent(event.start, event.end)"
                              :offset-y="this.margin +  this.height* (this.getOffsetOfEvent(event.start)-7)"
                              v-for="event in day.data" :key="event.start" :summary="event.summary"
@@ -118,6 +118,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+@keyframes loading {
+    0%{
+        background-position: 0 50%;
+    }
+    50%{
+        background-position: 100% 50%;
+    }
+
+    100%{
+        background-position: 0 50%;
+    }
+}
+
 #calendar {
   display: flex;
   flex-direction: row;
@@ -202,6 +216,12 @@ export default {
       height: calc(100vh / 13);
       border-bottom: var(--color-border) 1px solid;
       box-sizing: border-box;
+        &.loading{
+            background: linear-gradient(90deg, rgba(128, 128, 128, 0.1) 0%, rgba(189, 181, 181, 0.1) 50% , rgba(128, 128, 128, 0.1) 100%);
+            background-size:500% 500%;
+            animation: loading 1.4s ease infinite;
+
+        }
     }
 
 
