@@ -45,7 +45,7 @@ export default {
     transform: translate(0, -10px);
   }
 
-  div{
+  div {
     transform: translate(0, 5px);
   }
 
@@ -56,10 +56,16 @@ export default {
   }
 
   span {
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
     a {
       padding: 10px 20px;
       border-radius: 500px;
       text-decoration: none;
+      width: fit-content;
+      display: block;
+      height:fit-content;
     }
 
     a:nth-child(odd) {
@@ -67,6 +73,7 @@ export default {
       color: black;
       margin-right: 10px;
       border: 1px solid black;
+
       &:hover {
         background-color: rgba(0, 0, 0, 0.1);
       }
@@ -76,6 +83,7 @@ export default {
       background-color: black;
       color: #63F49E;
       border: 1px solid black;
+
       &:hover {
         background-color: rgba(0, 0, 0, 0.8);
 
