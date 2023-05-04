@@ -92,6 +92,9 @@ export default {
             const startToTimestamp = this.start.getTime();
             const endToTimestamp = this.end.getTime();
 
+            const tomorrow = new Date(startToTimestamp);
+            tomorrow.setDate(this.start.getDate() + 1);
+
             const lengthDay = 86400000;
 
             for (let day = startToTimestamp; day < endToTimestamp + lengthDay; day += lengthDay) {
@@ -103,6 +106,7 @@ export default {
                 }
                 days.push(dayData)
             }
+            console.log(days);
             return days;
         },
 

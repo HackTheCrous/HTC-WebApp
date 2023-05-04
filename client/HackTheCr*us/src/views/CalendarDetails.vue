@@ -5,7 +5,6 @@
 
 <script>
 import {useCalendarStore} from "@/stores/calendar";
-import calendar from "@/assets/calendar.vue";
 import Planning from "@/components/Planning.vue";
 
 export default {
@@ -38,21 +37,26 @@ export default {
             return date;
         },
         goOneWeekBefore(){
-            this.dayOfWeek = new Date(this.dayOfWeek.getTime() - (86400000-3)*7);
+            const date = new Date(this.dayOfWeek)
+            date.setDate(date.getDate()-7);
+            this.dayOfWeek = date.toISOString().split('T')[0];
+
         },
         goOneWeekAfter(){
-            this.dayOfWeek = new Date(this.dayOfWeek.getTime() +( 86400000-3)*7);
+            const date = new Date(this.dayOfWeek)
+            date.setDate(date.getDate()+7);
+            this.dayOfWeek = date.toISOString().split('T')[0];
         }
     },
     computed: {
         start() {
-            const toCompute = new Date(this.dayOfWeek) - 1 + 1;
+            const toCompute = new Date(this.dayOfWeek).getTime();
             let date = new Date(toCompute);
             date.setDate(date.getDate() - date.getDay() + 1);
             return date;
         },
         end() {
-            const toCompute = new Date(this.dayOfWeek) - 1 + 1;
+            const toCompute = new Date(this.dayOfWeek).getTime();
 
             let date = new Date(toCompute);
 
