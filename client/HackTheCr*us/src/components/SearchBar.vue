@@ -40,7 +40,18 @@
                 </li>
             </ul>
             <ul class="suggestions" v-else-if="this.loading">
-                <LoadingFillerBox height="50px" width="100%">Recherche...</LoadingFillerBox>
+                <li class="suggestion">
+                  <span class="head">
+                      <LoadingFillerBox height="25px" width="40%"></LoadingFillerBox>
+                      <LoadingFillerBox height="25px" width="20%"></LoadingFillerBox>
+                  </span>
+                    <ul>
+                        <li>
+                            <LoadingFillerBox height="70px" width="100%"></LoadingFillerBox>
+
+                        </li>
+                    </ul>
+                </li>
             </ul>
 
         </div>
@@ -96,7 +107,7 @@ export default {
         queryValue(newQuery) {
             this.searchResults = [];
             if (newQuery.length > 2) {
-                this.loading=true;
+                this.loading = true;
                 apolloClient.query(({
                     query: GET_SEARCH_RESULT,
                     variables: {

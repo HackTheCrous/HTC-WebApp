@@ -63,7 +63,7 @@ export default class PlanningScrappingService {
 
         const cachedEvents = await redisClient.get(this.link);
 
-        if(cachedEvents != null){
+        if (cachedEvents != null) {
             const events = JSON.parse(decompressFromBase64(cachedEvents));
             await redisClient.disconnect();
 
