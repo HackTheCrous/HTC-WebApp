@@ -160,6 +160,11 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
 
+    @media screen and (max-width: 1000px){
+        flex-direction: column;
+        width:95vw;
+    }
+
   .loading-set {
     width: 100%;
       display: flex;
@@ -214,7 +219,9 @@ export default {
 
   .menu {
     flex: 1;
-
+      @media screen and (max-width: 1000px){
+          width: 95vw;
+      }
   }
 }
 </style>

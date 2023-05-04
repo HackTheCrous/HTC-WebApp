@@ -33,10 +33,19 @@ export default {
   z-index: 10;
   padding: 10px 15%;
 
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
 
   a {
     font-family: Inter, sans-serif;
     font-size: 17px;
+
+    @media screen and (max-width: 1000px) {
+      font-size: 15px;
+    }
   }
 
   p {
@@ -53,19 +62,24 @@ export default {
     font-size: 23px;
     margin: 0;
     font-weight: 600;
+    color: black;
+    @media screen and (max-width: 1000px) {
+      margin-bottom: 10px
+    }
   }
 
   span {
     width: fit-content;
     display: flex;
     flex-direction: row;
+
     a {
       padding: 10px 20px;
       border-radius: 500px;
       text-decoration: none;
       width: fit-content;
       display: block;
-      height:fit-content;
+      height: fit-content;
     }
 
     a:nth-child(odd) {

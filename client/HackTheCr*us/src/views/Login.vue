@@ -1,9 +1,8 @@
 <template>
-    <h1>Vue Login</h1>
     <section id="register">
         <main>
             <form>
-                <h2>Bienvenue !</h2>
+                <h2>Se connecter</h2>
                 <h4>Bienvenue ! Entrez vos informations pour rejoindre hack the cr*us</h4>
                 <div>
                     <label for="mail">Email</label>

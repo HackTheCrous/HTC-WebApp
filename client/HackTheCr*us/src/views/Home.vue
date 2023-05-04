@@ -207,6 +207,9 @@ header {
   align-items: start;
   justify-content: space-between;
   width: 100%;
+  @media screen and (max-width: 1000px) {
+    flex-direction: column-reverse;
+  }
 
 }
 
@@ -229,6 +232,13 @@ main {
   display: flex;
   flex-direction: row;
   align-items: center;
+  @media screen and (max-width: 1000px) {
+      margin-top: 0;
+
+      width: 95vw;
+      margin-bottom: 10px;
+    justify-content: space-between;
+  }
 }
 
 #tags {
@@ -237,6 +247,10 @@ main {
   position: relative;
   z-index: 1;
   width: 100%;
+
+    @media screen and (max-width: 1000px) {
+      width:95vw;
+    }
 
 
   .filler {
@@ -275,6 +289,10 @@ main {
   justify-content: space-between;
   flex-direction: row;
   flex-wrap: wrap;
+
+    @media screen and (max-width: 1000px) {
+        flex-direction: column;
+    }
 
   .restaurant {
     width: 100%;

@@ -5,7 +5,6 @@
             <router-link to="/" id="logo">
                 <img src="./assets/logoV2.png" alt="logo">
                 <h4 v-if="!reduceBar">hack<br/><span>the cr*us</span></h4>
-
             </router-link>
             <div id="tools">
                 <router-link class="icon" to="/" v-slot="{isActive}">
@@ -24,17 +23,16 @@
                     <p v-if="!reduceBar">Mon compte</p>
                 </router-link>
             </div>
-
-            <button @click="reduceBar=!reduceBar" class="icon">
+            <button @click="reduceBar=!reduceBar" class="icon" id="squeeze">
                 <squeeze size="30" opacity="0.5" color="white"/>
             </button>
-
         </div>
+
         <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
-            <router-view />
+            <router-view/>
         </div>
         <div id="content" v-else class="notLogged">
-            <router-view />
+            <router-view/>
         </div>
     </main>
 </template>
@@ -118,22 +116,42 @@ main {
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+  }
 }
 
 #nav {
   width: $widthSideBar;
   min-width: $minWidthSideBar;
+  @media screen and (max-width: 1000px) {
+    width: 100%;
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+  }
+
   border-right: 1px solid var(--color-border);
   box-shadow: 0px 0px 10px 0px var(--color-shadow);
 
   #logo {
     margin-top: 15px;
+    @media screen and (max-width: 1000px) {
+      margin-top: 0px;
+      display: none;
+    }
   }
 
 
   &.squeezed {
     width: fit-content;
     min-width: fit-content;
+
+    @media screen and (max-width: 1000px) {
+      width: 100%;
+      min-width: 100%;
+      padding-left: 10%;
+      padding-right: 10%;
+    }
 
     a, button {
 
@@ -155,10 +173,20 @@ main {
   flex-direction: column;
   justify-content: space-between;
   height: 100dvh;
-  position: fixed;
   background: var(--color-background);
   padding-top: 10px;
   padding-bottom: 10px;
+
+  position: fixed;
+  @media screen and (max-width: 1000px) {
+    height: fit-content;
+    bottom: 0;
+    width: 100%;
+    flex-direction: row;
+    margin: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+  }
 
   a {
     padding-left: $paddingIcons;
@@ -217,10 +245,28 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    @media screen and (max-width: 1000px) {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
 
     a {
       margin-bottom: 15px;
       margin-top: 15px;
+      @media screen and (max-width: 1000px) {
+
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+    }
+  }
+
+  #squeeze {
+    @media screen and (max-width: 1000px) {
+      display: none;
     }
   }
 
@@ -243,25 +289,39 @@ main {
   }
 
   .icon {
-
+      padding-top: 5px;
+      padding-bottom: 5px;
     &.router-link-active {
       border-left: 5px solid var(--color-text);
       padding-left: calc($paddingIcons - 5px);
+      @media screen and (max-width: 1000px) {
+          padding-top: 5px;
+        border-left: 0px;
+        border-bottom: 5px solid var(--color-text);
+      }
     }
   }
 }
 
 #content {
-    overflow-y:hidden;
+  overflow-y: hidden;
   margin-top: 30px;
   width: calc(100% - #{$widthSideBar} - #{$minWidthSideBar} + 30px);
   min-width: calc(100% - #{$minWidthSideBar} - #{$widthSideBar} + 30px);
   margin-left: calc(#{$widthSideBar} + 30px);
 
+
   &.squeezed {
     width: calc(100% - 100px - 60px);
     min-width: calc(100% - 100px - 60px);
     margin-left: calc(100px + 20px);
+    @media screen and (max-width: 1000px) {
+      width: 100%;
+      min-width: 100%;
+      margin-left: 10px;
+      margin-right: 10px;
+      margin-top: 20px;
+    }
   }
 
   &.notLogged {
