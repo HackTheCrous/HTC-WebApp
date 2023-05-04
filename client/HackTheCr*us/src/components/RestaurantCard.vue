@@ -1,17 +1,27 @@
 <template>
     <div class="restaurant">
         <h3>
-            <router-link :to="getLink()">{{ this.name }}</router-link>
-            <heart v-if="this.isFavorite()" @click="this.dislike()" color="#24EE76" :filled="this.isFavorite()"
+            <router-link :to="getLink()" v-if="!this.loading">{{ this.name }}</router-link>
+            <LoadingFillerBox width="30%" height="30px" v-if="this.loading"/>
+
+            <heart v-if="this.isFavorite() && !this.loading" @click="this.dislike()" color="#24EE76"
+                   :filled="this.isFavorite()"
                    size="20"/>
             <heart v-else color="#24EE76" @click="this.like()" :filled="this.isFavorite()" size="20"/>
+
         </h3>
-        <div class="tags">
+        <div class="loading-set" v-if="this.loading">
+            <LoadingFillerBox width="49%" height="100px"/>
+            <LoadingFillerBox width="49%" height="100px"/>
+        </div>
+
+        <div class="tags" v-if="!this.loading">
             <TagDetail v-if="this.distance !== 0"> {{ Math.round(this.distance / 10) / 100 }}km</TagDetail>
         </div>
-        <Menu v-for="meal in this.meals" :key="meal.typemeal" :name="meal.typemeal" :foodies="meal.foodies" :time="meal.day"
+        <Menu v-for="meal in this.meals" :key="meal.typemeal" :name="meal.typemeal" :foodies="meal.foodies"
+              :time="meal.day"
               class="menu"></Menu>
-        <p v-if="this.meals.length === 0" class="no-menu">Pas de menu disponible :(</p>
+        <p v-if="this.meals.length === 0 && !this.loading" class="no-menu">Pas de menu disponible :(</p>
     </div>
 </template>
 
@@ -29,6 +39,7 @@ import {useUserStore} from '@/stores/user';
 import axios from "axios";
 import {apolloClient} from "../main";
 import TagDetail from "@/components/TagDetail.vue";
+import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
 
 
 const LIKE_RESTAURANT = gql`
@@ -65,9 +76,9 @@ mutation Dislike($idrestaurant: Int){
 `;
 
 
-
 export default {
     components: {
+        LoadingFillerBox,
         Menu,
         heart,
         TagDetail
@@ -81,7 +92,7 @@ export default {
         const userStore = useUserStore();
 
 
-        const {result} = useQuery(
+        const {loading, error, result} = useQuery(
             GET_RESTAURANT,
             () => ({
                 url: props.url
@@ -97,6 +108,7 @@ export default {
             meals,
             userStore,
             distance,
+            loading
         }
 
 
@@ -148,6 +160,13 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
 
+  .loading-set {
+    width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+  }
+
   h3 {
 
     padding: 0;
@@ -155,6 +174,11 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    .loading-box {
+      margin-bottom: 10px;
+
+    }
 
     a {
       color: var(--color-text);
@@ -178,14 +202,16 @@ export default {
 
 
   }
-    .no-menu{
-        flex: 100%;
-        margin-bottom: 10px;
-        margin-top: 15px;
-        color: var(--color-text);
-        font-size: 20px;
-        font-weight: 300;
-    }
+
+  .no-menu {
+    flex: 100%;
+    margin-bottom: 10px;
+    margin-top: 15px;
+    color: var(--color-text);
+    font-size: 20px;
+    font-weight: 300;
+  }
+
   .menu {
     flex: 1;
 

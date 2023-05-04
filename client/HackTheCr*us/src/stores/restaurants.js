@@ -16,6 +16,7 @@ const GET_RESTAURANTS = gql`
 export const useRestaurantStore = defineStore('restaurant', {
     state: () => ({
         restaurants: [],
+        loading: false
     }),
     getters: {
         getRestaurants(state) {
@@ -25,12 +26,17 @@ export const useRestaurantStore = defineStore('restaurant', {
             console.log(state.restaurants)
             return state.restaurants;
         },
+        isLoading(state){
+            return state.loading;
+        }
     },
     actions: {
         setRestaurants() {
+            this.loading = true;
             apolloClient.query({
                 query: GET_RESTAURANTS,
             }).then((result) => {
+                this.loading = false;
                 this.restaurants = result.data.restaurants;
             });
         }

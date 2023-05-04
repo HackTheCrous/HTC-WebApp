@@ -2,9 +2,11 @@
 import RestaurantCard from "../components/RestaurantCard.vue";
 import {useUserStore} from "@/stores/user";
 import {useRestaurantStore} from "@/stores/restaurants";
+import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
 
 export default {
     components: {
+        LoadingFillerBox,
         RestaurantCard
     },
     setup(){
@@ -64,11 +66,16 @@ export default {
 </script>
 
 <template>
-    <div id="restaurants">
+    <div id="restaurants" v-if="!this.restaurantStore.isLoading">
         <RestaurantCard class="restaurant" v-for="restaurant in this.filteredRestaurants" :idRestaurant="restaurant.idrestaurant" :name="restaurant.name" :url="restaurant.url" :key="restaurant.idrestaurant"/>
+    </div>
+    <div id="restaurants" v-else>
+        <LoadingFillerBox width="100%" height="100px">Récupération des restaurants...</LoadingFillerBox>
     </div>
 </template>
 
 <style>
-
+    .loading-box{
+        margin-top:30px;
+    }
 </style>
