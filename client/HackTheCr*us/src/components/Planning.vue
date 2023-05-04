@@ -9,7 +9,7 @@
         <div class="day" v-for="day in this.days" :key="day.timestamp">
             <h2 :data-day="this.getDay(day.timestamp)" :data-month="this.getMonth(day.timestamp)" ref="title">
                 {{ new Date(day.timestamp).getDate() }}</h2>
-            <div v-for="hour in 13" class="hour" :key="hour" :id="hour+6" ref="hours"></div>
+            <div v-for="hour in 14" class="hour" :key="hour" :id="hour+6" ref="hours"></div>
             <DetailEventCard :height="this.height* this.getHeightOfEvent(event.start, event.end)"
                              :offset-y="this.margin +  this.height* (this.getOffsetOfEvent(event.start)-7)"
                              v-for="event in day.data" :key="event.start" :summary="event.summary"
@@ -21,7 +21,6 @@
             <button @click="$emit('nextTriggered')">
                 <squeeze size="30" opacity="0.5" color="white"/>
             </button>
-
         </div>
 
     </div>
@@ -39,6 +38,7 @@ export default {
         data: Object,
         start: Date,
         end: Date,
+        hours: Number
     },
     data() {
         return {
@@ -78,10 +78,12 @@ export default {
             const todateA = new Date(dateA);
             const todateB = new Date(dateB);
             return todateA.getDay() === todateB.getDay() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
-        }
+        },
+
     },
     mounted() {
         this.onResize()
+        console.log(this.hours)
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
         })

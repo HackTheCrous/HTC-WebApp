@@ -252,6 +252,7 @@ main {
 }
 
 #content {
+    overflow-y:hidden;
   margin-top: 30px;
   width: calc(100% - #{$widthSideBar} - #{$minWidthSideBar} + 30px);
   min-width: calc(100% - #{$minWidthSideBar} - #{$widthSideBar} + 30px);
