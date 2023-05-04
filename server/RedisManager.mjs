@@ -5,8 +5,17 @@ dotenv.config();
 
 export default class RedisManager{
     static getClient(){
-        return createClient({
-            url: `redis://milou666:${process.env.PASSWORD}@${process.env.REDIS_SERVER}`
-        })
+        const client = createClient({
+            socket: {
+                host: process.env.REDIS_SERVER,
+                port: '10562'
+            },
+            username: 'milou666',
+            password : process.env.PASSWORD
+        });
+
+        client.on('error', err => console.error('Redis Server Error', err))
+
+        return client;
     }
 }

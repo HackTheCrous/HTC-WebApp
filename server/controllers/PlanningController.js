@@ -20,30 +20,22 @@ export default class PlanningScrappingService {
         this.events = null;
     }
 
-
     async getEvents() {
-        const redisClient = RedisManager.getClient();
-        await redisClient.connect();
 
-        const cachedEvents = await redisClient.get(this.link);
-
+        const cachedEvents = await this.getEventsFromCache();
 
         if (cachedEvents != null) {
-            this.events = JSON.parse(decompressFromBase64(cachedEvents));
-            await redisClient.disconnect();
+            this.events = cachedEvents;
             return this.events;
         }
 
         if (this.events === null) {
             const events = await ical.async.fromURL(this.link);
-            await redisClient.set(this.link, compressToBase64(JSON.stringify(events)), {
-                EX: EXPIRATION_DELAY,
-                NX: true
-            });
+
+            this.saveInCache(events)
 
             this.events = events;
         }
-        await redisClient.disconnect();
 
         return this.events;
     }
@@ -53,6 +45,42 @@ export default class PlanningScrappingService {
             if (err) throw err;
             console.log('Saved!');
         });
+    }
+
+    /**
+     * Get a list of events from Redis cache
+     * @returns {Promise<any>}
+     */
+    async getEventsFromCache() {
+        const redisClient = RedisManager.getClient();
+        await redisClient.connect();
+
+
+        const cachedEvents = await redisClient.get(this.link);
+
+        if(cachedEvents != null){
+            const events = JSON.parse(decompressFromBase64(cachedEvents));
+            await redisClient.disconnect();
+
+            return events;
+        }
+        return null;
+
+    }
+
+    saveInCache(events) {
+        const redisClient = RedisManager.getClient();
+        redisClient.connect().then(() => {
+            redisClient.set(this.link, compressToBase64(JSON.stringify(events)), {
+                EX: EXPIRATION_DELAY,
+                NX: true
+            }).then(() => {
+                console.log("saved")
+
+                redisClient.disconnect();
+            })
+        });
+
     }
 
     async getEventsByDate(date) {
