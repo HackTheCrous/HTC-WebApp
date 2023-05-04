@@ -8,7 +8,9 @@ dist/
 
 # IDE
 .idea
+.idea/
 .vscode
+.vscode/
 
 # sensitive
 
