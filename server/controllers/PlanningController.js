@@ -6,7 +6,6 @@ const {compressToBase64, decompressFromBase64} = pkg;
 
 import ical from 'node-ical';
 
-
 import fs from 'fs';
 import PlanningDayModel from '../models/PlanningDayModel.mjs';
 
@@ -20,19 +19,23 @@ export default class PlanningScrappingService {
         this.events = null;
     }
 
+    /**
+     * TODO : when redis database fixed in prod -> decomment to use the redis cache
+     * @returns {Promise<null>}
+     */
     async getEvents() {
 
-        const cachedEvents = await this.getEventsFromCache();
+        /*const cachedEvents = await this.getEventsFromCache();
 
         if (cachedEvents != null) {
             this.events = cachedEvents;
             return this.events;
-        }
+        }*/
 
         if (this.events === null) {
             const events = await ical.async.fromURL(this.link);
 
-            this.saveInCache(events)
+            //this.saveInCache(events)
 
             this.events = events;
         }
@@ -53,7 +56,9 @@ export default class PlanningScrappingService {
      */
     async getEventsFromCache() {
         const redisClient = RedisManager.getClient();
-        await redisClient.connect();
+        await redisClient.connect((err) => {
+            return null;
+        });
 
 
         const cachedEvents = await redisClient.get(this.link);
