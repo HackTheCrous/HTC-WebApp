@@ -30,8 +30,8 @@ export default {
         handletouch(event){
             event.preventDefault();
             event.stopPropagation();
-            if(event.touches[0].clientY>window.innerHeight*0.9){
-                console.log("unfocus");
+            this.$refs.slidable.style.top= `${event.touches[0].clientY}px`;
+            if(event.touches[0].clientY>window.innerHeight*0.8){
                 this.$emit('unfocus', true);
             }
         },
@@ -45,7 +45,6 @@ export default {
 
           }
           if(event.screenY>window.innerHeight*0.95){
-              console.log("unfocus");
               this.$emit('unfocus', true);
           }
       },
