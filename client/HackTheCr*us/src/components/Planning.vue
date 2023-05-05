@@ -107,9 +107,6 @@ export default {
             const todateB = new Date(dateB);
             return todateA.getDay() === todateB.getDay() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
         },
-        handleClick(timestamp) {
-            console.log(this.calendarStore.getDay(timestamp));
-        },
         unfocus(e) {
             const event = e.target.closest(".event");
             if(event !== null && this.focus) {
@@ -129,7 +126,6 @@ export default {
 
         },
         handlefocus(focus){
-            console.log(focus)
             this.focus=!focus;
         },
 

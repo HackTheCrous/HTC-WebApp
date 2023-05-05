@@ -3,7 +3,7 @@
         <h1>
             Agenda
         </h1>
-        <h2>{{ this.formatDate(this.start) }} - {{ this.formatDate(this.end) }}</h2>
+        <DateSelector @change="handleDateChange" :date="this.dayOfWeek">{{ this.dayOfWeek }}</DateSelector>
     </div>
     <Planning @previous-triggered="goOneWeekBefore" @next-triggered="goOneWeekAfter" :data="getDays(this.start,this.end)"
               :start="this.start" :end="this.end" :hours="15" :nbdays="nbDays"/>
@@ -12,10 +12,11 @@
 <script>
 import {useCalendarStore} from "@/stores/calendar";
 import Planning from "@/components/Planning.vue";
+import DateSelector from "@/components/DateSelector.vue";
 
 export default {
     name: "CalendarDetails",
-    components: {Planning},
+    components: {DateSelector, Planning},
     setup() {
         const calendarStore = useCalendarStore();
         const {getDays} = calendarStore;
@@ -23,7 +24,6 @@ export default {
         return {calendarStore, getDays}
     },
     data() {
-
         const nbDaysInitial = window.innerWidth > 1000 ? 6 : 1;
 
         this.calendarStore.setDays(new Date(), this.getNthDate(new Date(), nbDaysInitial*2));
@@ -37,7 +37,9 @@ export default {
         }
     },
     methods: {
-
+        handleDateChange(e){
+            this.dayOfWeek = new Date(e);
+        },
         goOneWeekBefore() {
             const date = new Date(this.dayOfWeek)
             date.setDate(date.getDate() - this.nbDays);
@@ -63,8 +65,6 @@ export default {
         getNthDate(date, delta){
             const dateToChange = new Date(date);
             dateToChange.setDate(dateToChange.getDate() + delta);
-
-
             return dateToChange;
         }
     },
