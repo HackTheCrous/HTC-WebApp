@@ -58,7 +58,6 @@ export const useCalendarStore = defineStore('calendar', {
             this.daysStored = [];
             this.loading = [];
         },
-        //TODO : optimize number of calls by checkin if certain days arent already in the store
         setDays(start, end){
             this.loading=[];
 
