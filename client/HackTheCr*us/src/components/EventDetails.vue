@@ -28,7 +28,8 @@ export default {
         },
 
         handletouch(event){
-
+            event.preventDefault();
+            event.stopPropagation();
             if(event.touches[0].clientY>window.innerHeight*0.9){
                 console.log("unfocus");
                 this.$emit('unfocus', true);
