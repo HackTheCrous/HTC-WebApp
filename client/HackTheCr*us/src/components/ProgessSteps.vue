@@ -32,6 +32,9 @@ export default {
         flex-direction: row;
         align-items: center;
         width: 50%;
+        @media screen and (max-width: 1000px){
+            width: 85%;
+        }
         margin-bottom: 100px;
     }
 </style>

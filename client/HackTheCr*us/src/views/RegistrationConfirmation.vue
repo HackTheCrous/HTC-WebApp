@@ -257,6 +257,9 @@ main {
 
   form {
     width: 70%;
+      @media screen and (max-width: 1000px){
+          width: 95%;
+      }
     display: flex;
     flex-direction: row;
     padding-bottom: 100px;
@@ -265,6 +268,10 @@ main {
       padding-top: 7px;
       padding-right: 10px;
       font-size: 20px;
+        @media screen and (max-width:1000px){
+            font-size: 15px;
+            padding-top: 12px;
+        }
 
       b {
         font-weight: 600;

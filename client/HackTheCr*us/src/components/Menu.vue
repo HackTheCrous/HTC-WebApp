@@ -49,6 +49,14 @@ export default {
 .menu-foody {
     display: flex;
     flex-direction: column;
+    @media screen and (max-width: 1000px){
+        margin-bottom: 30px;
+    }
+    li{
+        @media screen and (max-width: 1000px){
+            font-size: 17px;
+        }
+    }
 }
 
 h4{
@@ -57,5 +65,7 @@ h4{
     font-size: 1.2em;
     font-weight: 600;
 }
+
+
 
 </style>
