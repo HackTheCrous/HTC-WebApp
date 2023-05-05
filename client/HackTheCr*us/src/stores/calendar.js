@@ -43,6 +43,7 @@ export const useCalendarStore = defineStore('calendar', {
         clean() {
             this.days = {};
         },
+        //TODO : optimize number of calls by checkin if certain days arent already in the store
         setDays(start, end){
             this.loading= true;
             apolloClient.query({

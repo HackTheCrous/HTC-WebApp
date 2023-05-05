@@ -38,7 +38,8 @@ export default {
         data: Object,
         start: Date,
         end: Date,
-        hours: Number
+        hours: Number,
+        nbdays: Number
     },
     data() {
         return {
@@ -52,23 +53,45 @@ export default {
         return {calendarStore}
     },
     methods: {
+        /**
+         *
+         * @param timestamp
+         * @returns {string} day of the week for day label
+         */
         getDay(timestamp) {
             const date = new Date(timestamp);
             const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             return days[date.getDay()];
         },
+        /*
+         * @param timestamp
+         * @returns {string} month of the year for month label
+         */
         getMonth(timestamp) {
             const date = new Date(timestamp);
             const days = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Novembre', 'Décembre'];
             return days[date.getMonth()];
         },
+        /*
+         * @param timestamp
+         * @returns {number} offset of the event in the calendar for the top position
+         */
         getOffsetOfEvent(timestamp) {
             const date = new Date(timestamp);
             return date.getHours() + date.getMinutes() / 60;
         },
+        /**
+         *
+         * @param timestampStart
+         * @param timestampEnd
+         * @returns {number} height of the event in the calendar according to the start and end time
+         */
         getHeightOfEvent(timestampStart, timestampEnd) {
             return this.getOffsetOfEvent(timestampEnd) - this.getOffsetOfEvent(timestampStart);
         },
+        /**
+         * listenner callback for responsivness
+         */
         onResize() {
             this.width = this.$refs.hours[this.$refs.hours.length - 1].clientWidth;
             this.margin = this.$refs.title[0].clientHeight;
@@ -93,6 +116,9 @@ export default {
             const days = [];
             const startToTimestamp = this.start.getTime();
             const endToTimestamp = this.end.getTime();
+
+            console.log("start", this.start)
+            console.log("end", this.end)
 
             const tomorrow = new Date(startToTimestamp);
             tomorrow.setDate(this.start.getDate() + 1);
@@ -173,13 +199,16 @@ export default {
 
 
   div {
-    flex: 1;
+    flex: 2;
+       @media screen and (max-width: 1000px){
+           flex: 0.7;
+       }
   }
 
   .day {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 2;
     height: 100%;
 
     h2 {
@@ -237,6 +266,9 @@ export default {
         position: absolute;
         transform: translateX(-100%) translateY(-50%);
         padding-right: 50%;
+          @media screen and (max-width: 1000px) {
+              padding-right: 16%;
+          }
 
       }
     }

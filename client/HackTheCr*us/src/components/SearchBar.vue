@@ -5,11 +5,7 @@
                 <search color="black" opacity="0.5"/>
                 <input v-model="queryValue" ref="textinput" type="text" placeholder="On mange quoi ?" name="search">
                 <p class="shortcut">Esc</p>
-                <select name="filter">
-                    <option value="nearby">Proche</option>
-                    <option value="best">Mieux noté</option>
-                    <option value="alpha">Alphabétique</option>
-                </select>
+
             </form>
 
             <ul v-if="searchResults.length > 0" class="suggestions">
@@ -191,6 +187,7 @@ export default {
 
     select {
       width: 30%;
+
       font-family: Inter, sans-serif;
       border: 0px;
       font-size: 12px;
@@ -228,6 +225,9 @@ export default {
 
   #searchbar {
     width: 50%;
+    @media screen and (max-width: 1000px){
+      width:90%;
+    }
     transition: height linear 0.24s;
     border-radius: 20px;
     padding: 20px;
