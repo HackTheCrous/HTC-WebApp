@@ -64,9 +64,7 @@ app.use(passport.initialize());
 
 app.use(passport.session());
 
-app.use(cors({
-    origin: true,
-}));
+app.use(cors());
 
 
 app.listen({port: 4000}, () => console.log(`Server ready at http://locahost:4000${server.graphqlPath}`));
