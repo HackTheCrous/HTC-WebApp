@@ -130,7 +130,7 @@ main {
     z-index: 1000;
   }
 
-  border-right: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
   box-shadow: 0px 0px 10px 0px var(--color-shadow);
 
   #logo {

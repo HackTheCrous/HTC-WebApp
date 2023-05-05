@@ -69,11 +69,11 @@ export default {
                 y: 0
             },
             day: '',
-            loading :false
+            loading: false
         }
     },
     mounted() {
-        this.loading=true;
+        this.loading = true;
         apolloClient.query(({
             query: GET_RESTAURANT_BY_NAME,
             variables: {
@@ -129,15 +129,24 @@ hr {
 #meals {
   display: flex;
   flex-direction: row;
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+  }
   flex-wrap: wrap;
-    h4{
-        font-style: italic;
-    }
+
+  h4 {
+    font-style: italic;
+  }
+
   .meal {
     width: 50%;
-      .food{
-        margin-left: 15px;
-      }
+    @media screen and (max-width: 1000px) {
+      width: 100%;
+    }
+
+    .food {
+      margin-left: 15px;
+    }
   }
 
   h3 {

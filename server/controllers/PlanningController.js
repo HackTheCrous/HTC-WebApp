@@ -20,22 +20,21 @@ export default class PlanningScrappingService {
     }
 
     /**
-     * TODO : when redis database fixed in prod -> decomment to use the redis cache
      * @returns {Promise<null>}
      */
     async getEvents() {
 
-        /*const cachedEvents = await this.getEventsFromCache();
+        const cachedEvents = await this.getEventsFromCache();
 
         if (cachedEvents != null) {
             this.events = cachedEvents;
             return this.events;
-        }*/
+        }
 
         if (this.events === null) {
             const events = await ical.async.fromURL(this.link);
 
-            //this.saveInCache(events)
+            this.saveInCache(events)
 
             this.events = events;
         }
