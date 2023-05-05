@@ -2,7 +2,7 @@
     <h2 @mousedown="this.edit" v-if="!editing" class="date">
         {{ this.formatDate(this.date) }}
     </h2>
-    <input autofocus v-else type="date" :value="this.date" class="date" @change="$emit('change', $event.target.value)"/>
+    <input v-else type="date" :value="this.date" class="date" @change="$emit('change', $event.target.value)"/>
 </template>
 
 <script>
