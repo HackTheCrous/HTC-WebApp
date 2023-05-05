@@ -9,7 +9,7 @@
         <div class="day" v-for="day in this.days" :key="day.timestamp">
             <h2 :data-day="this.getDay(day.timestamp)" :data-month="this.getMonth(day.timestamp)" ref="title">
                 {{ new Date(day.timestamp).getDate() }}</h2>
-            <div v-for="hour in 14" :class="!this.calendarStore.loading ? 'hour' : 'hour loading'" :key="hour" :id="hour+6" ref="hours"></div>
+            <div v-for="hour in 14" :class="!this.calendarStore.isLoading(day.timestamp) ? 'hour' : 'hour loading'" :key="hour" :id="hour+6" ref="hours"></div>
             <DetailEventCard :height="this.height* this.getHeightOfEvent(event.start, event.end)"
                              :offset-y="this.margin +  this.height* (this.getOffsetOfEvent(event.start)-7)"
                              v-for="event in day.data" :key="event.start" :summary="event.summary"
@@ -69,7 +69,7 @@ export default {
          */
         getMonth(timestamp) {
             const date = new Date(timestamp);
-            const days = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Novembre', 'Décembre'];
+            const days = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre','Octobre', 'Novembre', 'Décembre'];
             return days[date.getMonth()];
         },
         /*
@@ -106,7 +106,6 @@ export default {
     },
     mounted() {
         this.onResize()
-        console.log(this.hours)
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
         })
@@ -117,8 +116,7 @@ export default {
             const startToTimestamp = this.start.getTime();
             const endToTimestamp = this.end.getTime();
 
-            console.log("start", this.start)
-            console.log("end", this.end)
+
 
             const tomorrow = new Date(startToTimestamp);
             tomorrow.setDate(this.start.getDate() + 1);
@@ -134,7 +132,6 @@ export default {
                 }
                 days.push(dayData)
             }
-            console.log(days);
             return days;
         },
 

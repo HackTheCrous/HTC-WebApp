@@ -3,6 +3,12 @@ import gql from "graphql-tag";
 import {apolloClient} from "@/main";
 
 
+const sameDay = (dateA, dateB) => {
+    const todateA = new Date(dateA);
+    const todateB = new Date(dateB);
+    return todateA.getDay() === todateB.getDay() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
+}
+
 const GET_CALENDAR_ON_PERIOD = gql`
     query Period($start: Date, $end: Date){
         period(start: $start, end: $end){
@@ -18,7 +24,8 @@ const GET_CALENDAR_ON_PERIOD = gql`
 export const useCalendarStore = defineStore('calendar', {
     state: () => ({
         days: {},
-        loading: false
+        daysStored : [],
+        loading: []
     }),
 
     getters: {
@@ -37,29 +44,54 @@ export const useCalendarStore = defineStore('calendar', {
         },
         getAllDays: (state) => {
             return state.days;
+        },
+        isLoading: (state) => {
+            return (timestamp) =>{
+                return state.loading.includes(timestamp);
+
+            }
         }
     },
     actions: {
         clean() {
             this.days = {};
+            this.daysStored = [];
+            this.loading = [];
         },
         //TODO : optimize number of calls by checkin if certain days arent already in the store
         setDays(start, end){
-            this.loading= true;
-            apolloClient.query({
-                query: GET_CALENDAR_ON_PERIOD,
-                variables: {
-                    start: start,
-                    end: end
+            this.loading=[];
+
+            for(let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)){
+                if(!this.daysStored.includes(new Date(i).getTime())){
+                    this.loading.push(new Date(i).getTime());
                 }
-            }).then((result) => {
-                const days = result.data.period;
-                for(const day of days){
-                    this.days[day.start] = day;
-                }
-                this.loading=false;
-                
-            });
+            }
+
+            if(this.loading.length !== 0){
+                apolloClient.query({
+                    query: GET_CALENDAR_ON_PERIOD,
+                    variables: {
+                        start: new Date(Math.min(...this.loading)).setHours(0,0,0,0),
+                        end: new Date(Math.max(...this.loading)).setHours(23,59,59,999)
+                    }
+                }).then((result) => {
+                    const days = result.data.period;
+                    for(const day of days){
+                        this.days[day.start] = day;
+                    }
+                    for(let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)){
+                        if(this.daysStored.length< 500){
+                            this.daysStored.push(new Date(i).getTime());
+                            this.loading.splice(this.loading.indexOf(new Date(i).getTime()), 1);
+
+                        }
+                    }
+
+                });
+            }else{
+                this.loading=[];
+            }
         }
     },
     persist: {

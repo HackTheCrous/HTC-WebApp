@@ -26,6 +26,7 @@ export default {
 
         const nbDaysInitial = window.innerWidth > 1000 ? 6 : 1;
 
+        this.calendarStore.setDays(new Date(), this.getNthDate(new Date(), nbDaysInitial*2));
 
         return {
             calendar: [],
@@ -88,8 +89,7 @@ export default {
         dayOfWeek(newVal) {
             this.start = this.getNthDate(newVal, 0);
             this.end = this.getNthDate(newVal, this.nbDays-1);
-            console.log(this.start, this.end)
-            this.calendarStore.setDays(this.start, this.getNthDate(this.end, this.nbDays*4));
+            this.calendarStore.setDays(this.getNthDate(this.end, this.nbDays*-2), this.getNthDate(this.end, this.nbDays*2));
 
         }
     }
