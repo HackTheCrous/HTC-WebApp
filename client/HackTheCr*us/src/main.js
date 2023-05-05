@@ -3,6 +3,8 @@ import {createPinia} from "pinia";
 import App from './App.vue'
 import router from "@/router";
 
+import {VueHammer} from "vue2-hammer/index";
+
 import piniaPluginPersistedState from "pinia-plugin-persistedstate";
 
 import {ApolloClient, createHttpLink, InMemoryCache} from "@apollo/client/core";
@@ -83,6 +85,6 @@ app.use(pinia);
 const userStore = useUserStore(); //c'est dégueulasse mais ça marche
 
 
-
+app.use(VueHammer);
 
 app.use(router).mount('#app');

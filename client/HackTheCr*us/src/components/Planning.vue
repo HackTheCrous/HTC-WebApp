@@ -1,6 +1,6 @@
 <template>
 
-    <div id="calendar">
+    <div id="calendar" @mousedown="unfocus">
         <div class="border">
             <button @click="$emit('previousTriggered')">
                 <squeeze size="30" opacity="0.5" color="white"/>
@@ -9,8 +9,9 @@
         <div class="day" v-for="day in this.days" :key="day.timestamp">
             <h2 :data-day="this.getDay(day.timestamp)" :data-month="this.getMonth(day.timestamp)" ref="title">
                 {{ new Date(day.timestamp).getDate() }}</h2>
-            <div v-for="hour in 14" :class="!this.calendarStore.isLoading(day.timestamp) ? 'hour' : 'hour loading'" :key="hour" :id="hour+6" ref="hours"></div>
-            <DetailEventCard :height="this.height* this.getHeightOfEvent(event.start, event.end)"
+            <div v-for="hour in 14" :class="!this.calendarStore.isLoading(day.timestamp) ? 'hour' : 'hour loading'"
+                 :key="hour" :id="hour+6" ref="hours"></div>
+            <DetailEventCard @mouseup="setfocus" :height="this.height* this.getHeightOfEvent(event.start, event.end)"
                              :offset-y="this.margin +  this.height* (this.getOffsetOfEvent(event.start)-7)"
                              v-for="event in day.data" :key="event.start" :summary="event.summary"
                              :start="new Date(event.start)" :end="new Date(event.end)" :location="event.location"/>
@@ -24,6 +25,7 @@
         </div>
 
     </div>
+    <router-view :focus="this.focus" @unfocus="handlefocus"></router-view>
 </template>
 
 <script>
@@ -33,25 +35,28 @@ import Squeeze from "@/assets/squeeze.vue";
 
 export default {
     name: "Planning",
+    emits: ['previousTriggered', 'nextTriggered'],
     components: {Squeeze, DetailEventCard},
     props: {
         data: Object,
         start: Date,
         end: Date,
         hours: Number,
-        nbdays: Number
+        nbdays: Number,
     },
     data() {
         return {
             width: 0,
             margin: 0,
-            height: 0
+            height: 0,
+            focus: false,
         }
     },
     setup() {
         const calendarStore = useCalendarStore();
         return {calendarStore}
     },
+
     methods: {
         /**
          *
@@ -69,7 +74,7 @@ export default {
          */
         getMonth(timestamp) {
             const date = new Date(timestamp);
-            const days = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre','Octobre', 'Novembre', 'Décembre'];
+            const days = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
             return days[date.getMonth()];
         },
         /*
@@ -102,6 +107,32 @@ export default {
             const todateB = new Date(dateB);
             return todateA.getDay() === todateB.getDay() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
         },
+        handleClick(timestamp) {
+            console.log(this.calendarStore.getDay(timestamp));
+        },
+        unfocus(e) {
+            const event = e.target.closest(".event");
+            if(event !== null && this.focus) {
+                if((event || event.contains(e.target)) ) {
+                    this.focus = false;
+                }
+            }else{
+                this.focus = false;
+            }
+
+        },
+        setfocus(e) {
+            const event = e.target.closest(".event");
+            if ((event || event.contains(e.target)) && !this.focus) {
+                this.focus = true;
+            }
+
+        },
+        handlefocus(focus){
+            console.log(focus)
+            this.focus=!focus;
+        },
+
 
     },
     mounted() {
@@ -115,7 +146,6 @@ export default {
             const days = [];
             const startToTimestamp = this.start.getTime();
             const endToTimestamp = this.end.getTime();
-
 
 
             const tomorrow = new Date(startToTimestamp);
@@ -143,16 +173,16 @@ export default {
 <style lang="scss" scoped>
 
 @keyframes loading {
-    0%{
-        background-position: 0 50%;
-    }
-    50%{
-        background-position: 100% 50%;
-    }
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 
-    100%{
-        background-position: 0 50%;
-    }
+  100% {
+    background-position: 0 50%;
+  }
 }
 
 #calendar {
@@ -197,9 +227,9 @@ export default {
 
   div {
     flex: 2;
-       @media screen and (max-width: 1000px){
-           flex: 0.7;
-       }
+    @media screen and (max-width: 1000px) {
+      flex: 0.7;
+    }
   }
 
   .day {
@@ -242,12 +272,13 @@ export default {
       height: calc(100vh / 13);
       border-bottom: var(--color-border) 1px solid;
       box-sizing: border-box;
-        &.loading{
-            background: linear-gradient(90deg, rgba(128, 128, 128, 0.1) 0%, rgba(189, 181, 181, 0.1) 50% , rgba(128, 128, 128, 0.1) 100%);
-            background-size:500% 500%;
-            animation: loading 1.4s ease infinite;
 
-        }
+      &.loading {
+        background: linear-gradient(90deg, rgba(128, 128, 128, 0.1) 0%, rgba(189, 181, 181, 0.1) 50%, rgba(128, 128, 128, 0.1) 100%);
+        background-size: 500% 500%;
+        animation: loading 1.4s ease infinite;
+
+      }
     }
 
 
@@ -263,12 +294,19 @@ export default {
         position: absolute;
         transform: translateX(-100%) translateY(-50%);
         padding-right: 50%;
-          @media screen and (max-width: 1000px) {
-              padding-right: 16%;
-          }
+        @media screen and (max-width: 1000px) {
+          padding-right: 16%;
+        }
 
       }
     }
   }
+}
+
+.event-detail {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
 }
 </style>

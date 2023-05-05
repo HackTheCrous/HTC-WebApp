@@ -7,6 +7,7 @@ import RegistrationConfirmation from "@/views/RegistrationConfirmation.vue";
 import Account from "@/views/Account.vue";
 import Calendar from "@/assets/calendar.vue";
 import CalendarDetails from "@/views/CalendarDetails.vue";
+import EventDetails from "@/components/EventDetails.vue";
 
 
 const routes = [
@@ -21,7 +22,7 @@ const routes = [
         component: Login
     },
     {
-      path: '/login/redirect/:nonce',
+        path: '/login/redirect/:nonce',
         name: 'LoginRedirect',
         component: Login
     },
@@ -38,7 +39,7 @@ const routes = [
     {
         path: '/register/confirmation/:nonce',
         name: 'RegistrationConfirmation',
-        component : RegistrationConfirmation
+        component: RegistrationConfirmation
     },
     {
         path: '/account',
@@ -48,7 +49,14 @@ const routes = [
     {
         path: '/calendar',
         name: 'Calendar',
-        component: CalendarDetails
+        component: CalendarDetails,
+        children: [
+            {
+                path: ':timestamp',
+                name: 'EventDetails',
+                component: EventDetails
+            }
+        ]
     }
 ]
 

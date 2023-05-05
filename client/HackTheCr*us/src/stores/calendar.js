@@ -42,6 +42,14 @@ export const useCalendarStore = defineStore('calendar', {
                 return days;
             };
         },
+        getDay: (state) => {
+            return (timestamp) => {
+                if(state.days[timestamp] === undefined){
+                    return null;
+                }
+                return state.days[timestamp];
+            }
+        },
         getAllDays: (state) => {
             return state.days;
         },
