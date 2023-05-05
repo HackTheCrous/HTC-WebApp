@@ -60,7 +60,7 @@ export const useUserStore = defineStore('user', {
             this.mail = mail;
             this.token = token;
             this.logged = true;
-            this.getData();
+            return this.getData();
         },
         getData() {
             const GET_DATA_USER = gql`
@@ -81,7 +81,7 @@ export const useUserStore = defineStore('user', {
                 }
             `;
 
-            apolloClient.query({
+            return apolloClient.query({
                 query: GET_DATA_USER,
             }).then((result) => {
                 this.name = result.data.user.name || '';
@@ -95,6 +95,10 @@ export const useUserStore = defineStore('user', {
                 }
 
                 this.favorites = result.data.user.favorites;
+
+                return new Promise((resolve, reject) => {
+                    resolve('resolved');
+                });
             }).catch((error) => {
             });
 

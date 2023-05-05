@@ -60,14 +60,15 @@ export default {
                 mail: this.mail,
                 password: this.password
             }).then(res => {
-                this.userStore.login(res.data.mail, res.data.token);
-                console.log(this.userStore.getToken)
-                this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
-                if (this.redirect) {
-                    this.$router.push('/register/confirmation/'+this.$route.params.nonce);
-                } else {
-                    this.$router.push('/');
-                }
+                this.userStore.login(res.data.mail, res.data.token).then(()=>{
+                    this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
+                    if (this.redirect) {
+                        this.$router.push('/register/confirmation/'+this.$route.params.nonce);
+                    } else {
+                        this.$router.push('/');
+                    }
+                })
+
             }).catch(err => {
                 this.alertStore.addAlert({message: "Erreur d'authentification : " + err, status: 'Error'});
                 console.log(err);
