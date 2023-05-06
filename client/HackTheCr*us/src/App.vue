@@ -86,7 +86,6 @@ export default {
                 this.alert.status = alert.status;
                 this.alertTriggered = true;
 
-                console.log(this.alert);
 
                 setTimeout(() => {
                     this.alertTriggered = false;

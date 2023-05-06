@@ -3,7 +3,7 @@
         <h1>
             Agenda
         </h1>
-        <DateSelector @change="handleDateChange" :date="this.dayOfWeek">{{ this.dayOfWeek }}</DateSelector>
+        <DateSelector @change="handleDateChange" :date="new Date(this.dayOfWeek)">{{ this.dayOfWeek }}</DateSelector>
     </div>
     <Planning @previous-triggered="goOneWeekBefore" @next-triggered="goOneWeekAfter" :data="getDays(this.start,this.end)"
               :start="this.start" :end="this.end" :hours="15" :nbdays="nbDays"/>
@@ -67,23 +67,6 @@ export default {
             dateToChange.setDate(dateToChange.getDate() + delta);
             return dateToChange;
         }
-    },
-    computed: {
-        start() {
-            const toCompute = new Date(this.dayOfWeek).getTime();
-            let date = new Date(toCompute);
-            date.setDate(date.getDate() - date.getDay() +1);
-            return date;
-        },
-        end() {
-            const toCompute = new Date(this.dayOfWeek).getTime();
-
-            let date = new Date(toCompute);
-            date.setDate(date.getDate() - date.getDay() + this.nbDays -1);
-
-            return date;
-        },
-
     },
     watch: {
         dayOfWeek(newVal) {

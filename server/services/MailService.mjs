@@ -29,15 +29,25 @@ export default class MailService {
     static async sendMail(to, subject, text, html) {
         const testAccount = await nodemailer.createTestAccount();
 
+        console.log('sending an email');
+
         const transporter = nodemailer.createTransport({
-            host: "smtp.ethereal.email",
+            service: "gmail",
+            auth: {
+                user: 'hackthecrus@gmail.com',
+                pass: 'repwtevfxuhbezkt'
+            }
+        });
+        /*
+        const transporter = nodemailer.createTransport({
+            service: "smtp.ethereal.email",
             port: 587,
             secure: false,
             auth: {
                 user: testAccount.user,
                 pass: testAccount.pass
             }
-        });
+        });*/
 
         const info = await transporter.sendMail({
             from: '"hack The cr*us" <noreply@hackthecrous.com>',

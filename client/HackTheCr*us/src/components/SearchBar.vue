@@ -247,6 +247,9 @@ export default {
       margin-top: 20px;
       margin-bottom: 20px;
       max-height: 50vw;
+      @media screen and (max-width:1000px){
+        max-height: 70vw;
+      }
       overflow-y: scroll;
       color: black;
       margin-left: 0px;

@@ -23,7 +23,6 @@ export const useRestaurantStore = defineStore('restaurant', {
             if(state.restaurants.length === 0){
                 this.setRestaurants();
             }
-            console.log(state.restaurants)
             return state.restaurants;
         },
         isLoading(state){

@@ -40,7 +40,6 @@ export const useUserStore = defineStore('user', {
             return state.favorites;
         },
         getNames: (state) => {
-            console.log(state.favorites);
             return state.favorites.map((favorite) => favorite.name);
         },
         getSchool: (state) => {
