@@ -15,10 +15,7 @@ export const useUserStore = defineStore('user', {
         school: {status: 'no data'},
         favorites: [],
     }),
-    setup() {
-        const calendarStore = useCalendarStore();
-        return {calendarStore}
-    },
+
     getters: {
         isLogged: (state) => {
             return state.logged;
@@ -102,14 +99,24 @@ export const useUserStore = defineStore('user', {
             });
 
         },
-        setName() {
+        setName(name) {
+            this.name = name;
             return this.name;
+        },
+        setIcal(ical) {
+            this.ical = ical;
         },
         setFavorites(favorites) {
             this.favorites = favorites;
         },
+        setSchool(school) {
+            this.school = school;
+        },
         //clean the store
         logout() {
+
+            const calendarStore = useCalendarStore();
+
             apolloClient.resetStore();
             this.mail = '';
             this.token = '';
@@ -118,7 +125,7 @@ export const useUserStore = defineStore('user', {
             this.favorites = [];
             this.logged = false;
             this.name = '';
-            this.calendarStore.clean();
+            calendarStore.clean();
         },
     },
     persist: true,

@@ -29,6 +29,10 @@ export default class SchoolController {
         const result = await client.query(query, params);
         await client.end();
 
+        if(result.rows.length === 0){
+            return null;
+        }
+
         return result.rows[0].idschool;
     }
 

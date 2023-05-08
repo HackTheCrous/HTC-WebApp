@@ -8,6 +8,7 @@ import Account from "@/views/Account.vue";
 import Calendar from "@/assets/calendar.vue";
 import CalendarDetails from "@/views/CalendarDetails.vue";
 import EventDetails from "@/components/EventDetails.vue";
+import UserSettings from "@/views/UserSettings.vue";
 
 
 const routes = [
@@ -43,8 +44,8 @@ const routes = [
     },
     {
         path: '/account',
-        name: 'Account',
-        component: Account
+        name: 'UserSettings',
+        component: UserSettings
     },
     {
         path: '/calendar',
