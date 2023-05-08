@@ -1,4 +1,7 @@
 <template>
+    <LoadingView v-if="this.restaurantStore.isLoading">
+      INTERCEPTION DES MENUS
+    </LoadingView>
     <main>
         <LoadingBar v-if="this.loadingStore.isLoading"/>
         <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
@@ -49,10 +52,12 @@ import {useUserStore} from "@/stores/user";
 import Calendar from "@/assets/calendar.vue";
 import {useLoadingStore} from "./stores/loadingStore";
 import LoadingBar from "./components/LoadingBar.vue";
+import LoadingView from "./views/LoadingView.vue";
+import {useRestaurantStore} from "./stores/restaurants";
 
 export default {
     name: "App",
-    components: {LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
+    components: {LoadingView, LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
     data() {
         return {
             alertTriggered: false,
@@ -67,9 +72,10 @@ export default {
         const alerts = useAlertsStore();
         const userStore = useUserStore();
         const loadingStore = useLoadingStore();
+        const restaurantStore = useRestaurantStore();
 
 
-        return {alerts, userStore, loadingStore}
+        return {alerts, userStore, loadingStore, restaurantStore}
 
 
     },

@@ -62,6 +62,9 @@ const errorLink = onError(({graphQLErrors, networkError}) => {
            if(err.message==="jwt expired"){
                 userStore.logout();
            }
+           if(err.message==="jwt must be provided"){
+               userStore.logout();
+           }
        }
    }
 });

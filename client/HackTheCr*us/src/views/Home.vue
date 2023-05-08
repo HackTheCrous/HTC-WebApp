@@ -191,6 +191,7 @@ export default {
 
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 
 .blurred {
@@ -214,8 +215,6 @@ header {
 }
 
 main {
-
-
   h2 {
     font-family: Inter, sans-serif;
     font-size: 17px;

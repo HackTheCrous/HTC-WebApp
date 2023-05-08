@@ -36,6 +36,8 @@ import {useUserStore} from "@/stores/user";
 import {useAlertsStore} from "@/stores/alerts";
 
 import {endpoint} from "@/main";
+import {useRestaurantStore} from "../stores/restaurants";
+import restaurant from "../assets/restaurant.vue";
 
 export default {
     name: "Login",
@@ -51,7 +53,8 @@ export default {
     setup() {
         const userStore = useUserStore();
         const alertStore = useAlertsStore();
-        return {userStore, alertStore}
+        const restaurantStore = useRestaurantStore();
+        return {userStore, alertStore, restaurantStore}
     },
     methods: {
         submit(e) {
@@ -65,6 +68,8 @@ export default {
                     if (this.redirect) {
                         this.$router.push('/register/confirmation/'+this.$route.params.nonce);
                     } else {
+                        this.restaurantStore.setRestaurants();
+
                         this.$router.push('/');
                     }
                 })
