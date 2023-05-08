@@ -23,7 +23,8 @@ export const typeDefs = gql`
         modifyUser(name: String, ical: String, school: Int, restaurants : [Int]): User,
         modifyUserBySchoolName(name: String, ical: String, school: String, restaurants : [Int]): User,
         like(idrestaurant: Int): [Restaurant],
-        dislike(idrestaurant: Int): [Restaurant]
+        dislike(idrestaurant: Int): [Restaurant],
+        modifyUserField(name: String, ical: String, school: String, mail: String): User,
     }
     
     type Restaurant {

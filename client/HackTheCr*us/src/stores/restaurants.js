@@ -31,6 +31,12 @@ export const useRestaurantStore = defineStore('restaurant', {
     },
     actions: {
         setRestaurants() {
+            const userStore = useUserStore();
+            console.log('retrieving restaurants');
+            if(!userStore.isLogged){
+                console.log('not logged');
+                return;
+            }
             this.loading = true;
             apolloClient.query({
                 query: GET_RESTAURANTS,

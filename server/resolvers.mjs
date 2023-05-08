@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import SchoolController from "./controllers/SchoolController.mjs";
 import MealController from "./controllers/MealController.mjs";
 import PlanningController from './controllers/PlanningController.js';
+import {GraphQLError} from "graphql/error/index.js";
 
 dotenv.config();
 
@@ -26,7 +27,6 @@ export const resolvers = {
                     return restaurant;
                 }
             }
-
             return (await RestaurantController.getRestaurant(url));
         },
         restaurants: async (parent, args, context, info) => {
@@ -69,7 +69,7 @@ export const resolvers = {
         },
         searchSchool: async (parent, args, context, info) => {
             const {query} = args;
-            return (await SchoolController.getSchooLike(query)).slice(0, 5);
+            return (await SchoolController.getSchooLike(query)).slice(0, 9);
         },
         day: async (parent, args, context, info) => {
             const {date} = args;
@@ -101,10 +101,71 @@ export const resolvers = {
             const {name, coords} = args;
             return await SchoolController.create(name, coords);
         },
-        modifyUser: async (parent, args, context, info) => {
-            const {name, ical, school, restaurants} = args;
+        modifyUserField: async (parent, args, context, info) => {
+            const {name, ical, school, mail} = args;
+
             const token = context.req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            if (name != null) {
+                if (name.length > 48) {
+                    throw new GraphQLError('Name too long', {
+                        extensions: {
+                            code: 'NAME_TOO_LONG'
+                        }
+                    });
+                }
+
+                if (await UserController.isNameUpdatable(decoded.id) === false) {
+                    throw new GraphQLError('Name already updated in the month', {
+                        extensions: {
+                            code: 'NAME_ALREADY_UPDATED'
+                        }
+                    });
+                }
+
+                await UserController.updateName(decoded.id, name);
+            }
+            if (ical != null) {
+                if (ical.match(/^(https:\/\/proseconsult\.umontpellier\.fr\/)/) === null) {
+                    throw new GraphQLError('Ical not valid', {
+                        extensions: {
+                            code: 'ICAL_NOT_VALID'
+                        }
+                    });
+                }
+                await UserController.modifyField(decoded.id, ical, 'ical');
+            }
+            if (school != null) {
+                const idSchool = await SchoolController.getSchoolId(school);
+                if (idSchool == null) {
+                    throw new GraphQLError('School not found', {
+                        extensions: {
+                            code: 'SCHOOL_NOT_FOUND'
+                        }
+                    });
+                }
+                console.log(idSchool);
+                await UserController.modifyField(decoded.id, idSchool, 'idschool');
+            }
+            if (mail != null) {
+                if (await UserController.getMail(mail) != null) {
+                    throw new GraphQLError('Mail already used', {
+                        extensions: {
+                            code: 'MAIL_ALREADY_USED'
+                        }
+                    });
+                }
+                await UserController.modifyField(decoded.id, mail, 'mail');
+            }
+            return await UserController.get(decoded.id);
+        },
+        modifyUser: async (parent, args, context, info) => {
+            const {name, ical, school, restaurants} = args;
+
+            const token = context.req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
             await UserController.modify(decoded.id, name, school, ical, restaurants);
             return await UserController.get(decoded.id);
         },
@@ -145,6 +206,7 @@ export const resolvers = {
     },
     User: {
         school: async (parent, args, context, info) => {
+            console.log(parent.iduser);
             return await UserController.getSchool(parent.iduser);
         },
         favorites: async (parent, args, context, info) => {

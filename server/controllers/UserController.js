@@ -153,6 +153,20 @@ export default class UserController {
         return response.rows[0].ical;
     }
 
+    static async isNameUpdatable(iduser) {
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        const response = await client.query('SELECT name_modified FROM radulescut.user WHERE iduser = $1', [iduser]);
+        await client.end();
+        if (response.rowCount === 0) {
+            return true;
+        }
+
+
+
+        return new Date(response.rows[0].name_modified).getMonth() !== new Date().getMonth() && new Date(response.rows[0].name_modified).getYear() !== new Date().getYear();
+    }
+
     static genJWT({id, mail}) {
         let token;
         try {
@@ -181,6 +195,20 @@ export default class UserController {
         return new SchoolModel(result.rows[0].idschool, result.rows[0].name, result.rows[0].coords);
     }
 
+    static async modifyField(idUser, value, field) {
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        await client.query('UPDATE radulescut.user SET ' + field + ' = $1 WHERE iduser = $2', [value, idUser]);
+        await client.end();
+    }
+
+    static async updateName(iduser, name) {
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        await client.query('UPDATE radulescut.user SET name = $1, name_modified = $2 WHERE iduser = $3', [name, new Date(), iduser]);
+        await client.end();
+    }
+
 
     /**
      * Update the user's name, school and ical and insert into favoriterestaurant the restaurants
@@ -194,7 +222,7 @@ export default class UserController {
     static async modify(iduser, name, school, ical, restaurants) {
         const client = DatabaseManager.getConnection();
         await client.connect();
-        if(restaurants != null){
+        if (restaurants != null) {
             await client.query('DELETE FROM radulescut.favoriterestaurant WHERE iduser = $1', [iduser]);
 
             for (const restaurant of restaurants) {

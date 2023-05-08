@@ -1,5 +1,6 @@
 <template>
     <main>
+        <LoadingBar v-if="this.loadingStore.isLoading"/>
         <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
         <div id="nav" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
             <router-link to="/" id="logo">
@@ -46,10 +47,12 @@ import restaurant from "./assets/restaurant.vue";
 import {useAlertsStore} from "@/stores/alerts";
 import {useUserStore} from "@/stores/user";
 import Calendar from "@/assets/calendar.vue";
+import {useLoadingStore} from "./stores/loadingStore";
+import LoadingBar from "./components/LoadingBar.vue";
 
 export default {
     name: "App",
-    components: {Calendar, Alert, squeeze, account, search, restaurant},
+    components: {LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
     data() {
         return {
             alertTriggered: false,
@@ -63,9 +66,10 @@ export default {
     setup() {
         const alerts = useAlertsStore();
         const userStore = useUserStore();
+        const loadingStore = useLoadingStore();
 
 
-        return {alerts, userStore}
+        return {alerts, userStore, loadingStore}
 
 
     },
