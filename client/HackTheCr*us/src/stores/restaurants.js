@@ -30,6 +30,12 @@ export const useRestaurantStore = defineStore('restaurant', {
         }
     },
     actions: {
+        startLoading() {
+            this.loading = true;
+        },
+        stopLoading() {
+            this.loading = false;
+        },
         setRestaurants() {
             this.loading = true;
 
