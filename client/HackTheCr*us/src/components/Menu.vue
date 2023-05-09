@@ -5,8 +5,13 @@
         </h4>
         <div v-for="foody in this.foodies">
             <h5>{{ foody.type }}</h5>
-            <ul>
+            <ul v-if="this.highlight !== undefined">
                 <li v-for="food in foody.food" v-html="this.highlightFood(food)" class="food">
+                </li>
+            </ul>
+            <ul v-else>
+                <li v-for="food in foody.food" class="food">
+                    {{ food }}
                 </li>
             </ul>
         </div>
