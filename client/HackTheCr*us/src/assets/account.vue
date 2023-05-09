@@ -1,5 +1,5 @@
 <template>
-    <svg :width="size" :height="size" viewBox="0 0 40 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg :data-label="label" :width="size" :height="size" viewBox="0 0 40 41" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M30 18V10.5L26.4833 12.2667C26.7208 13.2475 26.7324 14.2694 26.5173 15.2554C26.3023 16.2413 25.8662 17.1656 25.2418 17.9584C24.6175 18.7513 23.8213 19.392 22.9133 19.8323C22.0053 20.2725 21.0091 20.5009 20 20.5C18.9908 20.5009 17.9947 20.2725 17.0866 19.8323C16.1786 19.392 15.3824 18.7513 14.7581 17.9584C14.1338 17.1656 13.6976 16.2413 13.4826 15.2554C13.2675 14.2694 13.2792 13.2475 13.5166 12.2667L8.33329 9.66671L20 3.83337L31.6666 9.66671V18H30ZM20 15.5L16.6666 13.8334C16.6666 15.6667 18.1666 17.1667 20 17.1667C21.8333 17.1667 23.3333 15.6667 23.3333 13.8334L20 15.5ZM24.5833 9.53337L20.2666 7.33337L15.7833 9.61671L20.1166 11.8167L24.5833 9.53337ZM20 22.1667C24.45 22.1667 33.3333 24.3834 33.3333 28.8334V33.8334H6.66663V28.8334C6.66663 24.3834 15.55 22.1667 20 22.1667ZM20 25.3334C15 25.3334 9.83329 27.7667 9.83329 28.8334V30.6667H30.1666V28.8334C30.1666 27.7667 24.95 25.3334 20 25.3334Z"
               :fill="color" :fill-opacity="opacity"/>
     </svg>
@@ -11,11 +11,21 @@ export default {
     props: {
         color: String,
         opacity: String,
-        size: String
+        size: String,
+        label: String
     }
 }
 </script>
 <style scoped lang="scss">
 @import "@/styles/icons.scss";
+
+svg::after{
+    content: attr(data-label);
+    color: var(--color-text);
+    font-size: 0.8rem;
+    text-align: center;
+    position: absolute;
+    top:5px;
+}
 
 </style>

@@ -99,20 +99,7 @@ export default {
                 this.focusSearch = false;
             }
         },
-        logout() {
-            axios.post(`${endpoint}/logout`, {}, {
-                headers: axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userStore.token
-            }).then(res => {
-                console.log(res);
-                this.userStore.logout();
-                this.$router.push('/login');
-                this.alerts.addAlert({message: 'Vous êtes déconnecté !', status: 'Success'});
-            }).catch(err => {
-                this.userStore.logout();
-                this.alerts.addAlert({message: err.response.data, status: 'Error'});
-                console.log("ERR" + err);
-            });
-        }
+
 
     },
     watch: {
@@ -141,7 +128,6 @@ export default {
             </div>
             <div id="sidetools">
                 <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
-                <signout color="grey" opacity="0.5" @click="this.logout"/>
             </div>
         </header>
         <div id="tags" class="blurred">
@@ -166,7 +152,6 @@ export default {
             </div>
             <div id="sidetools">
                 <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
-                <signout color="grey" opacity="0.5" @click="this.logout"/>
             </div>
         </header>
         <div id="tags">
