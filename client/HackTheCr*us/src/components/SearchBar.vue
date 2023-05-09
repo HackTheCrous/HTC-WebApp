@@ -252,9 +252,9 @@ export default {
     .suggestions {
       margin-top: 20px;
       margin-bottom: 20px;
-      max-height: 50vw;
+      max-height: 90vh;
       @media screen and (max-width:1000px){
-        max-height: 70vw;
+        max-height: 70vh;
       }
       overflow-y: scroll;
       color: black;
