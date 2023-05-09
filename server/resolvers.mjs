@@ -92,6 +92,15 @@ export const resolvers = {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             const ical = await UserController.getIcal(decoded.id);
+
+            if(ical == null) {
+                throw new GraphQLError('No ical', {
+                    extensions: {
+                        code: 'NO_ICAL'
+                    }
+                });
+            }
+
             return await (new PlanningController(ical)).getEventsByPeriod(start, end);
         }
     },

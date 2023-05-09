@@ -1,6 +1,24 @@
 <template>
 
     <div id="calendar" @mousedown="unfocus">
+        <div class="error" v-if="this.calendarStore.failed">
+            <SettingField :regex="/^(https:\/\/proseconsult\.umontpellier\.fr\/)/" placeholder="Entre ton lien Ical"
+                          @send="updateIcal" long>
+                <template v-slot:title>
+                    ⚠️ Tu n'as pas ajouté de lien Ical
+                </template>
+                <template v-slot:label>
+                    Ce lien nous permet de récupérer ton emploi du temps. Si il n’est pas précisé on ne pourra pas te le
+                    fournir.
+                    Pour le récupérer <a href="https://app.umontpellier.fr/prose-etudiant/protected/ical"
+                                         target="_blank">clique ici
+                    !</a>
+                </template>
+                <template v-slot:hint>
+                    Les liens ne commençant pas par <b>https://proseconsult.umontpellier.fr</b> ne sont pas accepté.
+                </template>
+            </SettingField>
+        </div>
         <div class="border">
             <button @click="$emit('previousTriggered')">
                 <squeeze size="30" opacity="0.5" color="white"/>
@@ -32,11 +50,17 @@
 import DetailEventCard from "@/components/DetailEventCard.vue";
 import {useCalendarStore} from "@/stores/calendar";
 import Squeeze from "@/assets/squeeze.vue";
+import SettingField from "@/components/SettingField.vue";
+import {apolloClient} from "@/main";
+import gql from "graphql-tag";
+import {useLoadingStore} from "@/stores/loadingStore";
+import {useUserStore} from "@/stores/user";
+import {useAlertsStore} from "@/stores/alerts";
 
 export default {
     name: "Planning",
     emits: ['previousTriggered', 'nextTriggered'],
-    components: {Squeeze, DetailEventCard},
+    components: {SettingField, Squeeze, DetailEventCard},
     props: {
         data: Object,
         start: Date,
@@ -54,7 +78,10 @@ export default {
     },
     setup() {
         const calendarStore = useCalendarStore();
-        return {calendarStore}
+        const loadingStore = useLoadingStore();
+        const userStore = useUserStore();
+        const alertStore = useAlertsStore();
+        return {calendarStore, loadingStore, userStore, alertStore};
     },
 
     methods: {
@@ -109,11 +136,11 @@ export default {
         },
         unfocus(e) {
             const event = e.target.closest(".event");
-            if(event !== null && this.focus) {
-                if((event || event.contains(e.target)) ) {
+            if (event !== null && this.focus) {
+                if ((event || event.contains(e.target))) {
                     this.focus = false;
                 }
-            }else{
+            } else {
                 this.focus = false;
             }
 
@@ -125,10 +152,36 @@ export default {
             }
 
         },
-        handlefocus(focus){
-            this.focus=!focus;
+        handlefocus(focus) {
+            this.focus = !focus;
         },
-
+        updateIcal(ical) {
+            this.loadingStore.startLoading();
+            apolloClient.mutate({
+                mutation: gql`
+          mutation UpdateIcal($ical: String!){
+            modifyUserField(ical: $ical){
+              ical
+            }
+          }
+        `,
+                variables: {
+                    ical
+                }
+            }).then(({data}) => {
+                this.loadingStore.stopLoading();
+                console.log(data);
+                this.userStore.setIcal(data.modifyUserField.ical);
+                this.alertStore.addAlert({
+                    status: "Success",
+                    message: "Ton emploi du temps a bien été mis à jour !"
+                });
+                this.calendarStore.setDays(this.start, this.end);
+            }).catch(err => {
+                this.loadingStore.stopLoading();
+                console.log(err);
+            })
+        }
 
     },
     mounted() {
@@ -186,6 +239,22 @@ export default {
   flex-direction: row;
   width: 100%;
   height: 100vh;
+
+  .error {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 101;
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .setting-field {
+      flex: none
+    }
+  }
 
   #now {
     height: 2px;

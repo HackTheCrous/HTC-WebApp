@@ -41,6 +41,7 @@ import {apolloClient} from "../main";
 import TagDetail from "@/components/TagDetail.vue";
 import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
 import {useRestaurantStore} from "@/stores/restaurants";
+import Map from "@/components/MapContainer.vue";
 
 
 const LIKE_RESTAURANT = gql`
@@ -82,7 +83,8 @@ export default {
         LoadingFillerBox,
         Menu,
         heart,
-        TagDetail
+        TagDetail,
+        Map
     },
     props: {
         name: String,

@@ -24,6 +24,8 @@
             </div>
         </div>
     </div>
+    <MapContainer v-if="!loading" :coords="this.coords" />
+
 </template>
 
 <script>
@@ -31,6 +33,7 @@
 import gql from "graphql-tag";
 import {apolloClient} from "@/main";
 import TagDetail from "@/components/TagDetail.vue";
+import MapContainer from "@/components/MapContainer.vue";
 import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
 
 const GET_RESTAURANT_BY_NAME = gql`
@@ -56,7 +59,8 @@ const GET_RESTAURANT_BY_NAME = gql`
 
 export default {
     name: "RestaurantDetail",
-    components: {LoadingFillerBox, TagDetail},
+    components: {LoadingFillerBox, TagDetail, MapContainer},
+
     data() {
         return {
             id: this.$route.params.id,
@@ -74,6 +78,7 @@ export default {
     },
     mounted() {
         this.loading = true;
+        console.log('mounted');
         apolloClient.query(({
             query: GET_RESTAURANT_BY_NAME,
             variables: {
@@ -129,6 +134,7 @@ hr {
 #meals {
   display: flex;
   flex-direction: row;
+    margin-bottom: 20px;
   @media screen and (max-width: 1000px) {
     flex-direction: column;
   }

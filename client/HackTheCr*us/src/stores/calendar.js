@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import gql from "graphql-tag";
 import {apolloClient} from "@/main";
+import {useUserStore} from "@/stores/user";
 
 
 const sameDay = (dateA, dateB) => {
@@ -24,12 +25,13 @@ const GET_CALENDAR_ON_PERIOD = gql`
 export const useCalendarStore = defineStore('calendar', {
     state: () => ({
         days: {},
-        daysStored : [],
-        loading: []
+        daysStored: [],
+        loading: [],
+        error: false
     }),
 
     getters: {
-        getDays :(state) =>{
+        getDays: (state) => {
             return (start, end) => {
                 let days = [];
 
@@ -44,7 +46,7 @@ export const useCalendarStore = defineStore('calendar', {
         },
         getDay: (state) => {
             return (timestamp) => {
-                if(state.days[timestamp] === undefined){
+                if (state.days[timestamp] === undefined) {
                     return null;
                 }
                 return state.days[timestamp];
@@ -54,10 +56,18 @@ export const useCalendarStore = defineStore('calendar', {
             return state.days;
         },
         isLoading: (state) => {
-            return (timestamp) =>{
+            return (timestamp) => {
                 return state.loading.includes(timestamp);
 
             }
+        },
+        failed: (state) => {
+            const userStore = useUserStore();
+            if (userStore.getIcal === '') {
+                return state.error;
+
+            }
+            return false;
         }
     },
     actions: {
@@ -66,42 +76,45 @@ export const useCalendarStore = defineStore('calendar', {
             this.daysStored = [];
             this.loading = [];
         },
-        setDays(start, end){
-            this.loading=[];
+        setDays(start, end) {
+            this.loading = [];
 
-            for(let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)){
-                if(!this.daysStored.includes(new Date(i).getTime())){
+            for (let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)) {
+                if (!this.daysStored.includes(new Date(i).getTime())) {
                     this.loading.push(new Date(i).getTime());
                 }
             }
 
-            if(this.loading.length !== 0){
+            if (this.loading.length !== 0) {
                 apolloClient.query({
                     query: GET_CALENDAR_ON_PERIOD,
                     variables: {
-                        start: new Date(Math.min(...this.loading)).setHours(0,0,0,0),
-                        end: new Date(Math.max(...this.loading)).setHours(23,59,59,999)
+                        start: new Date(Math.min(...this.loading)).setHours(0, 0, 0, 0),
+                        end: new Date(Math.max(...this.loading)).setHours(23, 59, 59, 999)
                     }
                 }).then((result) => {
+                    this.error = false;
                     const days = result.data.period;
-                    for(const day of days){
+                    for (const day of days) {
                         this.days[day.start] = day;
                     }
-                    for(let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)){
-                        if(this.daysStored.length< 500){
+                    for (let i = new Date(start); i <= end; i.setDate(i.getDate() + 1)) {
+                        if (this.daysStored.length < 500) {
                             this.daysStored.push(new Date(i).getTime());
                             this.loading.splice(this.loading.indexOf(new Date(i).getTime()), 1);
 
                         }
                     }
 
+                }).catch((error) => {
+                    this.error = true;
                 });
-            }else{
-                this.loading=[];
+            } else {
+                this.loading = [];
             }
         }
     },
     persist: {
-        storage:sessionStorage
+        storage: sessionStorage
     }
 });
