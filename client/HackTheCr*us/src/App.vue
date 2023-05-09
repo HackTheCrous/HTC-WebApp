@@ -1,37 +1,11 @@
 <template>
     <LoadingView v-if="this.restaurantStore.isLoading">
-      INTERCEPTION DES MENUS
+        INTERCEPTION DES MENUS
     </LoadingView>
     <main>
         <LoadingBar v-if="this.loadingStore.isLoading"/>
         <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
-        <div id="nav" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
-            <router-link to="/" id="logo">
-                <img src="./assets/logoV2.png" alt="logo">
-                <h4 v-if="!reduceBar">hack<br/><span>the cr*us</span></h4>
-            </router-link>
-            <div id="tools">
-                <router-link class="icon" to="/" v-slot="{isActive}">
-                    <restaurant size="35" class="active" v-if="isActive" opacity="1"/>
-                    <restaurant size="35" v-else opacity="0.5"/>
-                    <p v-if="!reduceBar">Restaurants</p>
-                </router-link>
-                <router-link class="icon" to="/calendar" v-slot="{isActive}">
-                    <calendar size="35" class="active" v-if="isActive" opacity="1"/>
-                    <calendar size="35" v-else opacity="0.5"/>
-                    <p v-if="!reduceBar">Agenda</p>
-                </router-link>
-                <router-link class="icon" to="/account" v-slot="{isActive}">
-                    <account size="35" class="active" v-if="isActive" opacity="1"/>
-                    <account size="35" v-else opacity="0.5"/>
-                    <p v-if="!reduceBar">Mon compte</p>
-                </router-link>
-            </div>
-            <button @click="reduceBar=!reduceBar" class="icon" id="squeeze">
-                <squeeze size="30" opacity="0.5" color="white"/>
-            </button>
-        </div>
-
+        <NavBar v-if="this.userStore.logged"/>
         <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
             <router-view/>
         </div>
@@ -54,10 +28,11 @@ import {useLoadingStore} from "./stores/loadingStore";
 import LoadingBar from "./components/LoadingBar.vue";
 import LoadingView from "./views/LoadingView.vue";
 import {useRestaurantStore} from "./stores/restaurants";
+import NavBar from "@/components/NavBar.vue";
 
 export default {
     name: "App",
-    components: {LoadingView, LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
+    components: {NavBar, LoadingView, LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
     data() {
         return {
             alertTriggered: false,
@@ -298,13 +273,14 @@ main {
   }
 
   .icon {
-      padding-top: 5px;
-      padding-bottom: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
     &.router-link-active {
       border-left: 5px solid var(--color-text);
       padding-left: calc($paddingIcons - 5px);
       @media screen and (max-width: 1000px) {
-          padding-top: 5px;
+        padding-top: 5px;
         border-left: 0px;
         border-bottom: 5px solid var(--color-text);
       }
@@ -318,7 +294,8 @@ main {
   width: calc(100% - #{$widthSideBar} - #{$minWidthSideBar} + 30px);
   min-width: calc(100% - #{$minWidthSideBar} - #{$widthSideBar} + 30px);
   margin-left: calc(#{$widthSideBar} + 30px);
-
+  position: relative;
+  z-index: 1;
 
   &.squeezed {
     width: calc(100% - 100px - 60px);

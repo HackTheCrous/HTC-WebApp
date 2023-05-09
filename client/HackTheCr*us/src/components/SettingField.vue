@@ -43,7 +43,7 @@ export default {
       default: false
     },
     suggestions: {
-      type: Array,
+      type: Object,
       default: []
     },
     warning: {
@@ -51,7 +51,7 @@ export default {
       default: false
     },
     regex: {
-      type: String
+      type: RegExp
     }
   },
   methods: {
@@ -65,7 +65,6 @@ export default {
   },
   computed:{
     isValid(){
-      console.log(this.value.match(this.regex));
       return this.value.match(this.regex) !== null;
     }
   }

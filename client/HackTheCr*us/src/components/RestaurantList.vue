@@ -32,8 +32,6 @@ export default {
                 this.restaurantStore.setFocus(this.$route.query.search);
             }
 
-
-
             return this.restaurantStore.getSortedRestaurants;
         }
     }
