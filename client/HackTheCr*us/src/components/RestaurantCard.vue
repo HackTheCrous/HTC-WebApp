@@ -18,10 +18,10 @@
         <div class="tags" v-if="!this.loading">
             <TagDetail v-if="this.distance !== 0"> {{ Math.round(this.distance / 10) / 100 }}km</TagDetail>
         </div>
-        <Menu v-for="meal in this.meals" :key="meal.typemeal" :name="meal.typemeal" :foodies="meal.foodies"
+        <Menu v-for="meal in this.restaurantStore.getMeal(this.url)" :key="meal.typemeal" :name="meal.typemeal" :foodies="meal.foodies"
               :time="meal.day"
               class="menu"></Menu>
-        <p v-if="this.meals.length === 0 && !this.loading" class="no-menu">Pas de menu disponible :(</p>
+        <p v-if="this.restaurantStore.getMeal(this.url).length === 0 && !this.loading" class="no-menu">Pas de menu disponible :(</p>
     </div>
 </template>
 
@@ -40,6 +40,7 @@ import axios from "axios";
 import {apolloClient} from "../main";
 import TagDetail from "@/components/TagDetail.vue";
 import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
+import {useRestaurantStore} from "@/stores/restaurants";
 
 
 const LIKE_RESTAURANT = gql`
@@ -91,6 +92,9 @@ export default {
     setup(props) {
         const userStore = useUserStore();
 
+        const restaurantStore = useRestaurantStore();
+
+
 
         const {loading, error, result} = useQuery(
             GET_RESTAURANT,
@@ -99,13 +103,14 @@ export default {
             })
         )
 
-        const meals = computed(() => result.value?.restaurant.meals ?? []);
+        //const meals = computed(() => result.value?.restaurant.meals ?? []);
+
 
         const distance = computed(() => result.value?.restaurant.distance ?? null);
 
 
         return {
-            meals,
+            restaurantStore,
             userStore,
             distance,
             loading

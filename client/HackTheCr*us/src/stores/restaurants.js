@@ -13,10 +13,29 @@ const GET_RESTAURANTS = gql`
         }
     }`;
 
+const GET_RESTAURANT = gql`
+    query Restaurant($url: String){
+        restaurant(url: $url){
+            distance
+            meals{
+                idmeal
+                typemeal
+                foodies
+                day
+            }
+        }
+    }`;
+
 export const useRestaurantStore = defineStore('restaurant', {
     state: () => ({
         restaurants: [],
-        loading: false
+        loading: false,
+        filters:{
+            tag: '',
+            sort: '',
+            focus: ''
+        },
+        nbMeals: 0,
     }),
     getters: {
         getRestaurants(state) {
@@ -25,16 +44,117 @@ export const useRestaurantStore = defineStore('restaurant', {
             }
             return state.restaurants;
         },
+        getSortedRestaurants(state){
+            const userStore = useUserStore();
+            const favoriteNames = userStore.getNames;
+
+            if(state.restaurants.length === 0){
+                this.setRestaurants();
+            }
+
+
+            let restaurantList = state.restaurants;
+
+
+            if(state.filters.tag.includes('Tout')){
+                restaurantList = restaurantList.map(restaurant => restaurant);
+            }else{
+                restaurantList = restaurantList.filter(restaurant => restaurant.name.includes(state.filters.tag)).map(restaurant => restaurant);
+            }
+
+            restaurantList = restaurantList.sort((a, b) => {
+                if(a.distance < b.distance){
+                    return -1;
+                }else if(a.distance > b.distance){
+                    return 1;
+                }else{
+                    return 0;
+                }
+            });
+
+            if(state.filters.sort.includes('Favoris')){
+                restaurantList = restaurantList.sort((a, b) => {
+                    if (favoriteNames.includes(a.name) && !favoriteNames.includes(b.name)) {
+                        return -1;
+                    } else if (!favoriteNames.includes(a.name) && favoriteNames.includes(b.name)) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                })
+            }
+            return restaurantList;
+
+        },
+        getMeal(state) {
+            return (url) => {
+                for(const restaurant of state.restaurants){
+                    if(restaurant.url === url){
+                        if(restaurant.meal!=null){
+                            return restaurant.meal;
+                        }
+                        return this.setMeal(url);
+
+                    }
+                }
+            };
+        },
         isLoading(state){
             return state.loading;
-        }
+        },
+
     },
     actions: {
+        sortByFocus(){
+            if(this.filters.focus === ''){
+                return this.restaurants;
+            }
+            return this.restaurants.sort((a, b) => {
+                const mealA = this.getMeal(a.url) ? this.getMeal(a.url).join(' ').toUpperCase() : ' ';
+                const mealB = this.getMeal(b.url) ? this.getMeal(b.url).join(' ').toUpperCase() : ' ';
+
+                if (mealA.includes(this.filters.focus) && !mealB.includes(this.filters.focus)) {
+                    return 1;
+                } else if (!mealA.includes(this.filters.focus) && mealB.includes(this.filters.focus)) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+        },
         startLoading() {
             this.loading = true;
         },
         stopLoading() {
             this.loading = false;
+        },
+        setTag(tag){
+            this.filters.tag = tag;
+        },
+        setSort(sort){
+            this.filters.sort = sort;
+        },
+        setFocus(key){
+            this.filters.focus = key.toUpperCase();
+        },
+        async setMeal(url) {
+            const result = await apolloClient.query({
+                query: GET_RESTAURANT,
+                variables: {
+                    url: url
+                }
+            });
+
+            const meal = result.data.restaurant.meals;
+
+            for(const restaurant of this.restaurants){
+                if(restaurant.url === url){
+
+
+                    restaurant.meal = meal;
+                    return meal;
+                }
+            }
         },
         setRestaurants() {
             this.loading = true;
@@ -49,7 +169,13 @@ export const useRestaurantStore = defineStore('restaurant', {
             apolloClient.query({
                 query: GET_RESTAURANTS,
             }).then((result) => {
-                this.restaurants = result.data.restaurants;
+                this.restaurants = result.data.restaurants.map((restaurant) => {
+                    return {
+                        ...restaurant,
+                        meal: null
+                    };
+                });
+
                 this.loading = false;
             }).catch((error) => {
                 this.loading = false;

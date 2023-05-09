@@ -15,7 +15,7 @@
                 </li>
             </ul>
         </div>
-
+        <p v-if="this.foodies.length===0">Pas de menu disponible :(</p>
     </div>
 </template>
 
