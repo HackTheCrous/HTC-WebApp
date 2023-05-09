@@ -1,10 +1,11 @@
 <template>
-    <div class="container" v-if="this.focused">
-        <div id="searchbar" class="focused">
+    <div :class="this.focused ? 'focused container' : 'unfocused'">
+        <div id="searchbar">
             <form>
                 <search color="black" opacity="0.5"/>
                 <input v-model="queryValue" ref="textinput" type="text" placeholder="On mange quoi ?" name="search">
-                <p class="shortcut">Esc</p>
+                <p class="shortcut" v-if="focused">Esc</p>
+                <p class="shortcut" v-else>Ctrl+k</p>
 
             </form>
 
@@ -53,13 +54,7 @@
         </div>
     </div>
 
-    <div id="searchbar" v-else>
-        <form>
-            <search color="black" opacity="0.5"/>
-            <input v-model="queryValue" type="text" placeholder="On mange quoi ?" name="search">
-            <p class="shortcut">Ctrl+k</p>
-        </form>
-    </div>
+
 </template>
 
 <script>
@@ -99,6 +94,11 @@ export default {
         }
     },
     watch: {
+        focused(newVal) {
+            if (newVal) {
+                this.$refs.textinput.focus();
+            }
+        },
 
         queryValue(newQuery) {
             this.searchResults = [];
@@ -145,6 +145,8 @@ export default {
 
 <style scoped lang="scss">
 #searchbar {
+  transition: all 0.1s ease;
+
 
   width: 300px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
@@ -155,7 +157,6 @@ export default {
   margin-right: 15px;
   flex-direction: column;
 
-  transition: all linear 0.4s;
 
   form {
     width: 100%;
@@ -210,6 +211,12 @@ export default {
 
 }
 
+.unfocused{
+  .suggestions{
+    display: none;
+  }
+}
+
 .container {
   position: fixed;
   z-index: 4;
@@ -219,31 +226,30 @@ export default {
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
   background: rgba(58, 55, 55, 0.5);
   backdrop-filter: blur(3px);
+  padding-top:30px;
+  padding-bottom: 30px;
 
   #searchbar {
     width: 50%;
     @media screen and (max-width: 1000px){
       width:90%;
     }
-    transition: height linear 0.24s;
     border-radius: 20px;
     padding: 20px;
     display: flex;
     flex-direction: column;
     background: white;
+    height:fit-content;
 
     form {
       background: rgba(0, 0, 0, 0.1);
       padding: 5px 10px;
       border-radius: 10px;
-      transition: height linear 0.24s;
     }
 
     .suggestions {
-      transition: height linear 0.24s;
       margin-top: 20px;
       margin-bottom: 20px;
       max-height: 50vw;

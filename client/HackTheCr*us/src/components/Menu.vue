@@ -6,8 +6,7 @@
         <div v-for="foody in this.foodies">
             <h5>{{ foody.type }}</h5>
             <ul>
-                <li v-for="food in foody.food">
-                    {{ food }}
+                <li v-for="food in foody.food" v-html="this.highlightFood(food)" class="food">
                 </li>
             </ul>
         </div>
@@ -22,6 +21,12 @@ export default {
         name: String,
         foodies: Object,
         time: String
+    },
+
+    data(){
+        return {
+            highlight: this.$route.query.search
+        }
     },
     methods: {
         /**
@@ -39,13 +44,20 @@ export default {
             });
 
             return formated.charAt(0).toUpperCase() + formated.slice(1);
-        }
+        },
+        highlightFood(food){
+            if(food.toUpperCase().indexOf(this.highlight.toUpperCase()) === -1)
+                return food;
+            return food.substring(0, food.toUpperCase().indexOf(this.highlight.toUpperCase()) - 1)
+                + "<b class='highlight'>" + food.substring(food.toUpperCase().indexOf(this.highlight.toUpperCase()) -1 , food.toUpperCase().indexOf(this.highlight.toUpperCase()) + this.highlight.length)
+                + "</b>" + food.substring(food.toUpperCase().indexOf(this.highlight.toUpperCase()) + this.highlight.length, food.length)
+        },
     }
 }
 
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .menu-foody {
     display: flex;
     flex-direction: column;
@@ -56,7 +68,9 @@ export default {
         @media screen and (max-width: 1000px){
             font-size: 17px;
         }
+
     }
+
 }
 
 h4{
@@ -66,6 +80,8 @@ h4{
     font-weight: 600;
 }
 
-
+.highlight{
+    font-weight: 800;
+}
 
 </style>
