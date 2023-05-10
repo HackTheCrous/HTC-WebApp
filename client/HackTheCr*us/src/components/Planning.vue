@@ -132,15 +132,19 @@ export default {
         sameDay(dateA, dateB) {
             const todateA = new Date(dateA);
             const todateB = new Date(dateB);
-            return todateA.getDay() === todateB.getDay() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
+            return todateA.getDate() === todateB.getDate() && todateA.getMonth() === todateB.getMonth() && todateA.getFullYear() === todateB.getFullYear();
         },
         unfocus(e) {
             const event = e.target.closest(".event");
             if (event !== null && this.focus) {
                 if ((event || event.contains(e.target))) {
+                    console.log(e.target)
+
                     this.focus = false;
                 }
             } else {
+                console.log(e.target)
+
                 this.focus = false;
             }
 
@@ -371,7 +375,11 @@ export default {
 .event-detail {
   position: fixed;
   bottom: 0;
-  left: 0;
+  right: 0;
+  @media screen and (max-width: 1000px) {
+    bottom: 0;
+    left: 0;
+  }
   z-index: 999;
 }
 </style>
