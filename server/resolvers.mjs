@@ -52,6 +52,10 @@ export const resolvers = {
             const {query} = args;
             return await RestaurantController.getRestaurantsFromMeal(query);
         },
+        searchFood : async (parent, args, context, info) => {
+            const {query} = args;
+            return await RestaurantController.getRestaurantsFromFood(query);
+        },
         user: async (parent, args, context, info) => {
             const {iduser} = args;
             const token = context.req.headers.authorization.split(' ')[1];

@@ -7,14 +7,12 @@
                 </router-link>
             </div>
             <div class="navbar-tools desktop">
-
-                <router-link to="/calendar">
-                    <calendar size="32px"></calendar>
-                </router-link>
                 <router-link to="/">
                     <restaurant size="32px"></restaurant>
                 </router-link>
-
+                <router-link to="/calendar">
+                    <calendar size="32px"></calendar>
+                </router-link>
             </div>
 
         </div>

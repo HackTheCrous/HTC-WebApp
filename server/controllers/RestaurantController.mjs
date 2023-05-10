@@ -1,6 +1,7 @@
 import DatabaseManager from "../DatabaseManager.mjs";
 import RestaurantModel from "../models/RestaurantModel.mjs";
 import MealController from "./MealController.mjs";
+import FoodModel from "../models/FoodModel.mjs";
 
 export default class RestaurantController {
     static async getRestaurant(url) {
@@ -74,12 +75,57 @@ export default class RestaurantController {
     }
 
 
+    static async getRestaurantsFromFood(name) {
+        const client = DatabaseManager.getConnection();
+        let values = [name];
+
+        const periods = ['Déjeuner','Dîner','Petit déjeuner'];
+        let query="select r.idrestaurant, r.url, r.name, food, foods->>'type' as cat, m.typemeal from meal m\n" +
+            "join jsonb_array_elements(foodies) as foods on true\n" +
+            "join unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[]) as food on true\n" +
+            "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
+            "WHERE food not in (\n" +
+            "    SELECT name from uselessfoodname\n" +
+            ")\n" +
+            "ORDER BY dis_lev(upper(food || r.name || (foods->>'type')::text), upper($1)) ASC\n" +
+            "LIMIT 20;";
+
+        for(const period of periods){
+            if(name.includes(period)){
+                values = [name.replace(period,''), period];
+                query = "select r.idrestaurant, r.url, r.name, food, foods->>'type' as cat, m.typemeal from meal m\n" +
+                    "join jsonb_array_elements(foodies) as foods on true\n" +
+                    "join unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[]) as food on true\n" +
+                    "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
+                    "WHERE food not in (\n" +
+                    "    SELECT name from uselessfoodname\n" +
+                    ") AND m.typemeal=$2 \n" +
+                    "ORDER BY dis_lev(upper(food || r.name || (foods->>'type')::text), upper($1)) ASC\n" +
+                    "LIMIT 20;";
+            }
+        }
+
+        await client.connect();
+        const result = await client.query(query, values);
+        await client.end();
+
+        return result.rows.map(async (row) => {
+            const resto = new RestaurantModel(row.idrestaurant, row.url, row.name);
+            resto.food = new FoodModel(row.food, row.cat, row.typemeal);
+            return resto;
+        });
+    }
+
     static async getRestaurantsFromMeal(name) {
         const client = DatabaseManager.getConnection();
 
-        const values = ['%' + name.toUpperCase() + '%'];
+        const values = [name.toUpperCase()];
         await client.connect();
-        const result = await client.query("select DISTINCT r.idrestaurant, r.url, r.name,foods->>'food' as foods from meal m join jsonb_array_elements(foodies) as foods on true join restaurant r on r.idrestaurant = m.idrestaurant where UPPER(foods->>'food') LIKE $1", values);
+        const result = await client.query("select r.idrestaurant, r.url, r.name,foods->>'food' as foods from meal m\n" +
+            "join jsonb_array_elements(foodies) as foods on true\n" +
+            "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
+            "ORDER BY dis_lev(upper(unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[])), $1) ASC\n" +
+            "LIMIT 5;", values);
         await client.end();
 
 

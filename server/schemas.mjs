@@ -13,6 +13,7 @@ export const typeDefs = gql`
         user(iduser: Int): User,
         searchRestaurant(query: String): [Restaurant],
         searchSchool(query: String): [School],
+        searchFood(query: String): [Restaurant],
         day(date: String): [PlanningDay],
         today: [PlanningDay],
         period(start: Date, end: Date): [PlanningDay],
@@ -33,7 +34,8 @@ export const typeDefs = gql`
         name: String
         meals: [Meal]
         coords: Coordinates,
-        distance: Float
+        distance: Float,
+        food: Food
     }
 
     type Meal{
@@ -69,5 +71,10 @@ export const typeDefs = gql`
         summary: String
         location: String
         description: String
+    },
+    type Food{
+        name: String
+        category: String
+        period: String
     }
 `;

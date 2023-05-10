@@ -22,7 +22,7 @@
             </router-link>
           </span>
                     <ul>
-                        <li v-for="food of result.meals">
+                        <!--<li v-for="food of result.meals">
                             {{
                             food.name.substring(0, food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) - 1)
                             }}
@@ -31,7 +31,8 @@
                                 }}</b>{{
                             food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length, food.name.length)
                             }} trouvable à {{ food.type }}
-                        </li>
+                        </li>-->
+                        <li><TagDetail>{{ result.food.category }}</TagDetail> {{ result.food.name }} durant le {{ result.food.period }} </li>
                     </ul>
 
                 </li>
@@ -45,7 +46,6 @@
                     <ul>
                         <li>
                             <LoadingFillerBox height="70px" width="100%"></LoadingFillerBox>
-
                         </li>
                     </ul>
                 </li>
@@ -63,15 +63,18 @@ import {apolloClient} from "@/main";
 import gql from "graphql-tag";
 import Search from "../assets/search.vue";
 import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
+import StringUtils from "@/utils/StringUtils";
+import TagDetail from "@/components/TagDetail.vue";
 
 const GET_SEARCH_RESULT = gql`
 query Search ($queryValue: String){
-    search(query: $queryValue) {
-
+    searchFood(query: $queryValue) {
         url
         name
-        meals{
-            foodies
+        food {
+            name
+            category
+            period
         }
     }
 }
@@ -81,7 +84,7 @@ query Search ($queryValue: String){
 export default {
 
     name: "SearchBar.vue",
-    components: {LoadingFillerBox, Search},
+    components: {TagDetail, LoadingFillerBox, Search},
     props: {
         focused: Boolean
     },
@@ -111,19 +114,8 @@ export default {
                     }
                 }))
                     .then((result) => {
-                        this.searchResults = result.data.search.map((restaurant, index) => {
-                            const menus = [];
+                        this.searchResults = result.data.searchFood.map((restaurant, index) => {
 
-                            //we select the correct menu here
-                            for (const menu of restaurant.meals) {
-                                for (const foodie of menu.foodies) {
-                                    for (const meal of foodie.food) {
-                                        if (meal.toUpperCase().includes(this.queryValue.toUpperCase())) {
-                                            menus.push({name: meal, type: foodie.type});
-                                        }
-                                    }
-                                }
-                            }
 
                             this.loading = false;
                             return {
@@ -131,7 +123,7 @@ export default {
                                     name: restaurant.name,
                                     url: restaurant.url
                                 },
-                                meals: menus
+                                food: restaurant.food
                             };
                         });
                     })
@@ -211,8 +203,8 @@ export default {
 
 }
 
-.unfocused{
-  .suggestions{
+.unfocused {
+  .suggestions {
     display: none;
   }
 }
@@ -228,20 +220,20 @@ export default {
   justify-content: center;
   background: rgba(58, 55, 55, 0.5);
   backdrop-filter: blur(3px);
-  padding-top:30px;
+  padding-top: 30px;
   padding-bottom: 30px;
 
   #searchbar {
     width: 50%;
-    @media screen and (max-width: 1000px){
-      width:90%;
+    @media screen and (max-width: 1000px) {
+      width: 90%;
     }
     border-radius: 20px;
     padding: 20px;
     display: flex;
     flex-direction: column;
     background: white;
-    height:fit-content;
+    height: fit-content;
 
     form {
       background: rgba(0, 0, 0, 0.1);
@@ -253,7 +245,7 @@ export default {
       margin-top: 20px;
       margin-bottom: 20px;
       max-height: 90vh;
-      @media screen and (max-width:1000px){
+      @media screen and (max-width: 1000px) {
         max-height: 70vh;
       }
       overflow-y: scroll;
