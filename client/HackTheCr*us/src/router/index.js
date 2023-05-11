@@ -9,13 +9,14 @@ import Calendar from "@/assets/calendar.vue";
 import CalendarDetails from "@/views/CalendarDetails.vue";
 import EventDetails from "@/components/EventDetails.vue";
 import UserSettings from "@/views/UserSettings.vue";
+import RestaurantsView from "@/views/RestaurantsView.vue";
+import RestaurantList from "@/components/RestaurantList.vue";
 
 
 const routes = [
     {
         path: '/',
-        name: 'Home',
-        component: Home,
+        redirect: '/restaurants'
     },
     {
         path: '/login',
@@ -31,11 +32,6 @@ const routes = [
         path: '/register',
         name: 'Register',
         component: Register
-    },
-    {
-        path: '/restaurant/:id',
-        name: 'RestaurantDetail',
-        component: RestaurantDetail
     },
     {
         path: '/register/confirmation/:nonce',
@@ -56,6 +52,23 @@ const routes = [
                 path: ':timestamp',
                 name: 'EventDetails',
                 component: EventDetails
+            }
+        ]
+    },
+    {
+        path:'/restaurants',
+        name: 'RestaurantsView',
+        component: RestaurantsView,
+        children : [
+            {
+              path:'',
+              name: 'RestaurantList',
+                component: RestaurantList
+            },
+            {
+                path: ':id',
+                name: 'RestaurantDetail',
+                component: RestaurantDetail
             }
         ]
     }

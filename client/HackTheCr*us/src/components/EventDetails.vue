@@ -139,7 +139,7 @@ export default {
 
 
   width: 100%;
-  background: white;
+  background: var(--color-background);
   margin: 0;
   padding-top: 30px;
   padding-left: 20px;

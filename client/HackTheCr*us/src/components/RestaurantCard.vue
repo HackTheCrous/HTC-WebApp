@@ -144,7 +144,7 @@ export default {
     },
     methods: {
         getLink() {
-            return '/restaurant/' + this.name;
+            return '/restaurants/' + this.name;
         },
         isFavorite() {
             return this.userStore.getNames.includes(this.name);
@@ -274,6 +274,7 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
+
 
     .loading-box {
       margin-bottom: 10px;

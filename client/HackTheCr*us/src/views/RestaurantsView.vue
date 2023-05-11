@@ -13,7 +13,7 @@ import {endpoint} from "@/main";
 
 export default {
 
-    name: "Home",
+    name: "RestaurantsView",
 
     components: {
         LoginBanner,
@@ -109,7 +109,7 @@ export default {
 
 <template>
     <div v-if="!this.userStore.isLogged">
-        <header class="blurred">
+        <header className="blurred">
             <div id="infos">
                 <h2>Crous · restaurants</h2>
             </div>
@@ -117,15 +117,15 @@ export default {
                 <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
             </div>
         </header>
-        <div id="tags" class="blurred">
+        <div id="tags" className="blurred">
             <!--La façon dont le focus est gérée est dégueulasse-->
             <TagPlace v-for="tag in tags" :name="tag.name" :focused="this.focusedTag"
                       @child-clicked="this.focusedTag=tag.name"
                       :key="tag.name"/>
-            <div class="filler"></div>
+            <div className="filler"></div>
 
         </div>
-        <RestaurantList/>
+        <router-view></router-view>
         <LoginBanner/>
 
     </div>
@@ -139,7 +139,7 @@ export default {
                 <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
             </div>
         </header>
-        <RestaurantList />
+        <router-view></router-view>
 
     </div>
 </template>
@@ -152,109 +152,66 @@ export default {
 
 
 .blurred {
-  filter: blur(4px);
+    filter: blur(4px);
 }
 
 body {
-  background: var(--color-background-soft) !important;
+    background: var(--color-background-soft) !important;
 }
 
 header {
-  display: flex;
-  flex-direction: row;
-  align-items: start;
-  justify-content: space-between;
-  width: 100%;
-  @media screen and (max-width: 1000px) {
-    flex-direction: column-reverse;
-  }
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+    @media screen and (max-width: 1000px) {
+        flex-direction: column-reverse;
+    }
 
 }
 
 main {
-  h2 {
-    font-family: Inter, sans-serif;
-    font-size: 17px;
-    font-weight: 200;
-    color: var(--color-text);
-    margin-top: 20Px;
-    margin-bottom: 30Px;
-  }
+    h2 {
+        font-family: Inter, sans-serif;
+        font-size: 17px;
+        font-weight: 200;
+        color: var(--color-text);
+        margin-top: 20Px;
+        margin-bottom: 30Px;
+    }
 }
 
 #sidetools {
-  margin-top: 5px;
+    margin-top: 5px;
 
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  @media screen and (max-width: 1000px) {
-      margin-top: 0;
-
-      width: 95vw;
-      margin-bottom: 10px;
-    justify-content: space-between;
-  }
-}
-
-#tags {
-    margin-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  position: relative;
-  z-index: 1;
-  width: 100%;
-
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     @media screen and (max-width: 1000px) {
-      width:95vw;
+        margin-top: 0;
+
+        width: 95vw;
+        margin-bottom: 10px;
+        justify-content: space-between;
     }
-
-
-  .filler {
-    flex-grow: 1;
-    border-bottom: solid 1px var(--color-border);
-  }
-
-  select {
-
-    border: none;
-    background: none;
-    font-family: Inter, sans-serif;
-
-    font-size: 15px;
-    padding-bottom: 10px;
-    padding-right: 5px;
-    font-weight: 200;
-    color: var(--color-text);
-    border-bottom: solid 1px var(--color-border);
-    outline: none;
-
-    option {
-      font-family: Inter, sans-serif;
-      border: none;
-
-      &:hover {
-        background: var(--color-background-soft);
-
-      }
-    }
-  }
 }
+
 
 #restaurants {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
 
     @media screen and (max-width: 1000px) {
         flex-direction: column;
     }
 
-  .restaurant {
-    width: 100%;
-    padding-top: 20px;
-  }
+    .restaurant {
+        width: 100%;
+        padding-top: 20px;
+    }
 }
 
 

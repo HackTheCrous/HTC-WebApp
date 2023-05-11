@@ -36,7 +36,7 @@ export default {
   display: flex;
   overflow: hidden;
   flex-direction: column;
-  background: var(--color-background-soft);
+  background: var(--color-background);
   transition: height 0.3s linear;
   color: var(--color-text);
   text-decoration: none;

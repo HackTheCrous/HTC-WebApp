@@ -17,22 +17,15 @@
                 result.restaurant.name
                 }}
           </h4>
-            <router-link :to="`/restaurant/${result.restaurant.name}`">
+            <router-link :to="`/restaurants/${result.restaurant.name}`">
               Voir le menu <b>></b>
             </router-link>
           </span>
                     <ul>
-                        <!--<li v-for="food of result.meals">
-                            {{
-                            food.name.substring(0, food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) - 1)
-                            }}
-                            <b>{{
-                                food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()), food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length)
-                                }}</b>{{
-                            food.name.substring(food.name.toUpperCase().indexOf(this.queryValue.toUpperCase()) + this.queryValue.length, food.name.length)
-                            }} trouvable à {{ food.type }}
-                        </li>-->
-                        <li><TagDetail>{{ result.food.category }}</TagDetail> {{ result.food.name }} durant le {{ result.food.period }} </li>
+                        <li>
+                            <TagDetail>{{ result.food.category }}</TagDetail>
+                            {{ result.food.name }} durant le {{ result.food.period }}
+                        </li>
                     </ul>
 
                 </li>

@@ -1,5 +1,5 @@
 <template>
-    <p>
+    <p class="tag-detail">
         <slot></slot>
     </p>
 </template>
