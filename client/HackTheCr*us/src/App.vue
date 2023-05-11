@@ -4,7 +4,9 @@
     </LoadingView>
     <main>
         <LoadingBar v-if="this.loadingStore.isLoading"/>
-        <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
+        <Transition name="slide">
+            <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
+        </Transition>
         <NavBar v-if="this.userStore.logged"/>
         <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
             <router-view/>
@@ -91,6 +93,17 @@ export default {
 $widthSideBar: 200px;
 $minWidthSideBar: 100px;
 $paddingIcons: 20px;
+
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.2s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    transform:translateY(-100%);
+}
 
 
 main {

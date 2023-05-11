@@ -40,15 +40,34 @@ export default {
 
 <template>
     <div id="restaurants" v-if="!this.restaurantStore.isLoading">
-        <RestaurantCard class="restaurant" v-for="restaurant in this.filteredRestaurants" :idRestaurant="restaurant.idrestaurant" :name="restaurant.name" :url="restaurant.url" :key="restaurant.idrestaurant"/>
+        <TransitionGroup name="list" tag="ul">
+            <RestaurantCard class="restaurant" v-for="restaurant in this.filteredRestaurants" :idRestaurant="restaurant.idrestaurant" :name="restaurant.name" :url="restaurant.url" :key="restaurant.idrestaurant"/>
+        </TransitionGroup>
     </div>
     <div id="restaurants" v-else>
         <LoadingFillerBox width="100%" height="100px">Récupération des restaurants...</LoadingFillerBox>
     </div>
 </template>
 
-<style>
+<style scoped lang="scss">
     .loading-box{
         margin-top:30px;
+    }
+    .list-move, /* apply transition to moving elements */
+    .list-enter-active,
+    .list-leave-active {
+        transition: all 0.5s ease;
+    }
+
+    .list-enter-from,
+    .list-leave-to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    /* ensure leaving items are taken out of layout flow so that moving
+       animations can be calculated correctly. */
+    .list-leave-active {
+        position: absolute;
     }
 </style>
