@@ -16,13 +16,13 @@ export default {
 svg{
     position:relative;
     fill: transparent;
-    z-index:100;
+    z-index:0;
     path{
         stroke:var(--color-text);
         transition: all linear 0.3s;
     }
     &.filled{
-        z-index:101;
+        z-index:1;
         fill:var(--color-primary);
         transition: all linear 0.3s;
         path{

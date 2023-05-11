@@ -81,7 +81,7 @@ export default {
     props: {
         focused: Boolean
     },
-
+    emits: ['unfocus'],
     data() {
         return {
             queryValue: '',
