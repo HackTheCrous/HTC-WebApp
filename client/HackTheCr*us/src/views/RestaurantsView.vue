@@ -80,10 +80,9 @@ export default {
 
     },
     methods: {
-        unfocusSearchFromEmit(val){
-            console.log("unfocus : "+val);
-
-            this.focusSearch = val;
+        unfocus(){
+            console.log('unfocus')
+            this.focusSearch = false;
         },
         unfocusSearch(e) {
             const searchbar = e.target.closest('#searchbar');
@@ -91,6 +90,10 @@ export default {
                 this.focusSearch = false;
             }
         },
+        isFocused(){
+            console.log('isFocused')
+            return this.focusSearch;
+        }
 
 
     },
@@ -119,7 +122,7 @@ export default {
                 <h2>Crous · restaurants</h2>
             </div>
             <div id="sidetools">
-                <SearchBar @unfocus="this.focusSearch=false" :focused="this.focusSearch" @click="this.focusSearch=true"/>
+                <SearchBar :focused="this.isFocused()" @click="this.focusSearch=true"/>
             </div>
         </header>
         <div id="tags" className="blurred">
@@ -139,10 +142,10 @@ export default {
                 <h2>Crous · restaurants</h2>
             </div>
             <div id="sidetools">
-                <SearchBar :focused="this.focusSearch" @click="this.focusSearch=true"/>
+                <SearchBar :focused="this.isFocused()" @click="this.focusSearch=true"/>
             </div>
         </header>
-        <router-view></router-view>
+        <router-view @update="this.unfocus()"></router-view>
 
     </div>
 </template>

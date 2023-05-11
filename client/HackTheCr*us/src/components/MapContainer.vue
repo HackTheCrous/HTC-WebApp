@@ -22,7 +22,6 @@ export default {
         coords: Object
     },
     mounted() {
-        console.log(this.coords);
 
         const data = {
             type: 'Feature',

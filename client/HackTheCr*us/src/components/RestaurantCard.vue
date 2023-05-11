@@ -201,10 +201,11 @@ export default {
     0%{
         transform: rotate(0deg);
     }
-    30%{
-        transform: rotate(359deg);
+    40%{
+        transform: rotate(360deg);
     }
-    60%{
+
+    80%{
         transform: rotate(0deg);
     }
 }

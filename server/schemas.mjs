@@ -76,5 +76,22 @@ export const typeDefs = gql`
         name: String
         category: String
         period: String
+    },
+    type Mail{
+        from: String
+        to: String
+        cc: String
+        subject: String
+        date: String
+        tags: [String]
+        text: String
+        html: String
+        attachments: [Attachment],
+        previous: Mail,
+    },
+    type Attachment{
+        filename: String
+        contentType: String
+        size: Int
     }
 `;

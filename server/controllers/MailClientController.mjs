@@ -2,10 +2,18 @@ import Imap from 'node-imap';
 import { inspect } from 'util';
 import {simpleParser} from 'mailparser';
 import dotenv from 'dotenv';
+import MailModel from "../models/MailModel.mjs";
+
+import events from 'events';
 
 dotenv.config();
 class MailClientController {
-    static async getMails() {
+
+    constructor() {
+        this.emitter = new events.EventEmitter();
+    }
+
+     async getLatestMail(rank) {
         console.log(process.env.MAIL_USERNAME)
         const imap = new Imap({
             user: process.env.MAIL_USERNAME,
@@ -16,56 +24,65 @@ class MailClientController {
         });
 
         let unseen;
+        let mailContainer;
+        let flags;
 
-        imap.once('ready', function() {
-            imap.status('INBOX', (err, box) => {
-               if(err) throw err;
-               unseen = box.messages.unseen;
-            });
-            imap.openBox('INBOX', true, function(err, box) {
-                if(err) throw err;
-                console.log(box.messages.total + ' messages in INBOX');
-
-                let f = imap.seq.fetch(`${box.messages.total-3}`, {
-                    bodies: '',
-                    struct: true
+        return new Promise((resolve, reject) => {
+            imap.once('ready', function() {
+                imap.status('INBOX', (err, box) => {
+                    if(err) throw err;
+                    unseen = box.messages.unseen;
                 });
-                f.on('message', function(msg, seqno) {
-                    console.log('Message #%d', seqno);
-                    let prefix = '(#' + seqno + ')';
-                    msg.on('body', (stream, info) => {
-                        let buffer = '';
-                        let count = 0;
-                        simpleParser(stream, (err, mail) => {
-                           console.log(mail.to);
+                imap.openBox('INBOX', true, function(err, box) {
+                    if(err) throw err;
+
+                    let f = imap.seq.fetch(`${box.messages.total-rank}`, {
+                        bodies: '',
+                        struct: true
+                    });
+                    f.on('message', function(msg, seqno) {
+                        let prefix = '(#' + seqno + ')';
+                        msg.on('body', (stream, info) => {
+                            let buffer = '';
+                            let count = 0;
+                            simpleParser(stream, (err, mail) => {
+                                mailContainer = new MailModel(mail.from.text, mail.to.text , mail.cc!==undefined ? mail.cc.text : false , mail.subject, mail.date, flags, mail.text, mail.html, mail.attachments);
+                                resolve(mailContainer);
+                            });
+
+
                         });
+                        msg.once('attributes', (attrs) => {
+                            flags = attrs.flags;
 
+                        });
                     });
-
-                    msg.once('end', () => {
-                        console.log(prefix + 'Finished');
+                    f.once('error', (err) => {
+                        reject(err);
                     });
-                });
-                f.once('error', (err) => {
-                    console.log('Fetch error: ' + err);
-                });
-                f.once('end', () => {
-                    console.log('Done fetching all messages!');
-                    imap.end();
+                    f.once('end', () => {
+                        imap.end();
+                    });
                 });
             });
+
+            imap.once('error', function(err) {
+                reject(err);
+            });
+
+            imap.once('end', () => {
+                console.log('Connection ended');
+
+            })
+
+            imap.connect();
         });
 
-        imap.once('error', function(err) {
-            console.log(err);
-        });
 
-        imap.once('end', () => {
-            console.log('Connection ended');
-        })
-
-        imap.connect();
     }
 }
 
-MailClientController.getMails();
+const mailGetter = new MailClientController();
+mailGetter.getLatestMail(3).then((mail) => {
+    console.log(mail);
+});

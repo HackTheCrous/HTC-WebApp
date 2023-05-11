@@ -10,7 +10,7 @@
             </form>
 
             <ul v-if="searchResults.length > 0" class="suggestions">
-                <li v-for="result of searchResults" :key="result.restaurant.url" class="suggestion">
+                <li v-for="result of searchResults" :key="result.food.name+result.food.period+result.restaurant.name" class="suggestion">
           <span class="head">
             <h4>
           {{

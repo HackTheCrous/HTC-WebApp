@@ -7,7 +7,7 @@
                 </router-link>
             </div>
             <div class="navbar-tools desktop">
-                <router-link to="/">
+                <router-link to="/restaurants">
                     <restaurant size="32px"></restaurant>
                 </router-link>
                 <router-link to="/calendar">
@@ -89,6 +89,23 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+@keyframes selected {
+  0% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(10deg);
+  }
+  80% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+
+}
+
 #navbar {
   position: fixed;
   top: 0;
@@ -178,6 +195,7 @@ export default {
 
         svg {
           opacity: 1;
+          animation: selected 0.2s;
         }
       }
     }
@@ -188,14 +206,14 @@ export default {
       }
     }
 
-      &.mobile{
-        display: none;
-        @media screen and (max-width: 1000px) {
-          display: flex;
-            width:100%;
-            justify-content: space-around;
-        }
+    &.mobile {
+      display: none;
+      @media screen and (max-width: 1000px) {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
       }
+    }
 
 
   }

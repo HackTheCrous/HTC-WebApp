@@ -60,6 +60,7 @@ const GET_RESTAURANT_BY_NAME = gql`
 export default {
     name: "RestaurantDetail",
     components: {LoadingFillerBox, TagDetail, MapContainer},
+    emits : ['update'],
 
     data() {
         return {
@@ -77,34 +78,45 @@ export default {
         }
     },
     mounted() {
-        this.loading = true;
-        console.log('mounted');
-        apolloClient.query(({
-            query: GET_RESTAURANT_BY_NAME,
-            variables: {
-                id: this.id
-            }
-        })).then((result) => {
-            this.name = result.data.restaurant.name;
-            this.url = result.data.restaurant.url;
-            this.meals = result.data.restaurant.meals;
-            this.distance = result.data.restaurant.distance;
-            this.coords = result.data.restaurant.coords;
-
-            const dateFormat = new Date(parseInt(this.meals[0].day));
-
-            const formated = dateFormat.toLocaleDateString('fr-FR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            this.day = formated.charAt(0).toUpperCase() + formated.slice(1);
-
-            this.loading = false;
-        })
+        this.update();
     },
+    watch: {
+        $route(to, from) {
+            this.id = to.params.id;
+            this.update();
+            this.$emit('update');
+        }
+    },
+    methods:{
+        update(){
+            this.loading = true;
+            apolloClient.query(({
+                query: GET_RESTAURANT_BY_NAME,
+                variables: {
+                    id: this.id
+                }
+            })).then((result) => {
+                this.name = result.data.restaurant.name;
+                this.url = result.data.restaurant.url;
+                this.meals = result.data.restaurant.meals;
+                this.distance = result.data.restaurant.distance;
+                this.coords = result.data.restaurant.coords;
+
+                const dateFormat = new Date(parseInt(this.meals[0].day));
+
+                const formated = dateFormat.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                this.day = formated.charAt(0).toUpperCase() + formated.slice(1);
+
+                this.loading = false;
+            })
+        }
+    }
 }
 </script>
 
