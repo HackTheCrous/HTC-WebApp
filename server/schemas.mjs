@@ -17,6 +17,8 @@ export const typeDefs = gql`
         day(date: String): [PlanningDay],
         today: [PlanningDay],
         period(start: Date, end: Date): [PlanningDay],
+        getLatestMail: Mail,
+        getLatestMails(range: Int): [Mail],
     }
     
     type Mutation {
@@ -86,8 +88,6 @@ export const typeDefs = gql`
         tags: [String]
         text: String
         html: String
-        attachments: [Attachment],
-        previous: Mail,
     },
     type Attachment{
         filename: String

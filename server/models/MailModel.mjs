@@ -10,6 +10,19 @@ export default class MailModel{
         this.html = html;
         this.attachments = attachments;
     }
+
+    mapToGraphQL(){
+        return {
+            from: this.from,
+            to: this.to,
+            cc: this.cc,
+            subject: this.subject,
+            date: this.date,
+            tags: this.tags,
+            text: this.text,
+            html: this.html,
+        };
+    }
     setFlags(flags){
         this.flags = flags;
     }

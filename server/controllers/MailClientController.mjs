@@ -1,5 +1,4 @@
 import Imap from 'node-imap';
-import { inspect } from 'util';
 import {simpleParser} from 'mailparser';
 import dotenv from 'dotenv';
 import MailModel from "../models/MailModel.mjs";
@@ -7,13 +6,20 @@ import MailModel from "../models/MailModel.mjs";
 import events from 'events';
 
 dotenv.config();
-class MailClientController {
+
+export default class MailClientController {
 
     constructor() {
         this.emitter = new events.EventEmitter();
     }
 
-     async getLatestMail(rank) {
+    /**
+     * get all mails from the mailbox
+     * @param fetchCommand
+     * @param callback
+     * @returns {Promise<unknown>} a promise that will resolve with an array of MailModel
+     */
+    async getMails(fetchCommand, callback) {
         console.log(process.env.MAIL_USERNAME)
         const imap = new Imap({
             user: process.env.MAIL_USERNAME,
@@ -25,36 +31,65 @@ class MailClientController {
 
         let unseen;
         let mailContainer;
-        let flags;
+        let attributes;
+
+        const mailRequest = {
+            mails : [],
+            attributes : [],
+            nbMails : 1
+        }
 
         return new Promise((resolve, reject) => {
-            imap.once('ready', function() {
+            imap.once('ready', function () {
                 imap.status('INBOX', (err, box) => {
-                    if(err) throw err;
+                    if (err) throw err;
                     unseen = box.messages.unseen;
                 });
-                imap.openBox('INBOX', true, function(err, box) {
-                    if(err) throw err;
+                imap.openBox('INBOX', true, function (err, box) {
+                    if (err) throw err;
 
-                    let f = imap.seq.fetch(`${box.messages.total-rank}`, {
+                    let parsedFetchCommand = fetchCommand.replaceAll('LATEST', box.messages.total);
+                    let evalFetch = parsedFetchCommand.match(/\(([^()]+)\)/g);
+
+                    if (evalFetch !== null) {
+                        for(const evalFetchElement of evalFetch){
+                            parsedFetchCommand = parsedFetchCommand.replace(evalFetchElement, eval(evalFetchElement));
+                        }
+                    }
+
+
+                    if(parsedFetchCommand.includes(':')){
+                        mailRequest.nbMails = eval(parsedFetchCommand.replace(':', '-')) +1;
+                    }
+
+
+                    console.log(parsedFetchCommand);
+                    let f = imap.seq.fetch(parsedFetchCommand, {
                         bodies: '',
                         struct: true
                     });
-                    f.on('message', function(msg, seqno) {
+                    f.on('message', function (msg, seqno) {
                         let prefix = '(#' + seqno + ')';
                         msg.on('body', (stream, info) => {
                             let buffer = '';
                             let count = 0;
                             simpleParser(stream, (err, mail) => {
-                                mailContainer = new MailModel(mail.from.text, mail.to.text , mail.cc!==undefined ? mail.cc.text : false , mail.subject, mail.date, flags, mail.text, mail.html, mail.attachments);
-                                resolve(mailContainer);
+                                mailRequest.nbMails--;
+                                mailRequest.mails.push(mail);
+                                if(mailRequest.nbMails === 0){
+                                    const toResolve= [];
+                                    for(let i=0; i<mailRequest.mails.length; i++){
+                                        toResolve.push(callback(mailRequest.mails[i], mailRequest.attributes[i]));
+                                    }
+                                    resolve(toResolve);
+                                }
                             });
 
 
                         });
                         msg.once('attributes', (attrs) => {
-                            flags = attrs.flags;
-
+                            mailRequest.attributes.push(attrs);
+                            attributes = attrs;
                         });
                     });
                     f.once('error', (err) => {
@@ -66,23 +101,27 @@ class MailClientController {
                 });
             });
 
-            imap.once('error', function(err) {
+            imap.once('error', function (err) {
                 reject(err);
             });
 
-            imap.once('end', () => {
-                console.log('Connection ended');
-
-            })
 
             imap.connect();
         });
-
-
     }
-}
 
-const mailGetter = new MailClientController();
-mailGetter.getLatestMail(3).then((mail) => {
-    console.log(mail);
-});
+    async getLatestMail() {
+        const mails = await this.getMails('LATEST', (mail, attributes) => {
+            return new MailModel(mail.from.text, mail.to.text, mail.cc !== undefined ? mail.cc.text : false, mail.subject, mail.date, attributes.flags, mail.text, mail.html, mail.attachments);
+        });
+        return mails[0];
+    }
+
+    async getLatestMails(range) {
+        return await this.getMails(`LATEST:(LATEST-${range-1})`, (mail, attributes) => {
+            return new MailModel(mail.from.text, mail.to.text, mail.cc !== undefined ? mail.cc.text : false, mail.subject, mail.date, attributes.flags, mail.text, mail.html, mail.attachments);
+        });
+    }
+
+
+}

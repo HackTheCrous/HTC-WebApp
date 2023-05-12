@@ -8,6 +8,7 @@ import SchoolController from "./controllers/SchoolController.mjs";
 import MealController from "./controllers/MealController.mjs";
 import PlanningController from './controllers/PlanningController.js';
 import {GraphQLError} from "graphql/error/index.js";
+import MailClientController from "./controllers/MailClientController.mjs";
 
 dotenv.config();
 
@@ -106,6 +107,17 @@ export const resolvers = {
             }
 
             return await (new PlanningController(ical)).getEventsByPeriod(start, end);
+        },
+        getLatestMail: async (parent, args, context, info) => {
+            const mailGetter = new MailClientController();
+            const request = await mailGetter.getLatestMail();
+            return request.mapToGraphQL();
+        },
+        getLatestMails: async (parent, args, context, info) => {
+            const {range} = args;
+            const mailGetter = new MailClientController();
+            const request = await mailGetter.getLatestMails(range);
+            return request.map(mail => mail.mapToGraphQL());
         }
     },
 
