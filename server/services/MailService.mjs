@@ -15,15 +15,22 @@ export default class MailService {
         const subject = "Confirm your account";
         const pathToConfirm = path.join(path.dirname(fileURLToPath(import.meta.url)), "../view/confirm.html");
         const link = process.env.CLIENT_URL + "/register/confirmation/" + nonce;
-        fs.readFile(pathToConfirm, "utf8", (err, html) => {
-            if (err) {
-                console.log(err);
-            }
-            html = html.replace("{{ username }}", name);
-            console.log(link);
-            html = html.replace("{{ link }}", link);
-            this.sendMail(to, subject, `Confirme ton compte à l'addresse : ${link} `, html);
-        });
+        let html = '<header>\n' +
+            '  <h1>Hack The cr*us - Confirme ton compte !</h1>\n' +
+            '</header>\n' +
+            '<main>\n' +
+            '  <p>\n' +
+            '    Bonjour {{ username }}, <br>\n' +
+            '    Merci de confirmer ton compte en cliquant sur le lien suivant : <br>\n' +
+            '    <a href="{{ link }}">Confirmer mon compte</a>\n' +
+            '    Si tu n\'as pas créé de compte, ignore ce mail.\n' +
+            '  </p>\n' +
+            '</main>\n';
+
+        html = html.replace("{{ username }}", name);
+        console.log(link);
+        html = html.replace("{{ link }}", link);
+        await this.sendMail(to, subject, `Confirme ton compte à l'addresse : ${link} `, html);
     }
 
     static async sendMail(to, subject, text, html) {

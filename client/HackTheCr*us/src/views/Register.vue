@@ -66,12 +66,13 @@ export default {
                 axios.post(`${endpoint}/signup`, {
                     mail: this.mail,
                     password: this.password
-                }).then((response) => {
+                },
+                ).then((response) => {
                     switch (response.data.type) {
                         case 'Success':
                             this.userStore.login(response.data.mail, response.data.token);
                             this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
-                            this.$router.push({name: 'Home', query: {redirect: '/'}});
+                            this.$router.push({name: 'RestaurantsView', query: {redirect: '/restaurants'}});
                             break;
                         default:
                             this.alertStore.addAlert({message: response.data.message, status: 'Error'});
