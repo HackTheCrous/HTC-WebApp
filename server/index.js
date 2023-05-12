@@ -105,17 +105,13 @@ app.post('/signup', (req, res, next) => {
             return next('User already exists');
         } else {
             UserController.create(req.body.mail, req.body.password).then((user) => {
-                const userExpress = {
-                    id: user.iduser, mail: user.mail
-                };
-                
-                req.login(userExpress, (err) => {
+                req.login({mail: user.mail, password: user.password}, (err) => {
                     if (err) {
                         res.send({type: "Error", message: "Error logging in"});
                         return next(err);
                     }
                     const token = UserController.genJWT({id: user.iduser, mail: user.mail});
-                    res.send({type: "Success", message: "Logged in", token: token, mail : user.mail});
+                    res.send({type: "Success", message: "Logged in", token: token, mail: user.mail});
                 });
             });
         }
@@ -126,13 +122,13 @@ app.post('/mail/confirm', passport.authenticate('jwt', {session: false}), (req, 
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    UserController.confirm(decoded.mail,req.body.nonce).then((status) => {
-       if(status){
-          res.send({type: "Success", message: "Mail confirmed"});
-      }else{
+    UserController.confirm(decoded.mail, req.body.nonce).then((status) => {
+        if (status) {
+            res.send({type: "Success", message: "Mail confirmed"});
+        } else {
             res.send({type: "Error", message: "Error confirming mail : bad nonce"});
-      }
-   });
+        }
+    });
 });
 
 
