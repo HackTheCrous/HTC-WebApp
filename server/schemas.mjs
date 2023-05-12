@@ -51,6 +51,7 @@ export const typeDefs = gql`
         iduser: Int
         name: String
         mail: String
+        nonce: Boolean
         ical: String
         school: School
         favorites: [Restaurant]

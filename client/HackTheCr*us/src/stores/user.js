@@ -12,6 +12,7 @@ export const useUserStore = defineStore('user', {
         name: '',
         logged: false,
         ical: '',
+        nonce:true,
         school: {status: 'no data'},
         favorites: [],
     }),
@@ -47,6 +48,9 @@ export const useUserStore = defineStore('user', {
         },
         getIcal: (state) => {
             return state.ical;
+        },
+        isMailSet: (state) => {
+            return state.nonce;
         }
 
     },
@@ -64,6 +68,7 @@ export const useUserStore = defineStore('user', {
                     user{
                         name
                         ical
+                        nonce
                         school {
                             idschool
                             name
@@ -82,6 +87,7 @@ export const useUserStore = defineStore('user', {
             }).then((result) => {
                 this.name = result.data.user.name || '';
                 this.ical = result.data.user.ical;
+                this.nonce = result.data.user.nonce;
                 if(result.data.user.school){
                     this.school = result.data.user.school;
 
@@ -120,6 +126,7 @@ export const useUserStore = defineStore('user', {
             apolloClient.resetStore();
             this.mail = '';
             this.token = '';
+            this.nonce = true;
             this.ical = '';
             this.school = {status: 'no data'};
             this.favorites = [];

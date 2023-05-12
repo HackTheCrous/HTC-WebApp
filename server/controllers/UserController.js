@@ -269,4 +269,15 @@ export default class UserController {
         await client.end();
         return UserController.getFavoriteRestaurants(iduser);
     }
+
+    static async checkNonce(iduser) {
+        const query = 'select count(iduser) as noncevalue from radulescut.user where iduser=$1 and nonce is not null';
+        const params = [iduser];
+
+        const client = DatabaseManager.getConnection();
+        await client.connect();
+        const response = await client.query(query, params);
+        await client.end();
+        return response.rows[0].noncevalue === '0';
+    }
 }

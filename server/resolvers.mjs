@@ -236,6 +236,9 @@ export const resolvers = {
         },
         favorites: async (parent, args, context, info) => {
             return await UserController.getFavoriteRestaurants(parent.iduser);
+        },
+        nonce: async(parent, args,context, info) => {
+            return await UserController.checkNonce(parent.iduser);
         }
     }
 };

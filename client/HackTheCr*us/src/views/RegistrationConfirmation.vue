@@ -234,8 +234,10 @@ export default {
         },
         currentStep: function (val) {
             if (val === this.steps.length) {
-                this.preferencesStore.savePreferences();
-                this.userStore.getData();
+              console.log('end');
+              this.userStore.getData();
+
+              this.preferencesStore.savePreferences();
             }
         }
     }

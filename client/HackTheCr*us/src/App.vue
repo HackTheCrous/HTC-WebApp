@@ -1,20 +1,24 @@
 <template>
-    <LoadingView v-if="this.restaurantStore.isLoading">
-        INTERCEPTION DES MENUS
-    </LoadingView>
-    <main>
-        <LoadingBar v-if="this.loadingStore.isLoading"/>
-        <Transition name="slide">
-            <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
-        </Transition>
-        <NavBar v-if="this.userStore.logged"/>
-        <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
-            <router-view/>
-        </div>
-        <div id="content" v-else class="notLogged">
-            <router-view/>
-        </div>
-    </main>
+  <LoadingView v-if="this.restaurantStore.isLoading && this.$route.fullPath.includes('restaurants')">
+    INTERCEPTION DES MENUS
+  </LoadingView>
+  <PopUp v-if="!this.userStore.isMailSet && this.$route.fullPath.includes('/register/confirmation')">
+    <h2>Vérifie tes mails !</h2>
+    <p>On t'a envoyé un lien te permettant de valider ton mail. Il peut prendre quelques minutes à s'envoyer.</p>
+  </PopUp>
+  <main>
+    <LoadingBar v-if="this.loadingStore.isLoading"/>
+    <Transition name="slide">
+      <Alert v-if="this.alertTriggered" :msg="this.alert.msg" :type="this.alert.status"/>
+    </Transition>
+    <NavBar v-if="this.userStore.logged"/>
+    <div id="content" v-if="this.userStore.logged" :class="reduceBar ? 'squeezed' : '' ">
+      <router-view/>
+    </div>
+    <div id="content" v-else class="notLogged">
+      <router-view/>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -31,60 +35,66 @@ import LoadingBar from "./components/LoadingBar.vue";
 import LoadingView from "./views/LoadingView.vue";
 import {useRestaurantStore} from "./stores/restaurants";
 import NavBar from "@/components/NavBar.vue";
+import PopUp from "./components/PopUp.vue";
 
 export default {
-    name: "App",
-    components: {NavBar, LoadingView, LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
-    data() {
-        return {
-            alertTriggered: false,
-            alert: {
-                msg: '',
-                status: ''
-            },
-            reduceBar: true
-        }
-    },
-    setup() {
-        const alerts = useAlertsStore();
-        const userStore = useUserStore();
-        const loadingStore = useLoadingStore();
-        const restaurantStore = useRestaurantStore();
-
-
-        return {alerts, userStore, loadingStore, restaurantStore}
-
-
-    },
-    mounted() {
-        this.alerts.$subscribe(() => {
-            this.triggerAlert();
-        }, {
-            detached: true
-        })
-    },
-    methods: {
-        triggerAlert() {
-            if (this.alerts.hasNext) {
-
-                const alert = this.alerts.getLastAlert;
-
-                this.alert.msg = alert.message;
-                this.alert.status = alert.status;
-                this.alertTriggered = true;
-
-
-                setTimeout(() => {
-                    this.alertTriggered = false;
-                    this.alerts.popAlert();
-                    this.triggerAlert();
-
-
-                }, 3000)
-
-            }
-        }
+  name: "App",
+  components: {PopUp, NavBar, LoadingView, LoadingBar, Calendar, Alert, squeeze, account, search, restaurant},
+  data() {
+    return {
+      alertTriggered: false,
+      alert: {
+        msg: '',
+        status: ''
+      },
+      reduceBar: true
     }
+  },
+  setup() {
+    const alerts = useAlertsStore();
+    const userStore = useUserStore();
+    const loadingStore = useLoadingStore();
+    const restaurantStore = useRestaurantStore();
+
+
+    return {alerts, userStore, loadingStore, restaurantStore}
+
+
+  },
+  mounted() {
+    this.alerts.$subscribe(() => {
+      this.triggerAlert();
+    }, {
+      detached: true
+    })
+  },
+  methods: {
+    triggerAlert() {
+      if (this.alerts.hasNext) {
+
+        const alert = this.alerts.getLastAlert;
+
+        this.alert.msg = alert.message;
+        this.alert.status = alert.status;
+        this.alertTriggered = true;
+
+
+        setTimeout(() => {
+          this.alertTriggered = false;
+          this.alerts.popAlert();
+          this.triggerAlert();
+
+
+        }, 3000)
+
+      }
+    }
+  },
+  computed: {
+    redirected(){
+      return this.$route.fullPath.includes('?redirect=/')
+    }
+  }
 }
 </script>
 
@@ -97,12 +107,12 @@ $paddingIcons: 20px;
 
 .slide-enter-active,
 .slide-leave-active {
-    transition: transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .slide-enter-from,
 .slide-leave-to {
-    transform:translateY(-100%);
+  transform: translateY(-100%);
 }
 
 
