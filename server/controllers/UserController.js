@@ -45,7 +45,7 @@ export default class UserController {
         await client.end();
 
         console.log("Inserted : " + response.rows[0].iduser + " " + response.rows[0].mail + " " + response.rows[0].password)
-        return new UserModel(response.rows[0].iduser, response.rows[0].mail, response.rows[0].password);
+        return new UserModel(response.rows[0].iduser, response.rows[0].mail, response.rows[0].password, '', 0, '', '');
     }
 
     static async confirm(mail, nonce) {
