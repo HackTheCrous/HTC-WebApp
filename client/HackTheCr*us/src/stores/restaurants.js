@@ -91,6 +91,7 @@ export const useRestaurantStore = defineStore('restaurant', {
 
         },
         getMeal(state) {
+            console.log('state.restaurants');
             return (url) => {
                 for(const restaurant of state.restaurants){
                     if(restaurant.url === url){
@@ -98,7 +99,15 @@ export const useRestaurantStore = defineStore('restaurant', {
                             return restaurant.meal;
                         }
                         return this.setMeal(url);
-
+                    }
+                }
+            };
+        },
+        getDistance(state) {
+            return (url) => {
+                for(const restaurant of state.restaurants){
+                    if(restaurant.url === url){
+                        return restaurant.distance;
                     }
                 }
             };
@@ -153,9 +162,8 @@ export const useRestaurantStore = defineStore('restaurant', {
 
             for(const restaurant of this.restaurants){
                 if(restaurant.url === url){
-
-
                     restaurant.meal = meal;
+                    restaurant.distance = result.data.restaurant.distance;
                     return meal;
                 }
             }

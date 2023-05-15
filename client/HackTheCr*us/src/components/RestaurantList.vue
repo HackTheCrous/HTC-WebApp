@@ -66,7 +66,7 @@ export default {
 
         <div id="restaurants" v-if="!this.restaurantStore.isLoading">
             <TransitionGroup name="list" tag="div">
-                <RestaurantCard class="restaurant" v-for="restaurant in this.filteredRestaurants" :idRestaurant="restaurant.idrestaurant" :name="restaurant.name" :url="restaurant.url" :key="restaurant.url"/>
+                <RestaurantCard class="restaurant" v-for="(restaurant, index) in this.filteredRestaurants" :idRestaurant="restaurant.idrestaurant" :name="restaurant.name" :url="restaurant.url" :key="restaurant.url" :preload="index < 5"/>
             </TransitionGroup>
         </div>
         <div id="restaurants" v-else>

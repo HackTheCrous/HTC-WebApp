@@ -1,44 +1,47 @@
 <template>
-    <div class="restaurant">
-        <h3>
-            <router-link :to="getLink()" v-if="!this.loading">{{ this.name }}</router-link>
-            <LoadingFillerBox width="30%" height="30px" v-if="this.loading"/>
-            <span class="heart-container">
+  <div class="restaurant">
+    <h3 ref="title">
+      <router-link :to="getLink()" v-if="!this.isLoading()">{{ this.name }}</router-link>
+      <LoadingFillerBox width="30%" height="30px" v-if="this.loading"/>
+      <span class="heart-container">
                 <Transition name="likeloading">
                     <heart v-if="this.isLikeLoading()" color="#ff0000"
                            :filled="this.isFavorite()" size="20"/>
                 </Transition>
 
                 <Transition name="loading">
-                    <heart v-if="!(this.isFavorite() && !this.loading && !this.isLikeLoading())" color="#24EE76" @click="this.like()"
+                    <heart v-if="!(this.isFavorite() && !this.isLoading() && !this.isLikeLoading())" color="#24EE76"
+                           @click="this.like()"
                            :filled="this.isFavorite()" size="20"/>
                 </Transition>
 
                 <Transition name="like">
-                    <heart v-if="this.isFavorite() && !this.loading && !this.isLikeLoading()" @click="this.dislike()" color="#24EE76"
+                    <heart v-if="this.isFavorite() && !this.isLoading() && !this.isLikeLoading()" @click="this.dislike()"
+                           color="#24EE76"
                            :filled="this.isFavorite()"
                            size="20"/>
                 </Transition>
 
             </span>
 
-        </h3>
-        <Transition name="grow">
-            <div class="loading-set" v-if="this.loading">
-                <LoadingFillerBox width="49%" height="100px"/>
-                <LoadingFillerBox width="49%" height="100px"/>
-            </div>
-        </Transition>
-        <div class="tags" v-if="!this.loading">
-            <TagDetail v-if="this.distance !== 0"> {{ Math.round(this.distance / 10) / 100 }}km</TagDetail>
-        </div>
-        <Menu v-for="meal in this.restaurantStore.getMeal(this.url)" :key="meal.typemeal" :name="meal.typemeal"
-              :foodies="meal.foodies"
-              :time="meal.day"
-              class="menu"></Menu>
-        <p v-if="this.restaurantStore.getMeal(this.url).length === 0 && !this.loading" class="no-menu">Pas de menu
-            disponible :(</p>
+    </h3>
+    <Transition name="grow">
+      <div class="loading-set" v-if="this.isLoading()">
+        <LoadingFillerBox width="49%" height="100px"/>
+        <LoadingFillerBox width="49%" height="100px"/>
+      </div>
+    </Transition>
+    <div class="tags" v-if="!this.isLoading()">
+      <TagDetail v-if="this.restaurantStore.getDistance(this.url) !== 0"> {{ Math.round(this.restaurantStore.getDistance(this.url) / 10) / 100 }}km</TagDetail>
     </div>
+    <div v-if="this.hasBeenViewed">
+      <Menu v-for="meal in this.getMeal()" :key="meal.typemeal" :name="meal.typemeal"
+            :foodies="meal.foodies"
+            :time="meal.day"
+            class="menu">
+      </Menu>
+    </div>
+  </div>
 </template>
 
 
@@ -95,90 +98,117 @@ mutation Dislike($idrestaurant: Int){
 
 
 export default {
-    components: {
-        LoadingFillerBox,
-        Menu,
-        heart,
-        TagDetail,
-        Map
-    },
-    props: {
-        name: String,
-        url: String,
-        idRestaurant: Number
-    },
-    setup(props) {
-        const userStore = useUserStore();
-
-        const restaurantStore = useRestaurantStore();
-
-
-        const {loading, error, result} = useQuery(
-            GET_RESTAURANT,
-            () => ({
-                url: props.url
-            })
-        )
-
-        //const meals = computed(() => result.value?.restaurant.meals ?? []);
-
-
-        const distance = computed(() => result.value?.restaurant.distance ?? null);
-
-
-        return {
-            restaurantStore,
-            userStore,
-            distance,
-            loading
-        }
-
-
-    },
-    name: "RestaurantCard",
-    data() {
-        return {
-            meals: [],
-            likeLoading: false
-        }
-    },
-    methods: {
-        getLink() {
-            return '/restaurants/' + this.name;
-        },
-        isFavorite() {
-            return this.userStore.getNames.includes(this.name);
-        },
-        isLikeLoading(){
-            return this.likeLoading;
-        },
-        like() {
-            this.likeLoading = true;
-            console.log(this.likeLoading)
-            apolloClient.mutate({
-                mutation: LIKE_RESTAURANT,
-                variables: {
-                    idrestaurant: parseInt(this.idRestaurant)
-                }
-            }).then(restaurants => {
-                this.likeLoading = false;
-                console.log(this.likeLoading)
-
-                this.userStore.setFavorites(restaurants.data.like);
-
-            });
-        },
-        dislike() {
-            apolloClient.mutate({
-                mutation: DISLIKE_RESTAURANT,
-                variables: {
-                    idrestaurant: parseInt(this.idRestaurant)
-                }
-            }).then(restaurants => {
-                this.userStore.setFavorites(restaurants.data.dislike);
-            });
-        }
+  components: {
+    LoadingFillerBox,
+    Menu,
+    heart,
+    TagDetail,
+    Map
+  },
+  props: {
+    name: String,
+    url: String,
+    idRestaurant: Number,
+    preload: Boolean
+  },
+  setup(props) {
+    const userStore = useUserStore();
+    const restaurantStore = useRestaurantStore();
+    return {
+      restaurantStore,
+      userStore,
     }
+  },
+  name: "RestaurantCard",
+  data() {
+    return {
+      meals: null,
+      likeLoading: false,
+      viewed: 0,
+      loading: false
+    }
+  },
+  mounted() {
+
+    let options = {
+      root: this.$el.$parent,
+      rootMargin: "0px",
+      threshold:1.0,
+    };
+
+    let observer = new IntersectionObserver(() => {
+      if(this.viewed<2){
+        this.viewed++;
+      }else{
+        observer.unobserve(this.$refs.title);
+      }
+    },options);
+
+    observer.observe(this.$refs.title);
+  },
+  methods: {
+    getLink() {
+      return '/restaurants/' + this.name;
+    },
+    isFavorite() {
+      return this.userStore.getNames.includes(this.name);
+    },
+    isLikeLoading() {
+      return this.likeLoading;
+    },
+    isLoading(){
+      return this.loading;
+    },
+    getMeal() {
+      if(this.meals===null){
+        this.loading = true;
+        this.meals = this.restaurantStore.getMeal(this.url);
+        this.meals.then((meals) => {
+          this.loading = false;
+          this.meals = meals;
+        });
+      }
+
+
+      return this.meals;
+    },
+    like() {
+      this.likeLoading = true;
+      console.log(this.likeLoading)
+      apolloClient.mutate({
+        mutation: LIKE_RESTAURANT,
+        variables: {
+          idrestaurant: parseInt(this.idRestaurant)
+        }
+      }).then(restaurants => {
+        this.likeLoading = false;
+        console.log(this.likeLoading)
+
+        this.userStore.setFavorites(restaurants.data.like);
+
+      });
+    },
+    dislike() {
+      apolloClient.mutate({
+        mutation: DISLIKE_RESTAURANT,
+        variables: {
+          idrestaurant: parseInt(this.idRestaurant)
+        }
+      }).then(restaurants => {
+        this.userStore.setFavorites(restaurants.data.dislike);
+      });
+    },
+    onElementObserved() {
+      if (!this.viewed) {
+        this.viewed = true;
+      }
+    }
+  },
+  computed:{
+    hasBeenViewed(){
+      return this.viewed>1 || this.preload;
+    }
+  }
 
 }
 </script>
@@ -198,16 +228,16 @@ export default {
 }
 
 @keyframes like_loading {
-    0%{
-        transform: rotate(0deg);
-    }
-    40%{
-        transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(360deg);
+  }
 
-    80%{
-        transform: rotate(0deg);
-    }
+  80% {
+    transform: rotate(0deg);
+  }
 }
 
 
