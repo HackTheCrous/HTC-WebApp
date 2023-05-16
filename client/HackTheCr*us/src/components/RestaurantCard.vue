@@ -122,7 +122,7 @@ export default {
   name: "RestaurantCard",
   data() {
     return {
-      meals: null,
+      meals: [],
       likeLoading: false,
       viewed: 0,
       loading: false
@@ -160,17 +160,10 @@ export default {
       return this.loading;
     },
     getMeal() {
-      if(this.meals===null){
-        this.loading = true;
-        this.meals = this.restaurantStore.getMeal(this.url);
-        this.meals.then((meals) => {
-          this.loading = false;
-          this.meals = meals;
-        });
-      }
-
-
       return this.meals;
+    },
+    setMeals(meals) {
+      this.meals = meals;
     },
     like() {
       this.likeLoading = true;
@@ -206,7 +199,14 @@ export default {
   },
   computed:{
     hasBeenViewed(){
-      return this.viewed>1 || this.preload;
+      if(this.viewed>1 ||this.preload){
+        this.loading = true;
+        this.restaurantStore.setMeal(this.url).then((meals)=>{
+          this.loading = false;
+          this.setMeals(meals);
+        });
+      }
+      return this.viewed>1 ||this.preload;
     }
   }
 

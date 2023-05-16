@@ -91,26 +91,11 @@ export const useRestaurantStore = defineStore('restaurant', {
 
         },
         getMeal(state) {
-            console.log('state.restaurants');
-            return (url) => {
-                for(const restaurant of state.restaurants){
-                    if(restaurant.url === url){
-                        if(restaurant.meal!=null){
-                            return restaurant.meal;
-                        }
-                        return this.setMeal(url);
-                    }
-                }
-            };
+            return (url) => state.restaurants.filter(restaurant => restaurant.url === url)[0].meals;
         },
         getDistance(state) {
-            return (url) => {
-                for(const restaurant of state.restaurants){
-                    if(restaurant.url === url){
-                        return restaurant.distance;
-                    }
-                }
-            };
+            return (url) => state.restaurants.filter(restaurant => restaurant.url === url)[0].distance;
+
         },
         isLoading(state){
             return state.loading;
@@ -151,6 +136,7 @@ export const useRestaurantStore = defineStore('restaurant', {
             this.filters.focus = key.toUpperCase();
         },
         async setMeal(url) {
+            console.log('set meal');
             const result = await apolloClient.query({
                 query: GET_RESTAURANT,
                 variables: {
@@ -195,4 +181,5 @@ export const useRestaurantStore = defineStore('restaurant', {
             });
         }
     },
+
 });
