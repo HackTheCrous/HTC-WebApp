@@ -191,11 +191,6 @@ export default {
         this.userStore.setFavorites(restaurants.data.dislike);
       });
     },
-    onElementObserved() {
-      if (!this.viewed) {
-        this.viewed = true;
-      }
-    }
   },
   computed:{
     hasBeenViewed(){

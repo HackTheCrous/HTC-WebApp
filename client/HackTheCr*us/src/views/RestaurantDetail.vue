@@ -35,27 +35,7 @@ import {apolloClient} from "@/main";
 import TagDetail from "@/components/TagDetail.vue";
 import MapContainer from "@/components/MapContainer.vue";
 import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
-
-const GET_RESTAURANT_BY_NAME = gql`
-    query Restaurant($id: String){
-        restaurant(url: $id){
-            idrestaurant
-            url
-            name
-            distance
-            coords {
-                x
-                y
-            }
-            meals{
-                typemeal
-                foodies
-                day
-            }
-        }
-    }
-`;
-
+import {useRestaurantStore} from "../stores/restaurants";
 
 export default {
     name: "RestaurantDetail",
@@ -77,6 +57,12 @@ export default {
             loading: false
         }
     },
+    setup(){
+      const restaurantStore = useRestaurantStore();
+      return {
+          restaurantStore
+      }
+    },
     mounted() {
         this.update();
     },
@@ -88,33 +74,28 @@ export default {
         }
     },
     methods:{
-        update(){
+        async update(){
             this.loading = true;
-            apolloClient.query(({
-                query: GET_RESTAURANT_BY_NAME,
-                variables: {
-                    id: this.id
-                }
-            })).then((result) => {
-                this.name = result.data.restaurant.name;
-                this.url = result.data.restaurant.url;
-                this.meals = result.data.restaurant.meals;
-                this.distance = result.data.restaurant.distance;
-                this.coords = result.data.restaurant.coords;
+            const restaurantData = this.restaurantStore.getRestaurant(this.id);
+            if(restaurantData) {
+              this.name = restaurantData.name;
+              this.url = restaurantData.url;
+              this.meals = restaurantData.meal;
+              this.distance = restaurantData.distance;
+              this.coords = {
+                x : restaurantData.coords.x,
+                y : restaurantData.coords.y
+              };
 
-                const dateFormat = new Date(parseInt(this.meals[0].day));
+              console.log(this.coords);
+              this.day = restaurantData.day;
+              this.loading = false;
+            }else{
+              await this.restaurantStore.setRestaurant(this.id);
+             this.loading = false;
+             update() // warning !! recursive call;
+            }
 
-                const formated = dateFormat.toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                this.day = formated.charAt(0).toUpperCase() + formated.slice(1);
-
-                this.loading = false;
-            })
         }
     }
 }
