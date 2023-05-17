@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <MapContainer v-if="!loading" :coords="this.coords" />
+    <MapContainer v-if="!loading" :key="this.coords.x" :x="this.coords.x" :y="this.coords.y" />
 
 </template>
 

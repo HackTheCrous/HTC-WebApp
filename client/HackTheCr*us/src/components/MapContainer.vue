@@ -19,10 +19,11 @@ import {Projection, transform} from "ol/proj";
 export default {
     name: "MapContainer",
     props:{
-        coords: Object
+      x: Number,
+      y: Number
     },
     mounted() {
-
+        console.log(this.x + "  "  + this.y);
         const data = {
             type: 'Feature',
             properties :{
@@ -30,7 +31,7 @@ export default {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [this.coords.y, this.coords.x]
+                coordinates: [this.y, this.x]
             }
         }
 
@@ -53,7 +54,7 @@ export default {
             ],
 
             view: new View({
-                center: transform([this.coords.y, this.coords.x], 'EPSG:4326', 'EPSG:3857'),
+                center: transform([this.y, this.x], 'EPSG:4326', 'EPSG:3857'),
                 zoom: 16,
             })
         })
