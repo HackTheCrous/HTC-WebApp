@@ -131,7 +131,7 @@ const getRestaurantFromCrous = (url) => {
  * @param url of crous restaurant
  * @returns {Promise<T>} containing a list of menus structured like {name, url, time, menus: [{title, foodies: [{type, food: []}]}]
  */
-const getRestaurantDetailsFromCrous = (url) => {
+const getRestaurantDetailsFromCrous = async (url) => {
     const menuData = {food: {name: "", url: url, time: "", menus: []}, coords: []};
 
     const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
@@ -231,7 +231,7 @@ const getRestaurantId = async (url) => {
 const getRestaurantsInDB = async () => {
     const client = new Client(clientInfo);
     await client.connect();
-    const result = await client.query('SELECT idrestaurant,url FROM radulescut.restaurant');
+    const result = await client.query('SELECT idrestaurant,url,name FROM radulescut.restaurant');
     await client.end();
     return result.rows;
 }
@@ -244,23 +244,51 @@ const deleteAllFromMenus = async () => {
     await client.end();
 }
 
+
+
 const updateMeals = async () => {
+    const keywords = {};
     await deleteAllFromMenus();
     getRestaurantsInDB().then(async restaurants => {
+        let menus;
         for(const restaurant of restaurants){
-            getRestaurantDetailsFromCrous(restaurant.url).then(async menus => {
-                if(menus.food.name !== "No data"){
-                    const time = menus.food.time;
-                    const idRestaurant = restaurant.idrestaurant;
-                    console.log(menus.food);
-                    for(const menu of menus.food.menus){
-                        await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant)); //that's where things could go ricas :D
+            keywords[restaurant.name] = [restaurant.idrestaurant];
+            menus = await getRestaurantDetailsFromCrous(restaurant.url);
+            if(menus.food.name !== "No data"){
+                const time = menus.food.time;
+                const idRestaurant = restaurant.idrestaurant;
+                for(const menu of menus.food.menus){
+                    if(!Object.keys(keywords).includes(menu.title)){
+                        keywords[menu.title] = [];
                     }
+                    keywords[menu.title].push(idRestaurant);
+                    for(const foody of menu.foodies){
+                        for(const food of foody.food){
+                            if(!Object.keys(keywords).includes(food)){
+                                keywords[food] = [];
+                            }
+                            keywords[food].push(idRestaurant);
+                        }
+                    }
+                    await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant)); //that's where things could go ricas :D
                 }
-            });
+            }
+
         }
+        //insert in database keywords which acutally is will be used for looking through food and restaurants.
+        const client = new Client(clientInfo);
+        const query = 'INSERT INTO radulescut.Suggestions_Restaurant(keyword, idRestaurant)  VALUES($1,$2)';
+        await client.connect();
+        for(const key in keywords){
+            for(const idRestaurant of keywords[key]){
+                await client.query(query, [key, idRestaurant]);
+            }
+        }
+        await client.end();
+
     });
 }
+
 
 updateMeals();
 
@@ -297,7 +325,7 @@ getRestaurantFromCrous(url).then(async restaurants => {
                 const idRestaurant=  await getRestaurantId(restaurant.link);
 
                 for(const menu of menus.menus){
-                    await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant)); //that's where things could go ricas :D
+                    await iidRestaurannsertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant)); //that's where things could go ricas :D
                 }
             }
         });
