@@ -1,7 +1,6 @@
 import DatabaseManager from "../DatabaseManager.mjs";
 import RestaurantModel from "../models/RestaurantModel.mjs";
 import MealController from "./MealController.mjs";
-import FoodModel from "../models/FoodModel.mjs";
 
 export default class RestaurantController {
     static async getRestaurant(url) {
@@ -12,13 +11,17 @@ export default class RestaurantController {
         }
     }
 
+    static async get(id) {
+        return RestaurantController.getRestaurantById(id, DatabaseManager.getConnection());
+    }
 
-    static async get(id){
+    
+    /**
+     * get a restaurant from database by id with a provided client to avoid too many connections
+     */
+    static async getRestaurantById(id, client) {
         const query = 'SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE idrestaurant=$1';
-        const client = DatabaseManager.getConnection();
-        await client.connect();
-        const result = await client.query(query, [id]);
-        await client.end();
+        const result = await client.query(query,[id]);
         return RestaurantModel.buildRestaurant(result.rows[0]);
     }
 
@@ -74,46 +77,54 @@ export default class RestaurantController {
         return result.rows.map(row => RestaurantModel.buildRestaurant(row));
     }
 
-
+    /**
+     * Search a food from a pattern
+     * Must do an sql query fetch idRestaurant, url, name, food, food->>'type'
+     * Im afraid that this query might be VERY VERY EXPENSIVE
+     */
     static async getRestaurantsFromFood(name) {
         const client = DatabaseManager.getConnection();
-        let values = [name];
+        
+        const dis_lev_threshold = 4;
+        const params = name.split(' ');
 
-        const periods = ['Déjeuner','Dîner','Petit déjeuner'];
-        let query="select r.idrestaurant, r.url, r.name, food, foods->>'type' as cat, m.typemeal from meal m\n" +
-            "join jsonb_array_elements(foodies) as foods on true\n" +
-            "join unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[]) as food on true\n" +
-            "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
-            "WHERE food not in (\n" +
-            "    SELECT name from uselessfoodname\n" +
-            ")\n" +
-            "ORDER BY dis_lev(upper(food || r.name || (foods->>'type')::text), upper($1)) ASC\n" +
-            "LIMIT 20;";
+        let query ="";
 
-        for(const period of periods){
-            if(name.includes(period)){
-                values = [name.replace(period,''), period];
-                query = "select r.idrestaurant, r.url, r.name, food, foods->>'type' as cat, m.typemeal from meal m\n" +
-                    "join jsonb_array_elements(foodies) as foods on true\n" +
-                    "join unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[]) as food on true\n" +
-                    "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
-                    "WHERE food not in (\n" +
-                    "    SELECT name from uselessfoodname\n" +
-                    ") AND m.typemeal=$2 \n" +
-                    "ORDER BY dis_lev(upper(food || r.name || (foods->>'type')::text), upper($1)) ASC\n" +
-                    "LIMIT 20;";
+        let values=[];
+
+        let cursor = 1;
+        for(const param of params){
+            if(param.length>2){
+                query += "(select idrestaurant from radulescut.suggestions_restaurant where dis_lev($"+cursor+", keyword) < "+dis_lev_threshold+")\n"+ "INTERSECT\n";
+                values.push(param);
+                cursor++;
             }
         }
 
-        await client.connect();
-        const result = await client.query(query, values);
-        await client.end();
+        const operator = "INTERSECT\n";
+        query = query.substring(0, query.length-operator.length);
+        
+        const restaurants = [];
 
-        return result.rows.map(async (row) => {
-            const resto = new RestaurantModel(row.idrestaurant, row.url, row.name);
-            resto.food = new FoodModel(row.food, row.cat, row.typemeal);
-            return resto;
-        });
+        await client.connect();
+
+        const result = await client.query(query, values);
+
+        let idrestaurants = result.rows.map(restaurant => restaurant.idrestaurant);
+        
+
+        
+        for(const id of idrestaurants){
+            restaurants.push(await RestaurantController.getRestaurantById(id, client));
+            while(idrestaurants.includes(id)){
+                idrestaurants.splice(idrestaurants.findIndex((elt) => id === elt),1);
+            }
+        }
+
+        console.log(idrestaurants);
+
+        await client.end();
+        return restaurants;
     }
 
     static async getRestaurantsFromMeal(name) {

@@ -15,7 +15,7 @@ export default class RedisManager{
         });
 
         client.on('error', err => console.error('Redis Server Error', err))
-
-        return client;
+        
+       return client;
     }
 }

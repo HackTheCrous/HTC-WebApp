@@ -21,7 +21,6 @@ import bodyParser from "body-parser";
 import {ExtractJwt} from "passport-jwt";
 
 import jwt from "jsonwebtoken";
-import RestaurantController from "./controllers/RestaurantController.mjs";
 
 
 passport.use(UserController.getLocalStrategy());

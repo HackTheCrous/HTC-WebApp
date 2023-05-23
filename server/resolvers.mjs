@@ -1,6 +1,5 @@
 import RestaurantController from './controllers/RestaurantController.mjs';
 import UserController from "./controllers/UserController.js";
-import passport from "passport";
 import jwt from "jsonwebtoken";
 
 import dotenv from 'dotenv';
@@ -9,6 +8,7 @@ import MealController from "./controllers/MealController.mjs";
 import PlanningController from './controllers/PlanningController.js';
 import {GraphQLError} from "graphql/error/index.js";
 import MailClientController from "./controllers/MailClientController.mjs";
+import FoodModel from './models/FoodModel.mjs';
 
 dotenv.config();
 
@@ -227,6 +227,9 @@ export const resolvers = {
                 return 0;
             }
             return await SchoolController.getDistance(parent.school.idschool, parent.coords);
+        },
+        food: async(parent, args, context, info) => {
+            return new FoodModel("vide","vide","vide");
         }
     },
     User: {

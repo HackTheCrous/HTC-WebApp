@@ -209,12 +209,9 @@ const insertRestaurantInDB = async (restaurants) => {
  * @param menus must be of type Menu {typemeal, foodies, day, idRestaurant}
  * @returns {Promise<void>} nothin to return
  */
-const insertMealIntoBD = async (menu) => {
+const insertMealIntoBD = async (menu,client) => {
     //do not use forEach loops for async functions !!!
-    const client = new Client(clientInfo);
-    await client.connect();
     await client.query('INSERT INTO radulescut.meal (typemeal, foodies, day, idrestaurant) VALUES ($1, $2, $3, $4)', [menu.typemeal, menu.foodies, menu.day, menu.idRestaurant]);
-    await client.end();
 }
 
 const getRestaurantId = async (url) => {
@@ -241,6 +238,7 @@ const deleteAllFromMenus = async () => {
     const client = new Client(clientInfo);
     await client.connect();
     await client.query('DELETE FROM radulescut.meal');
+    await client.query('DELETE FROM radulescut.suggestions_restaurant');
     await client.end();
 }
 
@@ -257,6 +255,8 @@ const updateMeals = async () => {
             if(menus.food.name !== "No data"){
                 const time = menus.food.time;
                 const idRestaurant = restaurant.idrestaurant;
+                const client = new Client(clientInfo);
+                await client.connect();
                 for(const menu of menus.food.menus){
                     if(!Object.keys(keywords).includes(menu.title)){
                         keywords[menu.title] = [];
@@ -270,8 +270,10 @@ const updateMeals = async () => {
                             keywords[food].push(idRestaurant);
                         }
                     }
-                    await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant)); //that's where things could go ricas :D
+                    
+                    await insertMealIntoBD(new Meal(menu.title, JSON.stringify(menu.foodies), stringToSQLDate(time), idRestaurant), client); //that's where things could go ricas :D
                 }
+                await client.end();
             }
 
         }
