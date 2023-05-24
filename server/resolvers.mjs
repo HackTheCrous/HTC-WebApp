@@ -1,4 +1,5 @@
 import RestaurantController from './controllers/RestaurantController.mjs';
+import FoodController from './controllers/FoodController.js'
 import UserController from "./controllers/UserController.js";
 import jwt from "jsonwebtoken";
 
@@ -229,7 +230,15 @@ export const resolvers = {
             return await SchoolController.getDistance(parent.school.idschool, parent.coords);
         },
         food: async(parent, args, context, info) => {
-            return new FoodModel("vide","vide","vide");
+            const {query} = args;
+            if(parent.name == null){
+                throw new GraphQLError('To fetch food we need to know at least the name of the restaurant',{
+                    extensions:{
+                        code : 'UNKNOWN_RESTAURANT_FETCHING_FOOD'
+                    }
+                });
+            }
+            return FoodController.getFoodLike(parent.name, query);
         }
     },
     User: {
