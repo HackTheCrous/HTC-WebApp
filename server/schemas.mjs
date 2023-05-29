@@ -37,7 +37,7 @@ export const typeDefs = gql`
         meals: [Meal]
         coords: Coordinates,
         distance: Float,
-        food: Food
+        food: [Food]
     }
 
     type Meal{

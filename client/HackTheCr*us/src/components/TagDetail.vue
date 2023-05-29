@@ -1,5 +1,5 @@
 <template>
-    <p class="tag-detail">
+    <p :class="this.light ? 'tag-detail light' : 'tag-detail'">
         <slot></slot>
     </p>
 </template>
@@ -7,7 +7,7 @@
 <script>
 export default {
     name: "TagDetail",
-    props: ["value"]
+    props: ["value", "light"]
 }
 </script>
 
@@ -21,5 +21,9 @@ p {
     font-size: 12px;
     padding: 2px 7px;
     color: var(--color-text);
+}
+p.light {
+    border: 1px var(--color-background) solid;
+    color: var(--color-background);
 }
 </style>

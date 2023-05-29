@@ -22,9 +22,9 @@
             </router-link>
           </span>
                     <ul>
-                        <li>
-                            <TagDetail>{{ result.food.category }}</TagDetail>
-                            {{ result.food.name }} durant le {{ result.food.period }}
+                        <li v-for="food in result.food">
+                            <TagDetail :light="true">{{ food.category }}</TagDetail>
+                            {{food.name }} durant le {{ food.period }}
                         </li>
                     </ul>
 

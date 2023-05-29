@@ -1,173 +1,160 @@
 import DatabaseManager from "../DatabaseManager.mjs";
 import RestaurantModel from "../models/RestaurantModel.mjs";
+import { FoodSearchStrategyByIntersection } from "../strategies/FoodSearchStartegy.mjs";
 import MealController from "./MealController.mjs";
 
+
 export default class RestaurantController {
-    static async getRestaurant(url) {
-        if (url.match(/^(http|https):\/\//)) {
-            return await RestaurantController.getRestaurantByUrl(url);
-        } else {
-            return await RestaurantController.getRestaurantByName(url);
-        }
+  static async getRestaurant(url) {
+    if (url.match(/^(http|https):\/\//)) {
+      return await RestaurantController.getRestaurantByUrl(url);
+    } else {
+      return await RestaurantController.getRestaurantByName(url);
     }
+  }
 
-    static async get(id) {
-        return RestaurantController.getRestaurantById(id, DatabaseManager.getConnection());
-    }
+  static async get(id) {
+    return RestaurantController.getRestaurantById(
+      id,
+      DatabaseManager.getConnection()
+    );
+  }
 
-    
-    /**
-     * get a restaurant from database by id with a provided client to avoid too many connections
-     */
-    static async getRestaurantById(id, client) {
-        const query = 'SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE idrestaurant=$1';
-        const result = await client.query(query,[id]);
-        return RestaurantModel.buildRestaurant(result.rows[0]);
-    }
+  /**
+   * get a restaurant from database by id with a provided client to avoid too many connections
+   */
+  static async getRestaurantById(id, client) {
+    const query =
+      "SELECT " +
+      RestaurantModel.getHeaders() +
+      " FROM radulescut.restaurant WHERE idrestaurant=$1";
+    const result = await client.query(query, [id]);
+    return RestaurantModel.buildRestaurant(result.rows[0]);
+  }
 
-    static async getRestaurantLike(name) {
-        const client = DatabaseManager.getConnection();
-        await client.connect();
-        const result = await client.query('SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE UPPER(name) LIKE $1', ['%' + name.toUpperCase() + '%']);
-        await client.end();
-        return result.rows.map(row => {
-            return RestaurantModel.buildRestaurant(row);
-        });
-    }
+  static async getRestaurantLike(name) {
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    const result = await client.query(
+      "SELECT " +
+        RestaurantModel.getHeaders() +
+        " FROM radulescut.restaurant WHERE UPPER(name) LIKE $1",
+      ["%" + name.toUpperCase() + "%"]
+    );
+    await client.end();
+    return result.rows.map((row) => {
+      return RestaurantModel.buildRestaurant(row);
+    });
+  }
 
-    static async getRestaurantByUrl(url) {
-        const client = DatabaseManager.getConnection();
+  static async getRestaurantByUrl(url) {
+    const client = DatabaseManager.getConnection();
 
-        await client.connect();
-        const result = await client.query('SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE url = $1', [url]);
-        await client.end();
-        let restaurant = RestaurantModel.buildRestaurant(result.rows[0]);
+    await client.connect();
+    const result = await client.query(
+      "SELECT " +
+        RestaurantModel.getHeaders() +
+        " FROM radulescut.restaurant WHERE url = $1",
+      [url]
+    );
+    await client.end();
+    let restaurant = RestaurantModel.buildRestaurant(result.rows[0]);
 
+    return restaurant;
+  }
 
-        return restaurant;
-    }
+  static async getRestaurantByName(name) {
+    const client = DatabaseManager.getConnection();
 
-    static async getRestaurantByName(name) {
-        const client = DatabaseManager.getConnection();
+    await client.connect();
+    const result = await client.query(
+      "SELECT " +
+        RestaurantModel.getHeaders() +
+        " FROM radulescut.restaurant WHERE name = $1",
+      [name]
+    );
+    await client.end();
+    return RestaurantModel.buildRestaurant(result.rows[0]);
+  }
 
-        await client.connect();
-        const result = await client.query('SELECT ' + RestaurantModel.getHeaders() + ' FROM radulescut.restaurant WHERE name = $1', [name]);
-        await client.end();
-        return RestaurantModel.buildRestaurant(result.rows[0]);
-    }
+  static async getRestaurants() {
+    const query =
+      "SELECT rest.idrestaurant as idrestaurant,\n" +
+      "       url,\n" +
+      "       name,\n" +
+      "        coalesce(SUM(jsonb_array_length(foodies)), 0) as nbMeals,\n" +
+      "        rest.gpscoord\n" +
+      "FROM radulescut.restaurant as rest\n" +
+      "         left join radulescut.meal as m on rest.idrestaurant = m.idrestaurant\n" +
+      "group by rest.idrestaurant, url, name\n" +
+      "order by nbMeals DESC";
 
-    static async getRestaurants() {
+    const client = DatabaseManager.getConnection();
 
-        const query = 'SELECT rest.idrestaurant as idrestaurant,\n' +
-            '       url,\n' +
-            '       name,\n' +
-            '        coalesce(SUM(jsonb_array_length(foodies)), 0) as nbMeals,\n' +
-            '        rest.gpscoord\n' +
-            'FROM radulescut.restaurant as rest\n' +
-            '         left join radulescut.meal as m on rest.idrestaurant = m.idrestaurant\n' +
-            'group by rest.idrestaurant, url, name\n' +
-            'order by nbMeals DESC'
+    await client.connect();
+    const result = await client.query(query);
+    await client.end();
 
-        const client = DatabaseManager.getConnection();
+    return result.rows.map((row) => RestaurantModel.buildRestaurant(row));
+  }
 
-        await client.connect();
-        const result = await client.query(query);
-        await client.end();
+  /**
+   * Search a food from a pattern
+   * Must do an sql query fetch idRestaurant, url, name, food, food->>'type'
+   * Im afraid that this query might be VERY VERY EXPENSIVE
+   */
+  static async getRestaurantsFromFood(name) {
+    return FoodSearchStrategyByIntersection.searchFood(name);
+  }
 
-        return result.rows.map(row => RestaurantModel.buildRestaurant(row));
-    }
+  static async getRestaurantsFromMeal(name) {
+    const client = DatabaseManager.getConnection();
 
-    /**
-     * Search a food from a pattern
-     * Must do an sql query fetch idRestaurant, url, name, food, food->>'type'
-     * Im afraid that this query might be VERY VERY EXPENSIVE
-     */
-    static async getRestaurantsFromFood(name) {
-        const client = DatabaseManager.getConnection();
-        
-        const dis_lev_threshold = 4;
-        const params = name.split(' ');
+    const values = [name.toUpperCase()];
+    await client.connect();
+    const result = await client.query(
+      "select r.idrestaurant, r.url, r.name,foods->>'food' as foods from meal m\n" +
+        "join jsonb_array_elements(foodies) as foods on true\n" +
+        "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
+        "ORDER BY dis_lev(upper(unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[])), $1) ASC\n" +
+        "LIMIT 5;",
+      values
+    );
+    await client.end();
 
-        let query ="";
+    return result.rows.map(async (row) => {
+      const resto = new RestaurantModel(row.idrestaurant, row.url, row.name);
+      resto.meals = await MealController.getMealsFromRestaurant(
+        row.idrestaurant
+      );
+      return resto;
+    });
+  }
 
-        let values=[];
+  static async getDistance(idRestaurant, position) {
+    const query = "select gpscoord from restaurant where idrestaurant=$1";
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    const result = await client.query(query, [idRestaurant]);
+    await client.end();
 
-        let cursor = 1;
-        for(const param of params){
-            if(param.length>2){
-                query += "(select idrestaurant from radulescut.suggestions_restaurant where dis_lev($"+cursor+", keyword) < "+dis_lev_threshold+")\n"+ "INTERSECT\n";
-                values.push(param);
-                cursor++;
-            }
-        }
+    const position2 = result.rows[0].gpscoord;
 
-        const operator = "INTERSECT\n";
-        query = query.substring(0, query.length-operator.length);
-        
-        const restaurants = [];
+    const R = 6371e3;
+    const phi1 = (position.x * Math.PI) / 180;
+    const phi2 = (position2.x * Math.PI) / 180;
+    const deltaPhi = ((position2.x - position.x) * Math.PI) / 180;
+    const deltaLambda = ((position2.y - position.y) * Math.PI) / 180;
 
-        await client.connect();
+    const a =
+      Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+      Math.cos(phi1) *
+        Math.cos(phi2) *
+        Math.sin(deltaLambda / 2) *
+        Math.sin(deltaLambda / 2);
 
-        const result = await client.query(query, values);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        let idrestaurants = result.rows.map(restaurant => restaurant.idrestaurant);
-        
-
-        
-        for(const id of idrestaurants){
-            restaurants.push(await RestaurantController.getRestaurantById(id, client));
-            while(idrestaurants.includes(id)){
-                idrestaurants.splice(idrestaurants.findIndex((elt) => id === elt),1);
-            }
-        }
-
-        console.log(idrestaurants);
-
-        await client.end();
-        return restaurants;
-    }
-
-    static async getRestaurantsFromMeal(name) {
-        const client = DatabaseManager.getConnection();
-
-        const values = [name.toUpperCase()];
-        await client.connect();
-        const result = await client.query("select r.idrestaurant, r.url, r.name,foods->>'food' as foods from meal m\n" +
-            "join jsonb_array_elements(foodies) as foods on true\n" +
-            "join restaurant r on r.idrestaurant = m.idrestaurant\n" +
-            "ORDER BY dis_lev(upper(unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[])), $1) ASC\n" +
-            "LIMIT 5;", values);
-        await client.end();
-
-
-        return result.rows.map(async (row) => {
-            const resto = new RestaurantModel(row.idrestaurant, row.url, row.name);
-            resto.meals = await MealController.getMealsFromRestaurant(row.idrestaurant);
-            return resto;
-        });
-    }
-
-    static async getDistance(idRestaurant, position){
-        const query= 'select gpscoord from restaurant where idrestaurant=$1';
-        const client = DatabaseManager.getConnection();
-        await client.connect();
-        const result = await client.query(query, [idRestaurant]);
-        await client.end();
-
-        const position2 = result.rows[0].gpscoord;
-
-
-
-        const R = 6371e3;
-        const phi1 = position.x * Math.PI/180;
-        const phi2 = position2.x * Math.PI/180;
-        const deltaPhi = (position2.x-position.x) * Math.PI/180;
-        const deltaLambda = (position2.y-position.y) * Math.PI/180;
-
-        const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
-
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-        return R * c;
-    }
+    return R * c;
+  }
 }

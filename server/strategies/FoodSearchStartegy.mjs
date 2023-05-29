@@ -1,4 +1,3 @@
-import { async } from "node-ical";
 import DatabaseManager from "../DatabaseManager.mjs";
 import RestaurantController from "../controllers/RestaurantController.mjs";
 
@@ -17,9 +16,9 @@ export class FoodSearchStrategyByIntersection {
     for (const param of params) {
       if (param.length > 2) {
         query +=
-          "(select idrestaurant from radulescut.suggestions_restaurant where dis_lev($" +
+          "(select idrestaurant from radulescut.suggestions_restaurant where dis_lev(UPPER($" +
           cursor +
-          ", keyword) < " +
+          "), UPPER(keyword)) < " +
           dis_lev_threshold +
           ")\n" +
           "INTERSECT\n";

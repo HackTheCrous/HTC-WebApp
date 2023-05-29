@@ -1,25 +1,30 @@
-import DatabaseManager from '../DatabaseManager.mjs'
-import FoodModel from '../models/FoodModel.mjs'
+import DatabaseManager from "../DatabaseManager.mjs";
+import FoodModel from "../models/FoodModel.mjs";
 
-export default class FoodController{
-    static async getFoodLike(idRestaurant, pattern){
-        const query = "select unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[]) as food, foods->>'type' as cat, m.typemeal as period from meal m\n"+
-"join jsonb_array_elements(foodies) as foods on true\n"+
-"join restaurant r on r.idrestaurant = m.idrestaurant\n"+
-"where r.name = $2\n"+
-"ORDER BY dis_lev(upper($1),upper(unnest((replace(replace(foods->>'food', ']','}'),'[','{'))::text[]) || r.name)) ASC\n"+
-"LIMIT 1";
-
-        const client = await DatabaseManager.getConnection();
-
-        await client.connect();
-
-        const result = await client.query(query, [pattern, idRestaurant]);
-
-        await client.end();
-        const row = result.rows[0];
-        return new FoodModel(row.food, row.cat, row.period);
-
-
+export default class FoodController {
+  static async getFoodLike(idRestaurant, pattern) {
+    const keywords = pattern.split(" ").filter((term) => term.length > 2);
+    const results = [];
+    
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    for (const keyword of keywords) {
+      results.push(
+        await FoodController.getFoodByKeyword(idRestaurant, keyword,client)
+      );
     }
+    await client.end();
+    return results;
+  }
+
+  static async getFoodByKeyword(idRestaurant, keyword, client) {
+    const query =
+      "select keyword from radulescut.suggestions_restaurant where idrestaurant = $1 and idcat=2 order by dis_lev(UPPER($2), UPPER(keyword))";
+
+
+    const result = await client.query(query, [idRestaurant, keyword]);
+
+    const row = result.rows[0];
+    return new FoodModel(row.keyword, "row.cat", "row.period");
+  }
 }
