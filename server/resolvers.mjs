@@ -249,17 +249,11 @@ export const resolvers = {
       );
     },
     food: async (parent, args, context, info) => {
-      if (parent.idrestaurant == null) {
-        throw new GraphQLError(
-          "To fetch food we need to know at least the name of the restaurant",
-          {
-            extensions: {
-              code: "UNKNOWN_RESTAURANT_FETCHING_FOOD",
-            },
-          }
-        );
-      }
+      
       if (parent.query == null) {
+        return null;
+      }
+      if(parent.idrestaurant == null){
         return null;
       }
       const suggestions = await FoodController.getFoodLike(parent.idrestaurant, parent.query);

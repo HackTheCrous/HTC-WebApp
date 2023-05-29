@@ -111,10 +111,8 @@ export const useRestaurantStore = defineStore('restaurant', {
     getRestaurant(state){
       return (name) => {
         if(name.includes('http')){
-          console.log('get by url');
           return state.restaurants.filter(restaurant => restaurant.url === url)[0];
         }
-        console.log('get by name');
         return state.restaurants.filter(restaurant => restaurant.name === name)[0];
       
       }    
@@ -166,7 +164,6 @@ export const useRestaurantStore = defineStore('restaurant', {
       if(url.includes('http')){
         query = GET_RESTAURANT;
       }
-      console.log('set meal');
       const result = await apolloClient.query({
         query: query,
         variables: {
@@ -175,7 +172,6 @@ export const useRestaurantStore = defineStore('restaurant', {
       });
 
       const meal = result.data.restaurant.meals;
-
       for(const restaurant of this.restaurants){
         if(restaurant.url === url){
           restaurant.meal = meal;
@@ -191,7 +187,6 @@ export const useRestaurantStore = defineStore('restaurant', {
 
       const userStore = useUserStore();
       if(!userStore.isLogged){
-        console.log('not logged');
         this.loading = false;
 
         return;

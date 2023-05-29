@@ -14,12 +14,12 @@
 
     <div id="meals">
 
-        <div v-for="meal in this.meals" class="meal">
+        <div v-for="meal in this.meals" :key="meal.idmeal" class="meal">
             <h3>{{ meal.typemeal }}</h3>
-            <div v-for="foody in meal.foodies">
+            <div v-for="foody in meal.foodies" :key="foody.food">
                 <h4>{{ foody.type }}</h4>
-                <div v-for="food in foody.food" class="food">
-                    {{ food }}
+                <div v-for="food in foody.food" :key="food" class="food">
+                    {{ food}}
                 </div>
             </div>
         </div>
@@ -80,6 +80,14 @@ export default {
             if(restaurantData) {
               this.name = restaurantData.name;
               this.url = restaurantData.url;
+              console.log("url", restaurantData.meal);
+
+              if(restaurantData.meal==null){
+                console.log("no meal");
+                await this.restaurantStore.setMeal(this.url);
+
+                this.meals = this.restaurantStore.getMeal(this.url);
+              }
               this.meals = restaurantData.meal;
               this.distance = restaurantData.distance;
               this.coords = {
@@ -91,7 +99,7 @@ export default {
               this.day = restaurantData.day;
               this.loading = false;
             }else{
-              await this.restaurantStore.setRestaurant(this.id);
+              await this.restaurantStore.setMeal(this.url);
              this.loading = false;
              update() // warning !! recursive call;
             }

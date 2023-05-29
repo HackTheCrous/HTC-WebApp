@@ -22,7 +22,7 @@
             </router-link>
           </span>
                     <ul>
-                        <li v-for="food in result.food">
+                        <li v-for="food in result.food" :key="food.name">
                             <TagDetail :light="true">{{ food.category }}</TagDetail>
                             {{food.name }} durant le {{ food.period }}
                         </li>
@@ -56,7 +56,6 @@ import {apolloClient} from "@/main";
 import gql from "graphql-tag";
 import Search from "../assets/search.vue";
 import LoadingFillerBox from "@/components/LoadingFillerBox.vue";
-import StringUtils from "@/utils/StringUtils";
 import TagDetail from "@/components/TagDetail.vue";
 
 const GET_SEARCH_RESULT = gql`
@@ -120,7 +119,6 @@ export default {
                             };
                         });
                     })
-                    .catch(error => console.error(error))
             }
 
         }
