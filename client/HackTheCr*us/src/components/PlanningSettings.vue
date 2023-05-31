@@ -72,6 +72,20 @@ export default {
       end.setDate(end.getDate() + 5);
       this.$emit("change", { start, end });
     },
+    monthBefore() {
+      const start = new Date(this.start);
+      start.setMonth(start.getMonth() - 1);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 5);
+      this.$emit("change", { start, end });
+    },
+    monthAfter() {
+      const start = new Date(this.start);
+      start.setMonth(start.getMonth() + 1);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 5);
+      this.$emit("change", { start, end });
+    },
     classPeriod(day) {
       let classDay = "day";
       const start = new Date(this.start);
