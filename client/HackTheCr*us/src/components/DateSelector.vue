@@ -1,8 +1,5 @@
 <template>
-    <h2 @mousedown="this.edit" v-if="!editing" class="date">
-        {{ this.formatDate(this.date) }}
-    </h2>
-    <input v-else type="date" :value="this.date" class="date" @change="$emit('change', $event.target.value)"/>
+    <input type="date" :value="this.date" class="date" @change="$emit('change', $event.target.value)"/>
 </template>
 
 <script>
