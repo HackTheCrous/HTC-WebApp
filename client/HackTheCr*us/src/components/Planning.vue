@@ -258,6 +258,11 @@ export default {
   },
   computed: {
     days() {
+      const oneWeekBeforeStart = new Date(this.start.getTime());
+      oneWeekBeforeStart.setDate(this.start.getDate() - 7);
+      const oneWeekAfterEnd = new Date(this.end.getTime());
+      oneWeekAfterEnd.setDate(this.end.getDate() + 7);
+      this.calendarStore.setDays(oneWeekBeforeStart, oneWeekAfterEnd);
       const days = [];
       const startToTimestamp = this.start.getTime();
       const endToTimestamp = this.end.getTime();
@@ -278,6 +283,7 @@ export default {
             dayData.data.push(event[1]);
           }
         }
+        
         days.push(dayData);
       }
       return days;

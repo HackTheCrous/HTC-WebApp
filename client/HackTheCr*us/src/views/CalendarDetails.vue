@@ -87,12 +87,13 @@ export default {
   },
   watch: {
     dayOfWeek(newVal) {
-      this.start = this.getNthDate(newVal, 0);
-      this.end = this.getNthDate(newVal, this.nbDays - 1);
-      this.calendarStore.setDays(
-        this.getNthDate(this.end, this.nbDays * -2),
-        this.getNthDate(this.end, this.nbDays * 2)
-      );
+      if(!(this.start <= newVal && newVal <= this.end)) {
+        this.start = this.getNthDate(newVal, 0);
+        this.end = this.getNthDate(newVal, this.nbDays - 1);
+      }
+    },
+    start(newVal) {
+      this.dayOfWeek = newVal;
     },
   },
 };

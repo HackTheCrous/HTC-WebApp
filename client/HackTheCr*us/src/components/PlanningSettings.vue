@@ -128,7 +128,6 @@ export default {
       ) {
         grid.push(i);
       }
-      console.log(grid);
       return grid;
     },
   },
