@@ -27,6 +27,7 @@ export const useCalendarStore = defineStore('calendar', {
         days: {},
         daysStored: [],
         loading: [],
+        eventFocused: null,
         error: false
     }),
 
@@ -49,6 +50,7 @@ export const useCalendarStore = defineStore('calendar', {
                 if (state.days[timestamp] === undefined) {
                     return null;
                 }
+                console.log(state.days[timestamp]);
                 return state.days[timestamp];
             }
         },
@@ -75,6 +77,9 @@ export const useCalendarStore = defineStore('calendar', {
             this.days = {};
             this.daysStored = [];
             this.loading = [];
+        },
+        setEventFocused(event) {
+          
         },
         setDays(start, end) {
             this.loading = [];

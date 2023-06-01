@@ -37,7 +37,6 @@ import {useAlertsStore} from "@/stores/alerts";
 
 import {endpoint} from "@/main";
 import {useRestaurantStore} from "../stores/restaurants";
-import restaurant from "../assets/restaurant.vue";
 
 export default {
   name: "Login",

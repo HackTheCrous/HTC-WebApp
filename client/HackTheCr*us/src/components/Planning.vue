@@ -77,7 +77,6 @@
       </button>
     </div>
   </div>
-  <router-view :focus="this.focus" @unfocus="handlefocus"></router-view>
 </template>
 
 <script>

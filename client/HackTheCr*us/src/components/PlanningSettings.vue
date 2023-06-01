@@ -1,27 +1,32 @@
 <template>
   <div id="settings">
-    <span class="head-row">
-      <h3>{{ this.getMonthAndYear(this.start) }}</h3>
-      <span>
-        <span @click="this.monthBefore()" class="arrow left">&lt;</span>
-        <span @click="this.monthAfter()" class="arrow right">></span>
+    <div class="widget">
+      <span class="head-row">
+        <h3>{{ this.getMonthAndYear(this.start) }}</h3>
+        <span>
+          <span @click="this.monthBefore()" class="arrow left">&lt;</span>
+          <span @click="this.monthAfter()" class="arrow right">></span>
+        </span>
       </span>
-    </span>
 
-    <div id="calendar-head">
-      <div v-for="day in days" :key="day" class="day">
-        <div class="day-name">{{ day }}</div>
+      <div id="calendar-head">
+        <div v-for="day in days" :key="day" class="day">
+          <div class="day-name">{{ day }}</div>
+        </div>
+      </div>
+      <div id="calendar">
+        <div
+          v-for="day in gridMonth"
+          :key="'t-' + day"
+          :class="this.classPeriod(day)"
+          @click="this.changeDate(day)"
+        >
+          <div class="day-number">{{ day }}</div>
+        </div>
       </div>
     </div>
-    <div id="calendar">
-      <div
-        v-for="day in gridMonth"
-        :key="'t-' + day"
-        :class="this.classPeriod(day)"
-        @click="this.changeDate(day)"
-      >
-        <div class="day-number">{{ day }}</div>
-      </div>
+    <div class="widget">
+      <router-view :focus="true" @unfocus="handlefocus"></router-view>
     </div>
   </div>
 </template>
@@ -143,10 +148,18 @@ export default {
   position: fixed;
   right: 0px;
   top: 0px;
-  padding: 50px 30px;
+  .widget {
+    padding: 0px 30px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 20px;
+    padding-top: 50px;
+    &:last-child {
+      border-bottom: none;
+    }
+  }
   .head-row {
-    margin-left:10px;
-    margin-right:10px;
+    margin-left: 10px;
+    margin-right: 10px;
     display: flex;
     flex-direction: row;
     align-items: center;
