@@ -81,7 +81,7 @@ app.post('/login', passport.authenticate('local'), (req, res) => {
             return next(err);
         }
         UserController.getMail(req.body.mail).then((user) => {
-            const token = UserController.genJWT({id: user.iduser, mail: user.mail});
+            const token = UserController.genAuthToken({id: user.iduser, mail: user.mail});
             res.send({type: "success", message: "Logged in", token: token, mail: user.mail});
         });
     });
@@ -109,8 +109,8 @@ app.post('/signup', (req, res, next) => {
                         res.send({type: "Error", message: "Error logging in"});
                         return next(err);
                     }
-                    const token = UserController.genJWT({id: user.iduser, mail: user.mail});
-                    res.send({type: "Success", message: "Logged in", token: token, mail: user.mail});
+                    const token = UserController.genAuthToken({id: user.iduser, mail: user.mail});
+                    res.send({type: "Success", message: "Logged in", token: token, refreshToken: user.getRefreshToken() , mail: user.mail});
                 });
             });
         }
