@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { hydrate, provide } from "vue";
 import { provideApolloClient } from "@vue/apollo-composable";
-import { apolloClient } from "@/main";
+import { apolloClient, endpoint } from "@/main";
 import gql from "graphql-tag";
 import { useCalendarStore } from "@/stores/calendar";
+import axios from "axios";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -16,6 +17,7 @@ export const useUserStore = defineStore("user", {
     school: { status: "no data" },
     favorites: [],
     refreshToken: "",
+    refreshingToken: false,
   }),
 
   getters: {
@@ -55,6 +57,9 @@ export const useUserStore = defineStore("user", {
     isMailSet: (state) => {
       return state.nonce;
     },
+    isRefreshingToken: (state) => {
+      return state.refreshingToken;
+    },
   },
   actions: {
     //set the store
@@ -63,6 +68,31 @@ export const useUserStore = defineStore("user", {
       this.token = token;
       this.logged = true;
       return this.getData();
+    },
+    tryToRefreshLogin() {
+      console.log("jwt expired");
+      this.refreshingToken = true;
+      if (this.getRefreshToken === "") {
+        console.log("no refresh token");
+        this.refreshingToken = false;
+        this.logout();
+        return;
+      }
+      axios.post(`${endpoint}/user/refresh`, { mail:this.getMail, refreshToken: this.getRefreshToken }).then((res) => {
+        console.log(res);
+        if (res.data.refreshToken !== undefined) {
+          console.log("refreshed");
+          this.setRefreshToken(res.data.refreshToken);
+          this.refreshingToken = false;
+          this.login(res.data.mail, res.data.accessToken);
+          window.location.reload(); //dirty but it works
+        } else {
+          console.log("not refreshed");
+          this.refreshingToken = false;
+          this.logout();
+        }
+      });
+
     },
     getData() {
       const GET_DATA_USER = gql`
@@ -120,6 +150,7 @@ export const useUserStore = defineStore("user", {
       this.school = school;
     },
     setRefreshToken(refreshToken) {
+      console.log("setting refresh token", refreshToken);
       this.refreshToken = refreshToken;
     },
     //clean the store
@@ -127,8 +158,10 @@ export const useUserStore = defineStore("user", {
       const calendarStore = useCalendarStore();
 
       apolloClient.resetStore();
+      this.refreshingToken = false;
       this.mail = "";
       this.token = "";
+      this.refreshToken = "";
       this.nonce = true;
       this.ical = "";
       this.school = { status: "no data" };

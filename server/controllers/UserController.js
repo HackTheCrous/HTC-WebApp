@@ -31,7 +31,7 @@ export default class UserController {
     const nonce = UserController.genNonce();
 
     const refreshToken = UserController.genRefreshToken();
-    
+
     console.log(refreshToken);
 
     await client.query(
@@ -127,6 +127,36 @@ export default class UserController {
     );
   }
 
+  /**
+   * Middleware to check if the given refresh token is valid
+   **/
+  static getRefreshTokenStrategy(req, res, next) {
+    if (req.body.mail === undefined || req.body.refreshToken === undefined) {
+      return res.status(401).json({ message: "Invalid parameters" });
+    }
+
+    const client = DatabaseManager.getConnection();
+    if (!jwt.verify(req.body.refreshToken, process.env.JWT_SECRET)) {
+      return res.status(401).json({ message: "Invalid signature" });
+    }
+    return client.connect().then(() => {
+      client
+        .query(
+          "SELECT iduser, mail, password FROM radulescut.user WHERE token = $1 and mail = $2",
+          [req.body.refreshToken, req.body.mail]
+        )
+        .then((response) => {
+          const rows = response;
+          client.end().then(() => {
+            if (rows.rowCount === 0) {
+              return res.status(401).json({ message: "Invalid token" });
+            }
+            return next();
+          });
+        });
+    });
+  }
+
   static getJWTStrategy(options) {
     return new Strategy(options, function verify(jwt_payload, done) {
       const client = DatabaseManager.getConnection();
@@ -160,6 +190,10 @@ export default class UserController {
     return response.rowCount > 0;
   }
 
+  /**
+   * @param mail
+   * get user by mail
+   */
   static async getMail(mail) {
     const client = DatabaseManager.getConnection();
     await client.connect();
@@ -248,7 +282,6 @@ export default class UserController {
     } catch (err) {
       console.log(err);
     }
-    console.log(token);
     return token;
   }
 
@@ -374,5 +407,54 @@ export default class UserController {
     const response = await client.query(query, params);
     await client.end();
     return response.rows[0].noncevalue === "0";
+  }
+
+  static async getRefreshToken(iduser) {
+    const query =
+      "select token from radulescut.user where iduser=$1 and token is not null and token != ''";
+    const params = [iduser];
+
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    const response = await client.query(query, params);
+
+    let refreshToken = response.rows[0].token;
+
+    if (
+      response.rowCount === 0 ||
+      !jwt.verify(refreshToken, process.env.JWT_SECRET)
+    ) {
+      refreshToken = UserController.genRefreshToken(iduser);
+      await client.query(
+        "update radulescut.user set token=$1 where iduser=$2",
+        [refreshToken, iduser]
+      );
+    }
+    await client.end();
+    return refreshToken;
+  }
+
+  static async updateRefreshToken(iduser) {
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    const refreshToken = UserController.genRefreshToken(iduser);
+    await client.query("update radulescut.user set token=$1 where iduser=$2", [
+      refreshToken,
+      iduser,
+    ]);
+    await client.end();
+    return refreshToken;
+  }
+
+  static async updateRefreshTokenByMail(mail) {
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    const refreshToken = UserController.genRefreshToken();
+    await client.query("update radulescut.user set token=$1 where mail=$2", [
+      refreshToken,
+      mail,
+    ]);
+    await client.end();
+    return refreshToken;
   }
 }
