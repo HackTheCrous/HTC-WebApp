@@ -28,7 +28,7 @@ export default class UserController {
 
     await client.connect();
 
-    const nonce = UserController.genNonce();
+    const nonce = UserController.genVerificationCode();
 
     const refreshToken = UserController.genRefreshToken();
 
@@ -37,12 +37,6 @@ export default class UserController {
     await client.query(
       "INSERT INTO radulescut.user(mail, password, nonce, token) values ($1, $2, $3, $4)",
       [mail, hashed, nonce, refreshToken]
-    );
-
-    MailService.sendConfirmationMail(mail, nonce, mail.split("@")[0]).then(
-      () => {
-        console.log("Mail sent");
-      }
     );
 
     const response = await client.query(
@@ -79,6 +73,35 @@ export default class UserController {
     );
     await client.end();
     return true;
+  }
+
+  static async sendConfirmationMail(iduser, firstname) {
+    const client = DatabaseManager.getConnection();
+    await client.connect();
+    const response = await client.query(
+      "SELECT mail, nonce FROM radulescut.user WHERE iduser = $1",
+      [iduser]
+    );
+    await client.end();
+    const mail = response.rows[0].mail;
+    const nonce = response.rows[0].nonce;
+    try {
+      // this error handling is giving me lowkey brain damage
+      MailService.sendConfirmationMail(mail, nonce, firstname);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+  /**
+   * generate a six digit code for the verification of the mail
+   */
+  static genVerificationCode() {
+    const chars = "0123456789";
+    let result = "";
+    for (let i = 6; i > 0; --i)
+      result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
   }
 
   static genNonce(size = 32) {
@@ -409,6 +432,11 @@ export default class UserController {
     return response.rows[0].noncevalue === "0";
   }
 
+  /**
+   * get the refresh token of the user if it exists and is valid, otherwise generate a new one
+   * @param iduser the id of the user
+   * @returns {Promise<string>} the refresh token
+   **/
   static async getRefreshToken(iduser) {
     const query =
       "select token from radulescut.user where iduser=$1 and token is not null and token != ''";
@@ -420,16 +448,26 @@ export default class UserController {
 
     let refreshToken = response.rows[0].token;
 
-    if (
-      response.rowCount === 0 ||
-      !jwt.verify(refreshToken, process.env.JWT_SECRET)
-    ) {
+    if (response.rowCount === 0) {
+      refreshToken = UserController.genRefreshToken(iduser);
+      await client.query(
+        "update radulescut.user set token=$1 where iduser=$2",
+        [refreshToken, iduser]
+      );
+      await client.end();
+      return refreshToken;
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    } catch (err) {
       refreshToken = UserController.genRefreshToken(iduser);
       await client.query(
         "update radulescut.user set token=$1 where iduser=$2",
         [refreshToken, iduser]
       );
     }
+
     await client.end();
     return refreshToken;
   }

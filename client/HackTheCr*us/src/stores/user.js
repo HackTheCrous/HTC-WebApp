@@ -77,14 +77,14 @@ export const useUserStore = defineStore("user", {
         this.refreshingToken = false;
         this.logout();
         return;
-      }
+      } // refacto enlever mail
       axios.post(`${endpoint}/user/refresh`, { mail:this.getMail, refreshToken: this.getRefreshToken }).then((res) => {
         console.log(res);
         if (res.data.refreshToken !== undefined) {
           console.log("refreshed");
           this.setRefreshToken(res.data.refreshToken);
-          this.refreshingToken = false;
           this.login(res.data.mail, res.data.accessToken);
+          this.refreshingToken = false;
           window.location.reload(); //dirty but it works
         } else {
           console.log("not refreshed");
