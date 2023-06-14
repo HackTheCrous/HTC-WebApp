@@ -8,7 +8,7 @@ import EventDetails from "@/components/EventDetails.vue";
 import UserSettings from "@/views/UserSettings.vue";
 import RestaurantsView from "@/views/RestaurantsView.vue";
 import RestaurantList from "@/components/RestaurantList.vue";
-
+import RegisterConfirmation from "@/views/RegisterConfirmation.vue";
 
 const routes = [
     {
@@ -68,6 +68,11 @@ const routes = [
                 component: RestaurantDetail
             }
         ]
+    },
+    {
+      path:'/confirmation',
+      name: 'Confirmation',
+      component: RegisterConfirmation
     }
 ]
 

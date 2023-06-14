@@ -26,6 +26,7 @@ export default {
     content: attr(id);
     position: absolute;
     transform: translateY(35px);
+    text-align: center;
     color: #848c84;
     @media screen and (max-width: 1000px){
        font-size: 5px;
@@ -34,6 +35,7 @@ export default {
 
 .step.current::before {
     font-weight: bold;
+    text-align: center;
 }
 
 .line{
