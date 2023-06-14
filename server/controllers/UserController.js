@@ -154,19 +154,21 @@ export default class UserController {
    * Middleware to check if the given refresh token is valid
    **/
   static getRefreshTokenStrategy(req, res, next) {
-    if (req.body.mail === undefined || req.body.refreshToken === undefined) {
+    if (req.body.refreshToken === undefined) {
       return res.status(401).json({ message: "Invalid parameters" });
     }
 
     const client = DatabaseManager.getConnection();
-    if (!jwt.verify(req.body.refreshToken, process.env.JWT_SECRET)) {
+    try {
+      const decoded = jwt.verify(req.body.refreshToken, process.env.JWT_SECRET);
+    } catch (e) {
       return res.status(401).json({ message: "Invalid signature" });
     }
     return client.connect().then(() => {
       client
         .query(
-          "SELECT iduser, mail, password FROM radulescut.user WHERE token = $1 and mail = $2",
-          [req.body.refreshToken, req.body.mail]
+          "SELECT iduser, mail, password FROM radulescut.user WHERE token = $1",
+          [req.body.refreshToken]
         )
         .then((response) => {
           const rows = response;
@@ -301,7 +303,7 @@ export default class UserController {
     let token;
     const nonce = UserController.genNonce(128);
     try {
-      token = jwt.sign({ nonce }, process.env.JWT_SECRET, { expiresIn: "48h" });
+      token = jwt.sign({ nonce }, process.env.JWT_SECRET, { expiresIn: "14d" });
     } catch (err) {
       console.log(err);
     }
@@ -472,26 +474,23 @@ export default class UserController {
     return refreshToken;
   }
 
-  static async updateRefreshToken(iduser) {
-    const client = DatabaseManager.getConnection();
-    await client.connect();
-    const refreshToken = UserController.genRefreshToken(iduser);
-    await client.query("update radulescut.user set token=$1 where iduser=$2", [
-      refreshToken,
-      iduser,
-    ]);
-    await client.end();
-    return refreshToken;
-  }
-
-  static async updateRefreshTokenByMail(mail) {
+  static async updateRefreshToken(oldToken) {
     const client = DatabaseManager.getConnection();
     await client.connect();
     const refreshToken = UserController.genRefreshToken();
-    await client.query("update radulescut.user set token=$1 where mail=$2", [
-      refreshToken,
-      mail,
-    ]);
+    try {
+      await client.query("update radulescut.user set token=$1 where token=$1", [
+        refreshToken,
+        oldToken,
+      ]);
+    }catch (err) {
+      if(err.code === '23505') {
+        await client.end();  
+        return await UserController.updateRefreshToken(oldToken);//retry because of duplicate key
+      }else{
+        throw err;
+      }
+    }
     await client.end();
     return refreshToken;
   }

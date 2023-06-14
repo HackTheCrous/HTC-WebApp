@@ -210,7 +210,7 @@ app.post(
   "/user/refresh",
   UserController.getRefreshTokenStrategy,
   async (req, res) => {
-    const refreshToken = await UserController.updateRefreshTokenByMail(req.body.mail);
+    const refreshToken = await UserController.updateRefreshToken(req.body.token);
     console.log(refreshToken);
     const user = await UserController.getMail(req.body.mail);
     const accessToken = UserController.genAuthToken({ id: user.iduser, mail: req.body.mail });
