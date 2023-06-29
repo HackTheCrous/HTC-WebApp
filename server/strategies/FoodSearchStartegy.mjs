@@ -16,7 +16,7 @@ export class FoodSearchStrategyByIntersection {
     for (const param of params) {
       if (param.length > 2) {
         query +=
-          "(select idrestaurant from radulescut.suggestions_restaurant where dis_lev(UPPER($" +
+          "(select idrestaurant from suggestions_restaurant where dis_lev(UPPER($" +
           cursor +
           "), UPPER(keyword)) < " +
           dis_lev_threshold +
@@ -78,7 +78,7 @@ export class FoodSearchStrategyByCriteria {
 
     for (const term of terms) {
       query =
-        "SELECT idrestaurant, idcat from radulescut.Suggestions_Restaurant where dis_lev($" +
+        "SELECT idrestaurant, idcat from Suggestions_Restaurant where dis_lev($" +
         cursor +
         ", keyword) < " +
         dis_lev_threshold +

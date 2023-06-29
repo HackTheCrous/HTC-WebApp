@@ -22,7 +22,7 @@ export default class FoodController {
 
   static async getFoodByKeyword(idRestaurant, keyword, client) {
     const query =
-      "select keyword from radulescut.suggestions_restaurant where idrestaurant = $1 and idcat=2 order by dis_lev(UPPER($2), UPPER(keyword))";
+      "select keyword from suggestions_restaurant where idrestaurant = $1 and idcat=2 order by dis_lev(UPPER($2), UPPER(keyword))";
     if (keyword == undefined) {
       return await FoodController.getFoodWhenNotFound(client, idRestaurant);
     }
@@ -40,7 +40,7 @@ export default class FoodController {
 
   static async getFoodWhenNotFound(client, idRestaurant) {
     const query_if_not_found =
-      "select keyword from radulescut.suggestions_restaurant where idrestaurant = $1 and idcat=2 limit 1";
+      "select keyword from suggestions_restaurant where idrestaurant = $1 and idcat=2 limit 1";
     const result_if_not_found = await client.query(query_if_not_found, [
       idRestaurant,
     ]);

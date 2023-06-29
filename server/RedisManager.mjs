@@ -11,7 +11,7 @@ export default class RedisManager{
                 port: '10562'
             },
             username: 'milou666',
-            password : process.env.PASSWORD
+            password : process.env.REDIS_PASSWORD
         });
 
         client.on('error', err => console.error('Redis Server Error', err))

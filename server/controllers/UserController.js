@@ -35,12 +35,12 @@ export default class UserController {
     console.log(refreshToken);
 
     await client.query(
-      "INSERT INTO radulescut.user(mail, password, nonce, token) values ($1, $2, $3, $4)",
+      "INSERT INTO users(mail, password, nonce, token) values ($1, $2, $3, $4)",
       [mail, hashed, nonce, refreshToken]
     );
 
     const response = await client.query(
-      "SELECT iduser, mail, password FROM radulescut.user WHERE mail = $1 AND password = $2",
+      "SELECT iduser, mail, password FROM users WHERE mail = $1 AND password = $2",
       [mail, hashed]
     );
 
@@ -61,14 +61,14 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     const response = await client.query(
-      "SELECT iduser, mail, password FROM radulescut.user WHERE mail = $1 AND nonce = $2",
+      "SELECT iduser, mail, password FROM users WHERE mail = $1 AND nonce = $2",
       [mail, nonce]
     );
     if (response.rowCount === 0) {
       return false;
     }
     await client.query(
-      "UPDATE radulescut.user SET nonce = NULL WHERE mail = $1",
+      "UPDATE users SET nonce = NULL WHERE mail = $1",
       [mail]
     );
     await client.end();
@@ -79,7 +79,7 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     const response = await client.query(
-      "SELECT mail, nonce FROM radulescut.user WHERE iduser = $1",
+      "SELECT mail, nonce FROM users WHERE iduser = $1",
       [iduser]
     );
     await client.end();
@@ -124,7 +124,7 @@ export default class UserController {
         return client.connect().then(() => {
           client
             .query(
-              "SELECT iduser, mail, password FROM radulescut.user WHERE mail = $1",
+              "SELECT iduser, mail, password FROM users WHERE mail = $1",
               [mail]
             )
             .then((response) => {
@@ -167,7 +167,7 @@ export default class UserController {
     return client.connect().then(() => {
       client
         .query(
-          "SELECT iduser, mail, password FROM radulescut.user WHERE token = $1",
+          "SELECT iduser, mail, password FROM users WHERE token = $1",
           [req.body.refreshToken]
         )
         .then((response) => {
@@ -188,7 +188,7 @@ export default class UserController {
       return client.connect().then(() => {
         client
           .query(
-            "SELECT iduser, mail, password FROM radulescut.user WHERE iduser = $1",
+            "SELECT iduser, mail, password FROM users WHERE iduser = $1",
             [jwt_payload.id]
           )
           .then((response) => {
@@ -208,7 +208,7 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     const response = await client.query(
-      "SELECT iduser FROM radulescut.user WHERE mail = $1",
+      "SELECT iduser FROM users WHERE mail = $1",
       [mail]
     );
     await client.end();
@@ -225,7 +225,7 @@ export default class UserController {
     const response = await client.query(
       "SELECT " +
         UserModel.getHeaders() +
-        " FROM radulescut.user WHERE mail = $1",
+        " FROM users WHERE mail = $1",
       [mail]
     );
     await client.end();
@@ -238,7 +238,7 @@ export default class UserController {
     const response = await client.query(
       "SELECT " +
         UserModel.getHeaders() +
-        " FROM radulescut.user WHERE iduser = $1",
+        " FROM users WHERE iduser = $1",
       [iduser]
     );
     await client.end();
@@ -252,7 +252,7 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     const response = await client.query(
-      "SELECT ical FROM radulescut.user WHERE iduser = $1",
+      "SELECT ical FROM users WHERE iduser = $1",
       [iduser]
     );
     await client.end();
@@ -266,7 +266,7 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     const response = await client.query(
-      "SELECT name_modified FROM radulescut.user WHERE iduser = $1",
+      "SELECT name_modified FROM users WHERE iduser = $1",
       [iduser]
     );
     await client.end();
@@ -312,7 +312,7 @@ export default class UserController {
 
   static async getSchool(iduser) {
     const query =
-      "SELECT s.idschool, s.name, s.coords FROM radulescut.School s JOIN radulescut.User u ON u.idschool = s.idschool WHERE u.iduser = $1";
+      "SELECT s.idschool, s.name, s.coords FROM School s JOIN users u ON u.idschool = s.idschool WHERE u.iduser = $1";
     const params = [iduser];
     const client = DatabaseManager.getConnection();
     await client.connect();
@@ -332,7 +332,7 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     await client.query(
-      "UPDATE radulescut.user SET " + field + " = $1 WHERE iduser = $2",
+      "UPDATE users SET " + field + " = $1 WHERE iduser = $2",
       [value, idUser]
     );
     await client.end();
@@ -342,7 +342,7 @@ export default class UserController {
     const client = DatabaseManager.getConnection();
     await client.connect();
     await client.query(
-      "UPDATE radulescut.user SET name = $1, name_modified = $2 WHERE iduser = $3",
+      "UPDATE users SET name = $1, name_modified = $2 WHERE iduser = $3",
       [name, new Date(), iduser]
     );
     await client.end();
@@ -362,20 +362,20 @@ export default class UserController {
     await client.connect();
     if (restaurants != null) {
       await client.query(
-        "DELETE FROM radulescut.favoriterestaurant WHERE iduser = $1",
+        "DELETE FROM favoriterestaurant WHERE iduser = $1",
         [iduser]
       );
 
       for (const restaurant of restaurants) {
         await client.query(
-          "INSERT INTO radulescut.favoriterestaurant(iduser, idrestaurant) VALUES ($1, $2)",
+          "INSERT INTO favoriterestaurant(iduser, idrestaurant) VALUES ($1, $2)",
           [iduser, restaurant]
         );
       }
     }
 
     await client.query(
-      "UPDATE radulescut.user SET name = $1, idschool = $2, ical = $3 WHERE iduser = $4",
+      "UPDATE users SET name = $1, idschool = $2, ical = $3 WHERE iduser = $4",
       [name, school, ical, iduser]
     );
     await client.end();
@@ -385,7 +385,7 @@ export default class UserController {
     const query =
       "select r." +
       RestaurantModel.getHeaders() +
-      " FROM radulescut.restaurant r JOIN radulescut.favoriterestaurant fr on r.idrestaurant = fr.idrestaurant WHERE fr.iduser = $1";
+      " FROM restaurant r JOIN favoriterestaurant fr on r.idrestaurant = fr.idrestaurant WHERE fr.iduser = $1";
     const params = [iduser];
 
     const client = DatabaseManager.getConnection();
@@ -424,7 +424,7 @@ export default class UserController {
 
   static async checkNonce(iduser) {
     const query =
-      "select count(iduser) as noncevalue from radulescut.user where iduser=$1 and nonce is not null";
+      "select count(iduser) as noncevalue FROM users where iduser=$1 and nonce is not null";
     const params = [iduser];
 
     const client = DatabaseManager.getConnection();
@@ -441,7 +441,7 @@ export default class UserController {
    **/
   static async getRefreshToken(iduser) {
     const query =
-      "select token from radulescut.user where iduser=$1 and token is not null and token != ''";
+      "select token FROM users where iduser=$1 and token is not null and token != ''";
     const params = [iduser];
 
     const client = DatabaseManager.getConnection();
@@ -453,7 +453,7 @@ export default class UserController {
     if (response.rowCount === 0) {
       refreshToken = UserController.genRefreshToken(iduser);
       await client.query(
-        "update radulescut.user set token=$1 where iduser=$2",
+        "update users set token=$1 where iduser=$2",
         [refreshToken, iduser]
       );
       await client.end();
@@ -465,7 +465,7 @@ export default class UserController {
     } catch (err) {
       refreshToken = UserController.genRefreshToken(iduser);
       await client.query(
-        "update radulescut.user set token=$1 where iduser=$2",
+        "update users set token=$1 where iduser=$2",
         [refreshToken, iduser]
       );
     }
@@ -479,7 +479,7 @@ export default class UserController {
     await client.connect();
     const refreshToken = UserController.genRefreshToken();
     try {
-      await client.query("update radulescut.user set token=$1 where token=$1", [
+      await client.query("update users set token=$1 where token=$1", [
         refreshToken,
         oldToken,
       ]);

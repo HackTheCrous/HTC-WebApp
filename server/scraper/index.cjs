@@ -5,11 +5,15 @@ require("dotenv").config();
 const { Client } = require("pg");
 
 const clientInfo = {
-  user: "radulescut",
+  user: 'Milou666',
   password: process.env.PASSWORD,
-  host: "162.38.222.142",
-  port: 5673,
-  database: "iut",
+  host: 'ep-proud-recipe-896832.eu-central-1.aws.neon.tech',
+  port: 5432,
+  database: 'neondb',
+  ssl: {
+    mode: 'require',
+    rejectUnauthorized: false
+  }
 };
 
 const url = "https://www.crous-montpellier.fr/se-restaurer/ou-manger/";
@@ -39,15 +43,15 @@ class Restaurant {
    */
   async storeRestaurant() {
     const sqlStoreRestaurant =
-      "INSERT INTO radulescut.restaurant(url, name, gpscoord) VALUES ($1, $2 ,$3)";
+      "INSERT INTO restaurant(url, name, gpscoord) VALUES ($1, $2 ,$3)";
     const sqlStoreRestaurantButNoCoords =
-      "INSERT INTO radulescut.restaurant(url, name) VALUES ($1, $2)";
+      "INSERT INTO restaurant(url, name) VALUES ($1, $2)";
 
     const coords = `(${this.coords})`;
 
     const client = new Client(clientInfo);
     await client.connect();
-    //await client.query('INSERT INTO radulescut.meal (typemeal, foodies, day, idrestaurant) VALUES ($1, $2, $3, $4)', [menu.typemeal, menu.foodies, menu.day, menu.idRestaurant]);
+    //await client.query('INSERT INTO meal (typemeal, foodies, day, idrestaurant) VALUES ($1, $2, $3, $4)', [menu.typemeal, menu.foodies, menu.day, menu.idRestaurant]);
 
     if (coords === "(undefined,undefined)") {
       await client.query(sqlStoreRestaurantButNoCoords, [this.url, this.name]); // insert in db a restaurant
@@ -58,7 +62,7 @@ class Restaurant {
     let id = 0;
 
     const result = await client.query(
-      "SELECT idrestaurant FROM radulescut.restaurant WHERE url = $1",
+      "SELECT idrestaurant FROM restaurant WHERE url = $1",
       [this.url]
     );
     id = result.rows[0].idrestaurant;
@@ -93,6 +97,7 @@ class Meal {
 }
 
 const stringToSQLDate = (date) => {
+  console.log("date : "+date);
   const MONTHS = [
     "janvier",
     "février",
@@ -115,7 +120,7 @@ const stringToSQLDate = (date) => {
         date.indexOf(month) + month.length + 1,
         date.length
       );
-      return `${day}-${monthNumber}-${year}`;
+      return `${year}-${monthNumber}-${day}`;
     }
   }
 };
@@ -237,7 +242,7 @@ const insertRestaurantInDB = async (restaurants) => {
 
   for (const restaurant of restaurants) {
     await client.query(
-      "INSERT INTO radulescut.restaurant (name, url) VALUES ($1, $2)",
+      "INSERT INTO restaurant (name, url) VALUES ($1, $2)",
       [restaurant.name, restaurant.link]
     );
   }
@@ -251,7 +256,7 @@ const insertRestaurantInDB = async (restaurants) => {
 const insertMealIntoBD = async (menu, client) => {
   //do not use forEach loops for async functions !!!
   await client.query(
-    "INSERT INTO radulescut.meal (typemeal, foodies, day, idrestaurant) VALUES ($1, $2, $3, $4)",
+    "INSERT INTO meal (typemeal, foodies, day, idrestaurant) VALUES ($1, $2, $3, $4)",
     [menu.typemeal, menu.foodies, menu.day, menu.idRestaurant]
   );
 };
@@ -261,7 +266,7 @@ const getRestaurantId = async (url) => {
   const client = new Client(clientInfo);
   await client.connect();
   const result = await client.query(
-    "SELECT idrestaurant FROM radulescut.restaurant WHERE url = $1",
+    "SELECT idrestaurant FROM restaurant WHERE url = $1",
     [url]
   );
   id = result.rows[0].idrestaurant;
@@ -274,7 +279,7 @@ const getRestaurantsInDB = async () => {
   const client = new Client(clientInfo);
   await client.connect();
   const result = await client.query(
-    "SELECT idrestaurant,url,name FROM radulescut.restaurant"
+    "SELECT idrestaurant,url,name FROM restaurant"
   );
   await client.end();
   return result.rows;
@@ -283,13 +288,13 @@ const getRestaurantsInDB = async () => {
 const deleteAllFromMenus = async () => {
   const client = new Client(clientInfo);
   await client.connect();
-  await client.query("DELETE FROM radulescut.meal");
-  await client.query("DELETE FROM radulescut.suggestions_restaurant");
+  await client.query("DELETE FROM meal");
+  await client.query("DELETE FROM suggestions_restaurant");
   await client.end();
 };
 
 const getIdCategory = async () => {
-  const query = "SELECT idcat, namecat from radulescut.cat_suggestions";
+  const query = "SELECT idcat, namecat from cat_suggestions";
   const client = new Client(clientInfo);
   await client.connect();
   const results = await client.query(query);
@@ -352,7 +357,7 @@ const updateMeals = async () => {
     
     const client = new Client(clientInfo);
     const query =
-      "INSERT INTO radulescut.Suggestions_Restaurant(keyword, idRestaurant, idcat)  VALUES($1,$2,$3)";
+      "INSERT INTO Suggestions_Restaurant(keyword, idRestaurant, idcat)  VALUES($1,$2,$3)";
     await client.connect();
     for (const key in keywords) {
       for (const keyword of keywords[key]) {
