@@ -52,8 +52,6 @@ export class FoodSearchStrategyByIntersection {
       }
     }
 
-    console.log(idrestaurants);
-
     await client.end();
     return restaurants;
   }
@@ -66,8 +64,6 @@ export class FoodSearchStrategyByCriteria {
     const restaurants = [];
 
     const terms = foodName.split(" ").filter((term) => term.length > 2);
-
-    console.log(terms);
 
     let query, result;
 

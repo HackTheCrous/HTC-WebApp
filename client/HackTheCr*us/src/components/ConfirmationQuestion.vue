@@ -1,18 +1,23 @@
 <template>
-  <form :id="step" v-if="current == step">
+  <form :id="step">
     <slot></slot>
     <span>
-      <button class="next" @click="next">Valider</button>
-      <button class="skip" @click="previous">Revenir</button>
+      <button v-if="!valid" class="disable" @click="cancel">Valider</button>
+      <button v-else-if="step != max" class="next" @click="next">Valider</button>
+      <button v-else class="next"  @click="next">Terminer</button>
+      <button v-if="step != 1" class="skip" @click="previous">Revenir</button>
     </span>
   </form>
 </template>
 <script>
 export default {
   name: "ConfirmationQuestion",
-  props: ["step", "current"],
+  props: ["step", "current", "max", "value", "regex"],
   emits: ["next", "previous"],
   methods: {
+    cancel(e) {
+      e.preventDefault();
+    },
     next(e) {
       e.preventDefault();
       this.$emit("next");
@@ -20,6 +25,15 @@ export default {
     previous(e) {
       e.preventDefault();
       this.$emit("previous");
+    },
+  },
+  computed: {
+    valid() {
+      if (this.regex) {
+        return this.regex.test(this.value);
+      } else {
+        return true;
+      }
     },
   },
 };
@@ -59,6 +73,19 @@ form {
         &:hover{
           opacity: 1;
           transition: opacity 0.1s ease-in-out;
+        }
+      }
+      &.disable{
+        opacity: 0.6;
+        transition: opacity 0.1s ease-in-out;
+        &:hover{
+          opacity: 0.6;
+          transition: opacity 0.1s ease-in-out;
+        }
+        &:active{
+          background: var(--color-warning);
+          color: var(--color-background);
+          border: 1px solid var(--color-warning);
         }
       }
     }

@@ -57,6 +57,12 @@ export default class UserController {
     );
   }
 
+
+  /**
+    * @param mail
+    * @param password clear password
+    * @returns {Promise<UserModel>} returns only the iduser, mail and password because the other fields are not needed at this step
+    **/
   static async confirm(mail, nonce) {
     const client = DatabaseManager.getConnection();
     await client.connect();
