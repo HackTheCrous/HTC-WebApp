@@ -87,6 +87,8 @@ form {
   #confirmation-code-container {
     position: relative;
     width: 400px;
+    margin-top: 30px;
+    margin-bottom: 30px;
     input {
       position: relative;
       z-index: 1;
@@ -106,12 +108,12 @@ form {
       flex-direction: row;
       height: 100%;
       span {
-        color: white;
-        border: 3px solid lightgrey;
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
         font-family: VT323, monospace;
         flex: 1;
         font-size: 40px;
-        background: grey;
+        background: var(--color-background-soft);
         border-radius: 5px;
         height: 100%;
         display: flex;

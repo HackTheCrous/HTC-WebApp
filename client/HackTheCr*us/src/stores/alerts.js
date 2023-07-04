@@ -2,7 +2,12 @@ import {defineStore} from 'pinia';
 
 export const useAlertsStore = defineStore('alerts', {
     state: () => ({
-        alerts: []
+        alerts: [],
+        popUp:{
+         show: false, 
+         title: "",
+          message: "",
+        }
     }),
 
     getters: {
@@ -11,6 +16,9 @@ export const useAlertsStore = defineStore('alerts', {
         },
         hasNext(state){
             return state.alerts.length > 0;
+        },
+        popUpTriggered(state){
+          return state.popUp.show;    
         }
     },
     actions: {
@@ -23,6 +31,14 @@ export const useAlertsStore = defineStore('alerts', {
         },
         popAlert() {
             this.alerts.pop();
+        },
+        addPopUp(title, message){
+          this.popUp.title = title;
+          this.popUp.message = message;
+          this.popUp.show = true;
+        },
+        popPopUp(){
+          this.popUp.show = false;
         }
     }
 });

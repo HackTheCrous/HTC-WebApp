@@ -8,7 +8,7 @@
         <slot></slot>
       </div>
       <div>
-        <button @click="this.focused=false">Ok !</button>
+        <button @click="this.alerts.popPopUp()">Ok !</button>
       </div>
     </div>
   </div>
@@ -16,8 +16,14 @@
 </template>
 
 <script>
+import { useAlertsStore } from "@/stores/alerts";
+
 export default {
   name: "PopUp",
+  setup() {
+    const alerts = useAlertsStore();
+    return { alerts };
+  },
   data(){
     return {
       focused : true

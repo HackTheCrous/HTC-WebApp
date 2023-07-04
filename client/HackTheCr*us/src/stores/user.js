@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-import { hydrate, provide } from "vue";
-import { provideApolloClient } from "@vue/apollo-composable";
 import { apolloClient, endpoint } from "@/main";
 import gql from "graphql-tag";
 import { useCalendarStore } from "@/stores/calendar";

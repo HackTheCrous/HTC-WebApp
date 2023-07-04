@@ -179,7 +179,7 @@ app.post("/mail/confirm",passport.authenticate("jwt", { session: false }), (req,
 });
 
 app.post(
-  "/mail/confirmed",
+  "/mail/code",
   passport.authenticate("jwt", { session: false }),
   (req, res, next) => {
     const token = req.headers.authorization.split(" ")[1];

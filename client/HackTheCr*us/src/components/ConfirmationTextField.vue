@@ -11,17 +11,16 @@
 export default {
   name: "ConfirmationTextField",
   props: ["title", "legend", "input"],
-}
+};
 </script>
 <style scoped lang="scss">
-h2{
+h2 {
   font-size: 2.5rem;
-  margin:0;
+  margin: 0;
 }
-p{
+p {
   font-size: 1.5rem;
   font-weight: 300;
-  margin:0;
+  margin: 0;
 }
-
 </style>

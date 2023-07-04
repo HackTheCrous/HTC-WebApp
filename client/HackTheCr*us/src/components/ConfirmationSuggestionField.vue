@@ -83,7 +83,7 @@ export default {
       } else {
         this.values.push(suggestion);
       }
-      this.$emit("input", this.values);
+      this.$emit("input", this.values.map((s) => s.idrestaurant));
     },
     isSelected(suggestion) {
       return this.values.includes(suggestion);

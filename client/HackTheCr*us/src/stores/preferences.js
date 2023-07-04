@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import gql from "graphql-tag";
 import {apolloClient} from "@/main";
+import {useUserStore} from "@/stores/user";
 
 export const usePreferencesStore = defineStore('preferences', {
     state: () => ({
@@ -59,6 +60,15 @@ export const usePreferencesStore = defineStore('preferences', {
                         name
                         mail
                         ical
+                        school {
+                          idschool
+                          name
+                        }
+                        favorites {
+                          idrestaurant
+                          name
+                          url
+                        }
                     }
                 }
             `
@@ -72,6 +82,13 @@ export const usePreferencesStore = defineStore('preferences', {
                 }
             }).then(result => {
                 console.log(result);
+                const user = useUserStore();
+                user.setName(result.data.modifyUser.name);
+                user.setIcal(result.data.modifyUser.ical);
+                user.setSchool(result.data.modifyUser.school);
+                user.setFavorites(result.data.modifyUser.favorites);
+            }).catch(error => {
+                console.log(error);
             });
 
         }

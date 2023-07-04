@@ -14,10 +14,10 @@ const sameDay = (dateA, dateB) => {
 };
 
 const GET_CALENDAR_ON_PERIOD = gql`
-  query Period($start: Date, $end: Date) {
-    period(start: $start, end: $end) {
-      start
-      end
+query Period($start: Date, $end: Date) {
+  period(start: $start, end: $end) {
+    start
+    end
       summary
       location
       description

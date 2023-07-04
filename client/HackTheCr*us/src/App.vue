@@ -2,9 +2,9 @@
   <LoadingView v-if="this.restaurantStore.isLoading && this.$route.fullPath.includes('restaurants')">
     INTERCEPTION DES MENUS
   </LoadingView>
-  <PopUp v-if="!this.userStore.isMailSet && !this.$route.fullPath.includes('/register/confirmation')">
-    <h2>Vérifie tes mails !</h2>
-    <p>On t'a envoyé un lien te permettant de valider ton mail. Il peut prendre quelques minutes à s'envoyer.</p>
+  <PopUp v-if="this.alerts.popUpTriggered">
+  <h2>{{ this.alerts.popUp.title}}</h2>
+    <p>{{ this.alerts.popUp.message }}</p>
   </PopUp>
   <main>
     <LoadingBar v-if="this.loadingStore.isLoading"/>

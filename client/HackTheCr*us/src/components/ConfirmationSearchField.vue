@@ -78,7 +78,8 @@ export default {
   },
   watch: {
     value() {
-      this.$emit("input", this.value);
+      const idSchoolSelected = this.suggestions[this.cursor]?.idschool;
+      this.$emit("input", idSchoolSelected);
     },
     cursor(val) {
       if (val >= 0 && val < this.suggestions.length) {

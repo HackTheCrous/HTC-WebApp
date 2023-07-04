@@ -72,8 +72,8 @@ export default {
                         case 'Success':
                             this.userStore.login(response.data.mail, response.data.token);
                             this.userStore.setRefreshToken(response.data.refreshToken);
-                            this.alertStore.addAlert({message: 'Vous êtes connecté !', status: 'Success'});
-                            this.$router.push({name: 'RestaurantsView', query: {redirect: '/restaurants'}});
+                            this.alertStore.addAlert({message: 'Vous êtes presque inscrit !', status: 'Success'});
+                            this.$router.push('/confirmation');
                             break;
                         default:
                             this.alertStore.addAlert({message: response.data.message, status: 'Error'});
