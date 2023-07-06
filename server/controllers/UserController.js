@@ -1,8 +1,6 @@
 import DatabaseManager from "../DatabaseManager.mjs";
-import UserModel from "../models/UserModel.js";
-import LocalStrategy from "passport-local";
+import UserModel from "../models/UserModel.mjs";
 
-import { Strategy } from "passport-jwt";
 import jwt from "jsonwebtoken";
 
 import dotenv from "dotenv";
@@ -44,6 +42,10 @@ export default class UserController {
       [mail, hashed]
     );
 
+    await client.query(
+      "INSERT INTO federated_credentials(user_id, provider) values ($1, $2)",
+      [response.rows[0].iduser, "local"]
+    )
     await client.end();
 
     return new UserModel(
@@ -119,42 +121,6 @@ export default class UserController {
     return result;
   }
 
-  static getLocalStrategy() {
-    return new LocalStrategy(
-      {
-        usernameField: "mail",
-        passwordField: "password",
-      },
-      function verify(mail, password, done) {
-        const client = DatabaseManager.getConnection();
-        return client.connect().then(() => {
-          client
-            .query(
-              "SELECT iduser, mail, password FROM users WHERE mail = $1",
-              [mail]
-            )
-            .then((response) => {
-              const rows = response;
-
-              client.end().then(() => {
-                if (rows.rowCount === 0) {
-                  return done(null, false, {
-                    message: "Incorrect credentials",
-                  });
-                }
-
-                if (!bcrypt.compareSync(password, rows.rows[0].password)) {
-                  return done(null, false, {
-                    message: "Incorrect credentials",
-                  });
-                }
-                return done(null, rows.rows[0]);
-              });
-            });
-        });
-      }
-    );
-  }
 
   /**
    * Middleware to check if the given refresh token is valid
@@ -185,28 +151,6 @@ export default class UserController {
             return next();
           });
         });
-    });
-  }
-
-  static getJWTStrategy(options) {
-    return new Strategy(options, function verify(jwt_payload, done) {
-      const client = DatabaseManager.getConnection();
-      return client.connect().then(() => {
-        client
-          .query(
-            "SELECT iduser, mail, password FROM users WHERE iduser = $1",
-            [jwt_payload.id]
-          )
-          .then((response) => {
-            const rows = response;
-            client.end().then(() => {
-              if (rows.rowCount === 0) {
-                return done(null, false, { message: "Incorrect credentials" });
-              }
-              return done(null, rows.rows[0]);
-            });
-          });
-      });
     });
   }
 

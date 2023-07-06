@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default class DatabaseManager{
-
     static getConnection(){
         const clientInfo  ={
             user: 'Milou666',

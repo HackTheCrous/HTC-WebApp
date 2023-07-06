@@ -20,15 +20,18 @@ import bodyParser from "body-parser";
 import { ExtractJwt } from "passport-jwt";
 
 import jwt from "jsonwebtoken";
+import AuthenticationStrategies from "./strategies/AuthenticationStrategies.mjs";
 
-passport.use(UserController.getLocalStrategy());
+passport.use(AuthenticationStrategies.getLocalStrategy());
 
 passport.use(
-  UserController.getJWTStrategy({
+  AuthenticationStrategies.getJWTStrategy({
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: process.env.JWT_SECRET,
   })
 );
+
+passport.use(AuthenticationStrategies.getGoogleStrategy());
 
 const server = new ApolloServer({
   typeDefs,
@@ -43,11 +46,11 @@ server.start().then(() => {
 });
 
 passport.serializeUser((user, done) => {
-  done(null, { mail: user.iduser, password: user.mail });
+  done(null, { iduser: user.iduser, mail: user.mail });
 });
 
-passport.deserializeUser((id, done) => {
-  const users = UserController.get(id);
+passport.deserializeUser(async (user, done) => {
+  const users = await UserController.get(user.iduser);
   done(null, users);
 });
 
@@ -70,11 +73,14 @@ app.use(passport.session());
 
 app.use(cors());
 
+app.set("view engine", "ejs");
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Origin, X-Requested-With, Content-Type, Accept",
+    "Access-Control-Allow-Origin: *"
   );
   next();
 });
@@ -98,7 +104,9 @@ app.post("/login", passport.authenticate("local"), (req, res) => {
           mail: user.mail,
         });
         if (isRefreshToken) {
-          const refreshToken = await UserController.getRefreshToken(user.iduser);
+          const refreshToken = await UserController.getRefreshToken(
+            user.iduser
+          );
           console.log(refreshToken);
           res.send({
             type: "success",
@@ -118,6 +126,33 @@ app.post("/login", passport.authenticate("local"), (req, res) => {
       });
     }
   );
+});
+
+app.get("/login/google", passport.authenticate("google"));
+
+app.get(
+  "/oauth2/redirect/google",
+  passport.authenticate("google", {
+    successRedirect: "/login/success",
+    failureRedirect: "/login/failure",
+    failureMessage: true,
+  })
+);
+
+app.get("/login/success", async (req, res) => {
+  console.log(req.user);
+  const token = UserController.genAuthToken({
+    id: req.user.iduser,
+    mail: req.user.mail,
+  });
+
+  const verified = await UserController.checkNonce(req.user.iduser) ? "true" : "false";
+  
+  res.redirect(`${process.env.CLIENT_URL}/?mailVerified=${verified}&token=${token}&refreshToken=${req.user.refreshToken}&mail=${req.user.mail}`);
+});
+
+app.get("/login/failure", (req, res) => {
+  res.send({ type: "error", message: "Error logging in" });
 });
 
 app.post(
@@ -163,20 +198,24 @@ app.post("/signup", (req, res, next) => {
   });
 });
 
-app.post("/mail/confirm",passport.authenticate("jwt", { session: false }), (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+app.post(
+  "/mail/confirm",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  UserController.sendConfirmationMail(decoded.id, req.body.firstname).then(
-    (status) => {
-      if (status) {
-        res.send({ type: "Success", message: "Mail sent" });
-      } else {
-        res.send({ type: "Error", message: "Error sending mail" });
+    UserController.sendConfirmationMail(decoded.id, req.body.firstname).then(
+      (status) => {
+        if (status) {
+          res.send({ type: "Success", message: "Mail sent" });
+        } else {
+          res.send({ type: "Error", message: "Error sending mail" });
+        }
       }
-    }
-  );
-});
+    );
+  }
+);
 
 app.post(
   "/mail/code",
@@ -199,21 +238,26 @@ app.post(
 );
 
 /**
-  * @api {post} /user/refresh Refresh token
-  * @apiName RefreshToken
-  * @apiGroup User
-  * @apiDescription Refresh the token of the user
-  * @apiParam {String} token Token of the user and the mail
-  * Uses the refresh token to generate a new token but before that verfies the refresh token
-  */
+ * @api {post} /user/refresh Refresh token
+ * @apiName RefreshToken
+ * @apiGroup User
+ * @apiDescription Refresh the token of the user
+ * @apiParam {String} token Token of the user and the mail
+ * Uses the refresh token to generate a new token but before that verfies the refresh token
+ */
 app.post(
   "/user/refresh",
   UserController.getRefreshTokenStrategy,
   async (req, res) => {
-    const refreshToken = await UserController.updateRefreshToken(req.body.token);
+    const refreshToken = await UserController.updateRefreshToken(
+      req.body.token
+    );
     console.log(refreshToken);
     const user = await UserController.getMail(req.body.mail);
-    const accessToken = UserController.genAuthToken({ id: user.iduser, mail: req.body.mail });
+    const accessToken = UserController.genAuthToken({
+      id: user.iduser,
+      mail: req.body.mail,
+    });
     res.send({ refreshToken: refreshToken, accessToken: accessToken });
   }
-)
+);

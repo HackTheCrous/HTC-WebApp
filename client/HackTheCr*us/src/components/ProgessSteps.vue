@@ -2,6 +2,7 @@
   <div>
     <ProgressStep
       v-for="(step, index) in steps"
+      :key="index"
       :status="this.getStepClass(index)"
       :step-name="step"
       :last="index === steps.length - 1"

@@ -7,7 +7,8 @@ export default class UserModel {
     idschool,
     restaurants,
     ical,
-    refreshToken
+    refreshToken,
+    nonce
   ) {
     this.iduser = iduser;
     this.mail = mail;
@@ -17,6 +18,7 @@ export default class UserModel {
     this.ical = ical;
     this.restaurants = restaurants;
     this.refreshToken = refreshToken;
+    this.nonce = nonce;
   }
 
   getJson() {
@@ -37,7 +39,7 @@ export default class UserModel {
   }
 
   static getHeaders() {
-    return "iduser, mail, password, name, idschool, ical";
+    return "iduser, mail, password, name, idschool, ical, token, nonce";
   }
 
   static buildUser(row) {
@@ -48,7 +50,16 @@ export default class UserModel {
       row.name,
       row.idschool,
       null,
-      row.ical
+      row.ical,
+      row.token,
+      row.nonce
     );
+  }
+
+  getSerialized(){
+    return {
+      iduser: this.iduser,
+      mail: this.mail,
+    };
   }
 }

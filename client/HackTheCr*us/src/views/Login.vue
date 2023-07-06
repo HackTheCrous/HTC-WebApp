@@ -1,3 +1,6 @@
+[warn] --jsx-bracket-same-line is deprecated.
+[warn] Ignored unknown option --loglevel=error. Did you mean --log-level?
+[warn] Ignored unknown option --stdin.
 <template>
   <section id="register">
     <main>
@@ -37,7 +40,10 @@
           />
           <label for="remember">Se souvenir de moi</label>
         </div>
-
+        <p class="separator">Ou se connecter avec un réseau social</p>
+        <GoogleAuthenticationButton>
+          Se connecter avec Google
+        </GoogleAuthenticationButton>
         <span>
           <p>Vous n'avez pas de compte ?</p>
           <router-link to="/register">Inscrivez-vous</router-link>
@@ -58,13 +64,17 @@ import axios from "axios";
 import { useUserStore } from "@/stores/user";
 import { useAlertsStore } from "@/stores/alerts";
 
+import GoogleAuthenticationButton from "@/components/GoogleAuthenticationButton.vue";
+
 import { endpoint } from "@/main";
 import { useRestaurantStore } from "../stores/restaurants";
 
 export default {
   name: "Login",
   emits: ["triggerAlert"],
-
+  components: {
+    GoogleAuthenticationButton,
+  },
   data() {
     return {
       mail: "",
@@ -90,7 +100,7 @@ export default {
           remember: this.remember,
         })
         .then((res) => {
-          if(this.remember){
+          if (this.remember) {
             console.log(res.data.refreshToken);
             this.userStore.setRefreshToken(res.data.refreshToken);
           }

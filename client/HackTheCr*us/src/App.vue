@@ -94,6 +94,23 @@ export default {
     redirected(){
       return this.$route.fullPath.includes('?redirect=/')
     }
+  },
+  watch: {
+    $route(to, from) {
+      // parse the url to exrtact get params
+      const url = new URL(to.fullPath, window.location.origin);
+      const params = new URLSearchParams(url.search);
+      if(params.has('token') && params.has('mail') && params.has('refreshToken')){
+        this.userStore.setRefreshToken(params.get('refreshToken'));
+        this.userStore.login(params.get('mail'), params.get('token'));
+        if(params.has('mailVerified')){
+          if(params.get('mailVerified') === 'false'){
+            this.$router.push('/confirmation');
+          }
+        }
+      }
+
+    }
   }
 }
 </script>
