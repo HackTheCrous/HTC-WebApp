@@ -9,7 +9,6 @@ import MealController from "./controllers/MealController.mjs";
 import PlanningController from "./controllers/PlanningController.js";
 import { GraphQLError } from "graphql/error/index.js";
 import MailClientController from "./controllers/MailClientController.mjs";
-import FoodModel from "./models/FoodModel.mjs";
 
 dotenv.config();
 

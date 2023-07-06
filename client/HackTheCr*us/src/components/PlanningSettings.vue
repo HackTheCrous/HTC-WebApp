@@ -219,14 +219,16 @@ export default {
         cursor: pointer;
       }
       &.in-period {
-        background: var(--color-primary);
+        color: lightgrey;
+        background: var(--color-primary-opacity);
+      }
+      &.start.in-period {
         color: black;
-        opacity: 0.7;
-      }
-      &.start {
         border-radius: 50px 0px 0px 50px;
+        opacity: 1;
+        background: var(--color-primary);
       }
-      &.end {
+      &.end.in-period {
         border-radius: 0px 50px 50px 0px;
       }
     }

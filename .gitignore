@@ -11,7 +11,8 @@ dist/
 .idea/
 .vscode
 .vscode/
-
+.nvim/
+.nvim
 # sensitive
 
 

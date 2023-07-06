@@ -27,7 +27,7 @@ export default class RestaurantController {
     const query =
       "SELECT " +
       RestaurantModel.getHeaders() +
-      " FROM radulescut.restaurant WHERE idrestaurant=$1";
+      " FROM restaurant WHERE idrestaurant=$1";
     const result = await client.query(query, [id]);
     return RestaurantModel.buildRestaurant(result.rows[0]);
   }
@@ -38,7 +38,7 @@ export default class RestaurantController {
     const result = await client.query(
       "SELECT " +
         RestaurantModel.getHeaders() +
-        " FROM radulescut.restaurant WHERE UPPER(name) LIKE $1",
+        " FROM restaurant WHERE UPPER(name) LIKE $1",
       ["%" + name.toUpperCase() + "%"]
     );
     await client.end();
@@ -54,7 +54,7 @@ export default class RestaurantController {
     const result = await client.query(
       "SELECT " +
         RestaurantModel.getHeaders() +
-        " FROM radulescut.restaurant WHERE url = $1",
+        " FROM restaurant WHERE url = $1",
       [url]
     );
     await client.end();
@@ -70,7 +70,7 @@ export default class RestaurantController {
     const result = await client.query(
       "SELECT " +
         RestaurantModel.getHeaders() +
-        " FROM radulescut.restaurant WHERE name = $1",
+        " FROM restaurant WHERE name = $1",
       [name]
     );
     await client.end();
@@ -84,8 +84,8 @@ export default class RestaurantController {
       "       name,\n" +
       "        coalesce(SUM(jsonb_array_length(foodies)), 0) as nbMeals,\n" +
       "        rest.gpscoord\n" +
-      "FROM radulescut.restaurant as rest\n" +
-      "         left join radulescut.meal as m on rest.idrestaurant = m.idrestaurant\n" +
+      "FROM restaurant as rest\n" +
+      "         left join meal as m on rest.idrestaurant = m.idrestaurant\n" +
       "group by rest.idrestaurant, url, name\n" +
       "order by nbMeals DESC";
 

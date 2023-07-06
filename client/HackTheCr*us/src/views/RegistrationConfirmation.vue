@@ -1,252 +1,287 @@
 <template>
+  <main v-if="this.userStore.isLogged">
+    <ProgessSteps :steps="steps" :current="this.currentStep" />
 
-    <main v-if="this.userStore.isLogged">
-        <ProgessSteps :steps="steps" :current="this.currentStep"/>
-
-        <form v-if="this.currentStep === 1 ">
-            <div id="side">
-                <p>{{ this.currentStep }} <b>-></b></p>
-            </div>
-            <div id="main">
-                <h3>Quel est ton prénom ?</h3>
-                <p class="sub">Ceci nous permettra de t’identifier sur l’application</p>
-                <input type="text" v-model="name" placeholder="Entre ton prénom..."/>
-                <span class="submitters">
-                    <span>
-                        <button @click="this.nextStep">Suivant</button>
-                        <p>press <b>Enter ↵</b></p>
-
-                    </span>
-
-
-
-                </span>
-            </div>
-        </form>
-
-        <form v-else-if="this.currentStep === 2 ">
-            <div id="side">
-                <p>{{ this.currentStep }} <b>-></b></p>
-            </div>
-            <div id="main">
-                <h3>Où étudies-tu ?</h3>
-                <p class="sub">Cette adresse te permettra de ne pas avoir à activer ta localisation</p>
-                <input v-model="school" type="text" placeholder="Entre le nom de ton établissement..."/>
-                <ul class="suggestions">
-                    <li @click="this.setSchool" :id="school.idschool" v-for="school in this.schoolSuggestions">
-                        {{ school.name }}
-                    </li>
-                    <li @click="this.addSchool">
-                        + ajouter un établissement
-                    </li>
-                    <span class="submitters">
-                        <br/>
-                        <button class="skip" @click="this.goBack">Revenir</button>
-                    </span>
-                </ul>
-
-            </div>
-        </form>
-
-        <form v-if="this.currentStep === 3 ">
-            <div id="side">
-                <p>{{ this.currentStep }} <b>-></b></p>
-            </div>
-            <div id="main">
-                <h3>Entre ton lien ICal</h3>
-                <p class="sub">Tu le trouveras sur <a
-                        href="https://app.umontpellier.fr/prose-etudiant/protected/ical">Moodle</a></p>
-                <input v-model="ical" type="text" placeholder="Colle ton lien ICal..."/>
-                <span class="submitters">
-                    <span>
-                        <button @click="this.currentStep++">Suivant</button>
-                        <p>press <b>Enter ↵</b></p>
-                    </span>
-                    <button @click="this.goBack" class="skip">Revenir</button>
-                </span>
-            </div>
-        </form>
-        <form v-if="this.currentStep === 4">
-            <div id="side">
-                <p>{{ this.currentStep }} <b>-></b></p>
-            </div>
-            <div id="main">
-                <h3>Où manges-tu d'habitude ?</h3>
-                <p class="sub">Si tu es fan du CROUS</p>
-                <input v-model="restaurant" type="text" placeholder="Chercher un resto..."/>
-                <span class="tags">
-          <p class="tag" v-for="resto in this.restaurantSuggestions" @click="addRestaurant"
-             :class="this.preferencesStore.containsRestaurant(resto.idrestaurant)"
-             :id="resto.idrestaurant">{{ resto.name }}</p>
+    <form v-if="this.currentStep === 1">
+      <div id="side">
+        <p>{{ this.currentStep }} <b>-></b></p>
+      </div>
+      <div id="main">
+        <h3>Quel est ton prénom ?</h3>
+        <p class="sub">Ceci nous permettra de t’identifier sur l’application</p>
+        <input type="text" v-model="name" placeholder="Entre ton prénom..." />
+        <span class="submitters">
+          <span>
+            <button @click="this.nextStep">Suivant</button>
+            <p>press <b>Enter ↵</b></p>
+          </span>
         </span>
-                <span class="submitters">
-                    <span>
-                        <button @click="this.nextStep">Suivant</button>
-                        <p>press <b>Enter ↵</b></p>
-                    </span>
-                    <button @click="this.goBack" class="skip">Revenir</button>
-                </span>
-            </div>
-        </form>
-    </main>
+      </div>
+    </form>
 
+    <form v-else-if="this.currentStep === 2">
+      <div id="side">
+        <p>{{ this.currentStep }} <b>-></b></p>
+      </div>
+      <div id="main">
+        <h3>Où étudies-tu ?</h3>
+        <p class="sub">
+          Cette adresse te permettra de ne pas avoir à activer ta localisation
+        </p>
+        <input
+          v-model="school"
+          type="text"
+          placeholder="Entre le nom de ton établissement..."
+        />
+        <ul class="suggestions">
+          <li
+            @click="this.setSchool"
+            :id="school.idschool"
+            v-for="school in this.schoolSuggestions"
+          >
+            {{ school.name }}
+          </li>
+          <li @click="this.addSchool">+ ajouter un établissement</li>
+          <span class="submitters">
+            <br />
+            <button class="skip" @click="this.goBack">Revenir</button>
+          </span>
+        </ul>
+      </div>
+    </form>
+
+    <form v-if="this.currentStep === 3">
+      <div id="side">
+        <p>{{ this.currentStep }} <b>-></b></p>
+      </div>
+      <div id="main">
+        <h3>Entre ton lien ICal</h3>
+        <p class="sub">
+          Tu le trouveras sur
+          <a href="https://app.umontpellier.fr/prose-etudiant/protected/ical"
+            >Moodle</a
+          >
+        </p>
+        <input
+          v-model="ical"
+          type="text"
+          placeholder="Colle ton lien ICal..."
+        />
+        <span class="submitters">
+          <span>
+            <button @click="this.currentStep++">Suivant</button>
+            <p>press <b>Enter ↵</b></p>
+          </span>
+          <button @click="this.goBack" class="skip">Revenir</button>
+        </span>
+      </div>
+    </form>
+    <form v-if="this.currentStep === 4">
+      <div id="side">
+        <p>{{ this.currentStep }} <b>-></b></p>
+      </div>
+      <div id="main">
+        <h3>Où manges-tu d'habitude ?</h3>
+        <p class="sub">Si tu es fan du CROUS</p>
+        <input
+          v-model="restaurant"
+          type="text"
+          placeholder="Chercher un resto..."
+        />
+        <span class="tags">
+          <p
+            class="tag"
+            v-for="resto in this.restaurantSuggestions"
+            @click="addRestaurant"
+            :class="
+              this.preferencesStore.containsRestaurant(resto.idrestaurant)
+            "
+            :id="resto.idrestaurant"
+          >
+            {{ resto.name }}
+          </p>
+        </span>
+        <span class="submitters">
+          <span>
+            <button @click="this.nextStep">Suivant</button>
+            <p>press <b>Enter ↵</b></p>
+          </span>
+          <button @click="this.goBack" class="skip">Revenir</button>
+        </span>
+      </div>
+    </form>
+  </main>
 </template>
 
 <script>
 import ProgessSteps from "@/components/ProgessSteps.vue";
-import {usePreferencesStore} from "../stores/preferences";
-import {apolloClient} from "@/main";
+import { usePreferencesStore } from "../stores/preferences";
+import { apolloClient } from "@/main";
 import gql from "graphql-tag";
-import {useUserStore} from "@/stores/user";
-import {useRoute} from "vue-router";
+import { useUserStore } from "@/stores/user";
+import { useRoute } from "vue-router";
 import axios from "axios";
-import {useAlertsStore} from "@/stores/alerts";
-
+import { useAlertsStore } from "@/stores/alerts";
 
 const GET_SEARCH_RESULT = gql`
-query Search ($queryValue: String){
+  query Search($queryValue: String) {
     searchRestaurant(query: $queryValue) {
-        idrestaurant
-        name
+      idrestaurant
+      name
     }
-}`
+  }
+`;
 
 const GET_SCHOOL_LIkE = gql`
-query SearchSchool($queryValue: String){
+  query SearchSchool($queryValue: String) {
     searchSchool(query: $queryValue) {
-        idschool
-        name
+      idschool
+      name
     }
-}
-`
+  }
+`;
 
-import {endpoint} from "@/main";
+import { endpoint } from "@/main";
 
 export default {
-    name: "RegistrationConfirmation",
-    components: {ProgessSteps},
-    data() {
-        return {
-            steps: ['Inscription', 'Prénom', 'Etablissement', 'ICal', 'Préférences'],
-            currentStep: 1,
-            name: '',
-            school: '',
-            ical: '',
-            restaurants: [],
-            restaurant: '',
-            restaurantSuggestions: [],
-            schoolSuggestions: [],
-        }
-    },
-    mounted() {
-        this.getSuggestionsRestaurant('');
-        if(!this.userStore.logged){
-            this.$router.push({path: '/login/redirect/'+this.$route.params.nonce})
-        }
-        axios.post(`${endpoint}/mail/confirm`,{
-            nonce: this.$route.params.nonce
-        },{
-            headers: axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.userStore.token
-        }).then((res) => {
-            if(res.data.type === 'Error'){
-                this.alertStore.addAlert({message: res.data.message, status: 'Error'});
-                this.userStore.logout();
-                this.$router.push({path: '/'});
-            }
-        }).catch((err) => {
-            console.log(err)
-        })
-    },
-    setup() {
-        const route = useRoute();
-        const preferencesStore = usePreferencesStore();
-        const userStore = useUserStore();
-        const alertStore = useAlertsStore();
-        return {preferencesStore, userStore, alertStore}
-    },
-    methods: {
-        nextStep(e) {
-            e.preventDefault();
-            this.currentStep++;
-        },
-        goBack(e) {
-            e.preventDefault();
-            this.currentStep--;
-        },
-        setName(val) {
-            this.preferencesStore.setName(val);
-        },
-        addSchool() {
-            this.preferencesStore.setSchool(this.school);
-            this.currentStep++;
-        },
-        setSchool(e) {
-            e.preventDefault();
-            this.preferencesStore.setSchool(e.target.id);
-            this.currentStep++;
-        },
-        setICal(val) {
-            this.preferencesStore.setIcalLink(val);
-        },
-        setRestaurants(val) {
-            this.preferencesStore.setRestaurants(val);
-        },
-        addRestaurant(e) {
-            console.log(e.target.id);
-            this.preferencesStore.addRestaurant(e.target.id);
-        },
-        getSuggestionsRestaurant(val) {
-            apolloClient.query({
-                query: GET_SEARCH_RESULT,
-                variables: {
-                    queryValue: val
-                }
-            }).then((result) => {
-                this.restaurantSuggestions = result.data.searchRestaurant;
-            });
-        },
-        getSuggestionsSchool(val) {
-            apolloClient.query({
-                query: GET_SCHOOL_LIkE,
-                variables: {
-                    queryValue: val
-                }
-            }).then((result) => {
-                this.schoolSuggestions = result.data.searchSchool;
-            })
-        }
-    },
-    watch: {
-        name: function (val) {
-            this.setName(val);
-        },
-        school: function (val) {
-            this.getSuggestionsSchool(val);
-        },
-        ical: function (val) {
-            this.setICal(val);
-        },
-        restaurants: function (val) {
-            this.setRestaurants(val);
-        },
-        restaurant: function (val) {
-            this.getSuggestionsRestaurant(val);
-        },
-        currentStep: function (val) {
-            if (val === this.steps.length) {
-              console.log('end');
-              this.userStore.getData();
-
-              this.preferencesStore.savePreferences();
-            }
-        }
+  name: "RegistrationConfirmation",
+  components: { ProgessSteps },
+  data() {
+    return {
+      steps: ["Inscription", "Prénom", "Etablissement", "ICal", "Préférences"],
+      currentStep: 1,
+      name: "",
+      school: "",
+      ical: "",
+      restaurants: [],
+      restaurant: "",
+      restaurantSuggestions: [],
+      schoolSuggestions: [],
+    };
+  },
+  mounted() {
+    this.getSuggestionsRestaurant("");
+    if (!this.userStore.logged) {
+      this.$router.push({
+        path: "/login/redirect/" + this.$route.params.nonce,
+      });
     }
-}
+    axios
+      .post(
+        `${endpoint}/mail/confirm`,
+        {
+          nonce: this.$route.params.nonce,
+        },
+        {
+          headers: (axios.defaults.headers.common["Authorization"] =
+            "Bearer " + this.userStore.token),
+        }
+      )
+      .then((res) => {
+        if (res.data.type === "Error") {
+          this.alertStore.addAlert({
+            message: res.data.message,
+            status: "Error",
+          });
+          this.userStore.logout();
+          this.$router.push({ path: "/" });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+  setup() {
+    const preferencesStore = usePreferencesStore();
+    const userStore = useUserStore();
+    const alertStore = useAlertsStore();
+    return { preferencesStore, userStore, alertStore };
+  },
+  methods: {
+    nextStep(e) {
+      e.preventDefault();
+      this.currentStep++;
+    },
+    goBack(e) {
+      e.preventDefault();
+      this.currentStep--;
+    },
+    setName(val) {
+      this.preferencesStore.setName(val);
+    },
+    addSchool() {
+      this.preferencesStore.setSchool(this.school);
+      this.currentStep++;
+    },
+    setSchool(e) {
+      e.preventDefault();
+      this.preferencesStore.setSchool(e.target.id);
+      this.currentStep++;
+    },
+    setICal(val) {
+      this.preferencesStore.setIcalLink(val);
+    },
+    setRestaurants(val) {
+      this.preferencesStore.setRestaurants(val);
+    },
+    addRestaurant(e) {
+      console.log(e.target.id);
+      this.preferencesStore.addRestaurant(e.target.id);
+    },
+    getSuggestionsRestaurant(val) {
+      apolloClient
+        .query({
+          query: GET_SEARCH_RESULT,
+          variables: {
+            queryValue: val,
+          },
+        })
+        .then((result) => {
+          this.restaurantSuggestions = result.data.searchRestaurant;
+        });
+    },
+    getSuggestionsSchool(val) {
+      apolloClient
+        .query({
+          query: GET_SCHOOL_LIkE,
+          variables: {
+            queryValue: val,
+          },
+        })
+        .then((result) => {
+          this.schoolSuggestions = result.data.searchSchool;
+        });
+    },
+  },
+  watch: {
+    name: function (val) {
+      this.setName(val);
+    },
+    school: function (val) {
+      this.getSuggestionsSchool(val);
+    },
+    ical: function (val) {
+      this.setICal(val);
+    },
+    restaurants: function (val) {
+      this.setRestaurants(val);
+    },
+    restaurant: function (val) {
+      this.getSuggestionsRestaurant(val);
+    },
+    currentStep: function (val) {
+      if (val === this.steps.length) {
+        console.log("end");
+        this.userStore.getData();
+
+        this.preferencesStore.savePreferences();
+      }
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">
-
-
 main {
   height: 100vh;
   width: 100%;
@@ -259,9 +294,9 @@ main {
 
   form {
     width: 70%;
-      @media screen and (max-width: 1000px){
-          width: 95%;
-      }
+    @media screen and (max-width: 1000px) {
+      width: 95%;
+    }
     display: flex;
     flex-direction: row;
     padding-bottom: 100px;
@@ -270,10 +305,10 @@ main {
       padding-top: 7px;
       padding-right: 10px;
       font-size: 20px;
-        @media screen and (max-width:1000px){
-            font-size: 15px;
-            padding-top: 12px;
-        }
+      @media screen and (max-width: 1000px) {
+        font-size: 15px;
+        padding-top: 12px;
+      }
 
       b {
         font-weight: 600;
@@ -290,7 +325,6 @@ main {
         &:before {
           content: attr(id);
           font-size: 20px;
-
         }
       }
 
@@ -300,8 +334,8 @@ main {
         margin: 0;
         position: absolute;
         width: 100%;
-        button{
-            margin-top: 10px;
+        button {
+          margin-top: 10px;
         }
         li {
           font-size: 20px;
@@ -314,8 +348,8 @@ main {
           }
 
           &:last-of-type {
-            color: #24EE76;
-            border-bottom: 1px solid #24EE76;
+            color: #24ee76;
+            border-bottom: 1px solid #24ee76;
           }
         }
       }
@@ -336,15 +370,14 @@ main {
           margin-bottom: 10px;
 
           &.selected {
-            background: #24EE76;
-            border: 1px solid #24EE76;
+            background: #24ee76;
+            border: 1px solid #24ee76;
             color: white;
           }
         }
       }
 
       .submitters {
-
         display: flex;
         width: 100%;
         justify-content: space-between;
@@ -373,12 +406,12 @@ main {
           border: 0px;
           border-radius: 3px;
           padding: 5px 20px;
-          background: #24EE76;
+          background: #24ee76;
           box-shadow: 0px 4px 17px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
+          cursor: pointer;
 
           &.skip {
-            background: #CFCFCF;
+            background: #cfcfcf;
           }
         }
       }
@@ -388,7 +421,7 @@ main {
         font-size: 20px;
 
         a {
-          color: #24EE76;
+          color: #24ee76;
           text-decoration: none;
 
           &:hover {
@@ -396,7 +429,7 @@ main {
           }
 
           &:visited {
-            color: #24EE76;
+            color: #24ee76;
           }
         }
       }
@@ -420,8 +453,6 @@ main {
         }
       }
     }
-
-
   }
 
   &.notLogged {
@@ -439,9 +470,8 @@ main {
     a {
       font-size: 20px;
       margin-bottom: 20px;
-      color: #24EE76;
+      color: #24ee76;
     }
   }
 }
-
 </style>

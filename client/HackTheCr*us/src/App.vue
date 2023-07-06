@@ -2,9 +2,9 @@
   <LoadingView v-if="this.restaurantStore.isLoading && this.$route.fullPath.includes('restaurants')">
     INTERCEPTION DES MENUS
   </LoadingView>
-  <PopUp v-if="!this.userStore.isMailSet && !this.$route.fullPath.includes('/register/confirmation')">
-    <h2>Vérifie tes mails !</h2>
-    <p>On t'a envoyé un lien te permettant de valider ton mail. Il peut prendre quelques minutes à s'envoyer.</p>
+  <PopUp v-if="this.alerts.popUpTriggered">
+  <h2>{{ this.alerts.popUp.title}}</h2>
+    <p>{{ this.alerts.popUp.message }}</p>
   </PopUp>
   <main>
     <LoadingBar v-if="this.loadingStore.isLoading"/>
@@ -93,6 +93,23 @@ export default {
   computed: {
     redirected(){
       return this.$route.fullPath.includes('?redirect=/')
+    }
+  },
+  watch: {
+    $route(to, from) {
+      // parse the url to exrtact get params
+      const url = new URL(to.fullPath, window.location.origin);
+      const params = new URLSearchParams(url.search);
+      if(params.has('token') && params.has('mail') && params.has('refreshToken')){
+        this.userStore.setRefreshToken(params.get('refreshToken'));
+        this.userStore.login(params.get('mail'), params.get('token'));
+        if(params.has('mailVerified')){
+          if(params.get('mailVerified') === 'false'){
+            this.$router.push('/confirmation');
+          }
+        }
+      }
+
     }
   }
 }
